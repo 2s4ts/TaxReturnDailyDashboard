@@ -40,6 +40,7 @@ const targets = {
 const elements = {
   dashboardDate: document.querySelector("#dashboardDate"),
   importSubmissions: document.querySelector("#importSubmissions"),
+  loadOnlineData: document.querySelector("#loadOnlineData"),
   exportHtml: document.querySelector("#exportHtml"),
   totalRevenue: document.querySelector("#totalRevenue"),
   totalSales: document.querySelector("#totalSales"),
@@ -101,6 +102,10 @@ function percent(value) {
 
 function todayKey() {
   return new Date().toISOString().slice(0, 10);
+}
+
+function backendUrl() {
+  return String(window.DASHBOARD_BACKEND_URL || "").trim();
 }
 
 function getMetrics(data) {
@@ -337,6 +342,65 @@ async function importSubmissions(fileList) {
   renderDashboard();
 }
 
+function normalizeSubmissionList(submissions) {
+  const nextData = structuredClone(emptyData);
+  for (const submission of submissions || []) {
+    const normalized = normalizeSubmission(submission);
+    if (!normalized) continue;
+    nextData[normalized.department].push(normalized.row);
+  }
+  return nextData;
+}
+
+function loadJsonp(url) {
+  return new Promise((resolve, reject) => {
+    const callbackName = `dailyDashboardCallback_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    const script = document.createElement("script");
+    const separator = url.includes("?") ? "&" : "?";
+
+    window[callbackName] = (payload) => {
+      delete window[callbackName];
+      script.remove();
+      resolve(payload);
+    };
+
+    script.onerror = () => {
+      delete window[callbackName];
+      script.remove();
+      reject(new Error("Could not load online dashboard data."));
+    };
+
+    script.src = `${url}${separator}action=data&date=${encodeURIComponent(elements.dashboardDate.value || todayKey())}&callback=${encodeURIComponent(callbackName)}`;
+    document.body.append(script);
+  });
+}
+
+async function loadOnlineData() {
+  const endpoint = backendUrl();
+  if (!endpoint) {
+    window.alert("Online backend is not configured yet. Paste the Google Apps Script web app URL into config.js.");
+    return;
+  }
+
+  elements.loadOnlineData.disabled = true;
+  elements.loadOnlineData.textContent = "Loading...";
+
+  try {
+    const payload = await loadJsonp(endpoint);
+    dashboardData = normalizeSubmissionList(payload.submissions || []);
+    renderDashboard();
+    elements.loadOnlineData.textContent = "Loaded";
+  } catch (error) {
+    window.alert(error instanceof Error ? error.message : "Could not load online dashboard data.");
+    elements.loadOnlineData.textContent = "Load online data";
+  } finally {
+    setTimeout(() => {
+      elements.loadOnlineData.disabled = false;
+      elements.loadOnlineData.textContent = "Load online data";
+    }, 1200);
+  }
+}
+
 function exportHtml() {
   const clone = document.documentElement.cloneNode(true);
   clone.querySelectorAll("script").forEach((script) => script.remove());
@@ -367,6 +431,7 @@ function init() {
     });
     event.target.value = "";
   });
+  elements.loadOnlineData.addEventListener("click", loadOnlineData);
   renderDashboard();
 }
 

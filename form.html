@@ -34,7 +34,7 @@
           <div id="fieldGrid" class="form-grid"></div>
 
           <div class="form-actions">
-            <button class="primary-button" type="submit">Download daily file</button>
+            <button class="primary-button" type="submit">Submit daily numbers</button>
             <button id="copyJson" class="secondary-button" type="button">Copy data</button>
           </div>
         </form>
@@ -46,13 +46,14 @@
         </div>
         <ol class="steps">
           <li>Fill today&apos;s numbers.</li>
-          <li>Click <strong>Download daily file</strong>.</li>
-          <li>Send the downloaded file to management.</li>
-          <li>Management imports all daily files into the dashboard.</li>
+          <li>Click <strong>Submit daily numbers</strong>.</li>
+          <li>If online submission is configured, the data is saved automatically.</li>
+          <li>If not, a daily file downloads and can be sent to management.</li>
         </ol>
       </section>
     </main>
 
+    <script src="config.js"></script>
     <script src="form.js"></script>
   </body>
 </html>

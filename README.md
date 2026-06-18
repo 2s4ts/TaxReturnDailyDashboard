@@ -15,11 +15,16 @@ Static daily performance dashboard for a B2C tax return company.
 - Includes revenue source bars, service answer-rate visual, and ranking tables.
 - Includes department form links for daily submissions.
 - Imports department daily `.json` files into the dashboard.
+- Supports an online Google Apps Script backend for submissions from any computer or phone.
 - Includes a static HTML export button for the filled dashboard result.
 
 ## Department links
 
 Open `department-links.md` for the four department-head links and the daily workflow.
+
+## Online setup
+
+Open `ONLINE_SETUP.md` to connect the forms to Google Sheets.
 
 ## Next build steps
 

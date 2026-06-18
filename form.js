@@ -53,6 +53,10 @@ const elements = {
   copyJson: document.querySelector("#copyJson"),
 };
 
+function backendUrl() {
+  return String(window.DASHBOARD_BACKEND_URL || "").trim();
+}
+
 function todayKey() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -102,6 +106,19 @@ async function copySubmission() {
   }, 1500);
 }
 
+async function submitOnline(submission) {
+  const endpoint = backendUrl();
+  if (!endpoint) return false;
+
+  await fetch(endpoint, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify(submission),
+  });
+  return true;
+}
+
 function renderFields() {
   elements.formTitle.textContent = config.title;
   elements.entryDate.value = todayKey();
@@ -117,9 +134,36 @@ function renderFields() {
   }
 }
 
-elements.departmentForm.addEventListener("submit", (event) => {
+elements.departmentForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  downloadSubmission(collectSubmission());
+  const submission = collectSubmission();
+  const button = elements.departmentForm.querySelector("button[type='submit']");
+  button.disabled = true;
+  button.textContent = "Sending...";
+
+  try {
+    const sentOnline = await submitOnline(submission);
+    if (sentOnline) {
+      button.textContent = "Submitted";
+      elements.departmentForm.reset();
+      elements.entryDate.value = todayKey();
+      setTimeout(() => {
+        button.disabled = false;
+        button.textContent = "Submit daily numbers";
+      }, 1800);
+      return;
+    }
+
+    downloadSubmission(submission);
+    button.disabled = false;
+    button.textContent = "Submit daily numbers";
+  } catch (error) {
+    button.disabled = false;
+    button.textContent = "Submit failed";
+    setTimeout(() => {
+      button.textContent = "Submit daily numbers";
+    }, 1800);
+  }
 });
 
 elements.copyJson.addEventListener("click", () => {

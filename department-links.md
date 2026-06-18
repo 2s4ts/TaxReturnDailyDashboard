@@ -1,6 +1,22 @@
 # Department Daily Form Links
 
-Use these local links for the first version.
+Use these links after the project is hosted online. Replace `YOUR_SITE` with the hosted site URL.
+
+```text
+New Sales:
+https://YOUR_SITE/form.html?department=newSales
+
+Renewal Sales:
+https://YOUR_SITE/form.html?department=renewals
+
+Customer Service:
+https://YOUR_SITE/form.html?department=service
+
+Collection:
+https://YOUR_SITE/form.html?department=collection
+```
+
+Local test links are below.
 
 ## New Sales Department
 
@@ -45,9 +61,9 @@ Fields:
 
 1. Each head of department opens their own link.
 2. They fill the numbers for the day.
-3. They click `Download daily file`.
-4. They send the downloaded `.json` file to management.
+3. They click `Submit daily numbers`.
+4. If online setup is configured, the data is saved automatically.
 5. Management opens `index.html`.
-6. Management clicks `Import daily files` and selects all department files.
-7. The dashboard updates with the submitted numbers.
+6. Management selects the dashboard date.
+7. Management clicks `Load online data`.
 8. Management clicks `Export HTML` to save/share the locked daily result.

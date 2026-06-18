@@ -1,0 +1,1 @@
+window.DASHBOARD_BACKEND_URL = "";
