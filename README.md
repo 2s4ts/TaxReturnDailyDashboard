@@ -13,12 +13,18 @@ Static daily performance dashboard for a B2C tax return company.
   - Customer Service
   - Collection
 - Includes revenue source bars, service answer-rate visual, and ranking tables.
-- Includes a basic HTML export button.
+- Includes department form links for daily submissions.
+- Imports department daily `.json` files into the dashboard.
+- Includes a static HTML export button for the filled dashboard result.
+
+## Department links
+
+Open `department-links.md` for the four department-head links and the daily workflow.
 
 ## Next build steps
 
-1. Replace sample data with Excel upload sources.
-2. Define exact column headers for each department.
-3. Add validation warnings for missing columns.
+1. Push the separate repo to GitHub after the private repo exists.
+2. Replace local file sharing with hosted links.
+3. Add Google Forms, Google Sheets, or a small database when you want live submissions.
 4. Add Hebrew language labels if needed.
-5. Make the exported HTML fully locked and standalone.
+5. Add validation warnings for missing daily department submissions.

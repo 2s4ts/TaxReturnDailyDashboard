@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daily Department Form</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell form-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Daily department entry</p>
+          <h1 id="formTitle">Department Form</h1>
+        </div>
+        <div class="date-panel">
+          <a class="secondary-link" href="index.html">Back to dashboard</a>
+        </div>
+      </header>
+
+      <section class="panel form-panel">
+        <form id="departmentForm">
+          <div class="form-grid">
+            <label>
+              <span>Date</span>
+              <input id="entryDate" name="date" type="date" required />
+            </label>
+            <label>
+              <span>Department head / person</span>
+              <input id="personName" name="name" type="text" placeholder="Name" required />
+            </label>
+          </div>
+
+          <div id="fieldGrid" class="form-grid"></div>
+
+          <div class="form-actions">
+            <button class="primary-button" type="submit">Download daily file</button>
+            <button id="copyJson" class="secondary-button" type="button">Copy data</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>How it works</h2>
+        </div>
+        <ol class="steps">
+          <li>Fill today&apos;s numbers.</li>
+          <li>Click <strong>Download daily file</strong>.</li>
+          <li>Send the downloaded file to management.</li>
+          <li>Management imports all daily files into the dashboard.</li>
+        </ol>
+      </section>
+    </main>
+
+    <script src="form.js"></script>
+  </body>
+</html>

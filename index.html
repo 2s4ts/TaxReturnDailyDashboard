@@ -18,9 +18,20 @@
             <span>Dashboard date</span>
             <input id="dashboardDate" type="date" />
           </label>
+          <label class="file-button">
+            <span>Import daily files</span>
+            <input id="importSubmissions" type="file" accept=".json,application/json" multiple />
+          </label>
           <button id="exportHtml" class="primary-button" type="button">Export HTML</button>
         </div>
       </header>
+
+      <section class="link-grid" aria-label="Department form links">
+        <a href="form.html?department=newSales">New Sales form</a>
+        <a href="form.html?department=renewals">Renewal Sales form</a>
+        <a href="form.html?department=service">Customer Service form</a>
+        <a href="form.html?department=collection">Collection form</a>
+      </section>
 
       <section class="summary-grid" aria-label="Executive summary">
         <article class="metric-card metric-card-money">

@@ -1,3 +1,10 @@
+const emptyData = {
+  newSales: [],
+  renewals: [],
+  service: [],
+  collection: [],
+};
+
 const sampleData = {
   newSales: [
     { name: "Salesperson A", sales: 8, revenue: 14200, leads: 21, referrals: 4 },
@@ -21,6 +28,8 @@ const sampleData = {
   ],
 };
 
+let dashboardData = structuredClone(sampleData);
+
 const targets = {
   newSalesRevenue: 30000,
   renewalRevenue: 14000,
@@ -30,6 +39,7 @@ const targets = {
 
 const elements = {
   dashboardDate: document.querySelector("#dashboardDate"),
+  importSubmissions: document.querySelector("#importSubmissions"),
   exportHtml: document.querySelector("#exportHtml"),
   totalRevenue: document.querySelector("#totalRevenue"),
   totalSales: document.querySelector("#totalSales"),
@@ -184,6 +194,11 @@ function renderRiskList(metrics) {
 function renderTable(tbody, rows, labels, rowBuilder) {
   tbody.innerHTML = "";
 
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="${labels.length}">No daily files imported for this department.</td></tr>`;
+    return;
+  }
+
   for (const row of rows) {
     const tr = document.createElement("tr");
     const cells = rowBuilder(row);
@@ -193,7 +208,7 @@ function renderTable(tbody, rows, labels, rowBuilder) {
 }
 
 function renderDashboard() {
-  const metrics = getMetrics(sampleData);
+  const metrics = getMetrics(dashboardData);
 
   elements.totalRevenue.textContent = money(metrics.totalRevenue);
   elements.totalSales.textContent = String(metrics.totalSales);
@@ -240,10 +255,10 @@ function renderDashboard() {
   elements.answerRateGaugeText.textContent = percent(answerRate);
   renderRiskList(metrics);
 
-  const newSalesRows = [...sampleData.newSales].sort((a, b) => b.revenue - a.revenue);
-  const renewalRows = [...sampleData.renewals].sort((a, b) => b.revenue - a.revenue);
-  const serviceRows = [...sampleData.service].sort((a, b) => b.answered - a.answered);
-  const collectionRows = [...sampleData.collection].sort((a, b) => b.general + b.taxReturnFees - (a.general + a.taxReturnFees));
+  const newSalesRows = [...dashboardData.newSales].sort((a, b) => b.revenue - a.revenue);
+  const renewalRows = [...dashboardData.renewals].sort((a, b) => b.revenue - a.revenue);
+  const serviceRows = [...dashboardData.service].sort((a, b) => b.answered - a.answered);
+  const collectionRows = [...dashboardData.collection].sort((a, b) => b.general + b.taxReturnFees - (a.general + a.taxReturnFees));
 
   elements.newSalesRows.textContent = `${newSalesRows.length} people`;
   elements.renewalRows.textContent = `${renewalRows.length} people`;
@@ -284,8 +299,53 @@ function renderDashboard() {
   ]);
 }
 
+function normalizeSubmission(submission) {
+  if (!submission || typeof submission !== "object") return null;
+  const values = submission.values || {};
+  const name = submission.name || "Submitted total";
+
+  if (submission.department === "newSales") {
+    return { department: "newSales", row: { name, sales: Number(values.sales) || 0, revenue: Number(values.revenue) || 0, leads: Number(values.leads) || 0, referrals: Number(values.referrals) || 0 } };
+  }
+
+  if (submission.department === "renewals") {
+    return { department: "renewals", row: { name, renewals: Number(values.renewals) || 0, revenue: Number(values.revenue) || 0, leads: Number(values.leads) || 0, referrals: Number(values.referrals) || 0 } };
+  }
+
+  if (submission.department === "service") {
+    return { department: "service", row: { name, incoming: Number(values.incoming) || 0, answered: Number(values.answered) || 0, cancellations: Number(values.cancellations) || 0, serviceSales: Number(values.serviceSales) || 0 } };
+  }
+
+  if (submission.department === "collection") {
+    return { department: "collection", row: { name, general: Number(values.general) || 0, taxReturnFees: Number(values.taxReturnFees) || 0, referrals: Number(values.referrals) || 0 } };
+  }
+
+  return null;
+}
+
+async function importSubmissions(fileList) {
+  const nextData = structuredClone(emptyData);
+
+  for (const file of Array.from(fileList || [])) {
+    const text = await file.text();
+    const normalized = normalizeSubmission(JSON.parse(text));
+    if (!normalized) continue;
+    nextData[normalized.department].push(normalized.row);
+  }
+
+  dashboardData = nextData;
+  renderDashboard();
+}
+
 function exportHtml() {
-  const html = `<!doctype html>\n${document.documentElement.outerHTML}`;
+  const clone = document.documentElement.cloneNode(true);
+  clone.querySelectorAll("script").forEach((script) => script.remove());
+  clone.querySelectorAll("input").forEach((input) => {
+    if (input.type === "date") input.setAttribute("value", input.value);
+    if (input.type === "file") input.closest("label")?.remove();
+  });
+  clone.querySelector("#exportHtml")?.remove();
+  const html = `<!doctype html>\n${clone.outerHTML}`;
   const blob = new Blob([html], { type: "text/html;charset=utf-8" });
   const link = document.createElement("a");
   const url = URL.createObjectURL(blob);
@@ -301,6 +361,12 @@ function exportHtml() {
 function init() {
   elements.dashboardDate.value = todayKey();
   elements.exportHtml.addEventListener("click", exportHtml);
+  elements.importSubmissions.addEventListener("change", (event) => {
+    importSubmissions(event.target.files).catch((error) => {
+      window.alert(error instanceof Error ? error.message : "Could not import the daily files.");
+    });
+    event.target.value = "";
+  });
   renderDashboard();
 }
 
