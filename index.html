@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daily Tax Return Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Daily performance</p>
+          <h1>Tax Return Operations</h1>
+        </div>
+        <div class="date-panel">
+          <label>
+            <span>Dashboard date</span>
+            <input id="dashboardDate" type="date" />
+          </label>
+          <button id="exportHtml" class="primary-button" type="button">Export HTML</button>
+        </div>
+      </header>
+
+      <section class="summary-grid" aria-label="Executive summary">
+        <article class="metric-card metric-card-money">
+          <span>Total daily revenue</span>
+          <strong id="totalRevenue">ILS 0</strong>
+          <small>Sales, renewals, and collections</small>
+        </article>
+        <article class="metric-card">
+          <span>Total daily sales</span>
+          <strong id="totalSales">0</strong>
+          <small>New sales + renewals</small>
+        </article>
+        <article class="metric-card">
+          <span>Total leads</span>
+          <strong id="totalLeads">0</strong>
+          <small>New + renewal leads</small>
+        </article>
+        <article class="metric-card">
+          <span>Insurance referrals</span>
+          <strong id="totalReferrals">0</strong>
+          <small>All departments</small>
+        </article>
+        <article class="metric-card metric-card-alert">
+          <span>Cancellations</span>
+          <strong id="totalCancellations">0</strong>
+          <small>Customer service daily risk</small>
+        </article>
+      </section>
+
+      <section class="department-grid" aria-label="Department scorecards">
+        <article class="department-card" data-department="newSales">
+          <div class="department-header">
+            <h2>New Sales</h2>
+            <span id="newSalesStatus"></span>
+          </div>
+          <div class="mini-metrics">
+            <div><span>Sales</span><strong id="newSalesCount">0</strong></div>
+            <div><span>Revenue</span><strong id="newSalesRevenue">ILS 0</strong></div>
+            <div><span>Leads</span><strong id="newSalesLeads">0</strong></div>
+            <div><span>Referrals</span><strong id="newSalesReferrals">0</strong></div>
+          </div>
+        </article>
+
+        <article class="department-card" data-department="renewals">
+          <div class="department-header">
+            <h2>Renewal Sales</h2>
+            <span id="renewalsStatus"></span>
+          </div>
+          <div class="mini-metrics">
+            <div><span>Renewals</span><strong id="renewalSalesCount">0</strong></div>
+            <div><span>Revenue</span><strong id="renewalRevenue">ILS 0</strong></div>
+            <div><span>Leads</span><strong id="renewalLeads">0</strong></div>
+            <div><span>Referrals</span><strong id="renewalReferrals">0</strong></div>
+          </div>
+        </article>
+
+        <article class="department-card" data-department="service">
+          <div class="department-header">
+            <h2>Customer Service</h2>
+            <span id="serviceStatus"></span>
+          </div>
+          <div class="mini-metrics">
+            <div><span>Incoming</span><strong id="serviceIncoming">0</strong></div>
+            <div><span>Answered</span><strong id="serviceAnswered">0</strong></div>
+            <div><span>Answer rate</span><strong id="serviceAnswerRate">0%</strong></div>
+            <div><span>Service sales</span><strong id="serviceSales">0</strong></div>
+          </div>
+        </article>
+
+        <article class="department-card" data-department="collection">
+          <div class="department-header">
+            <h2>Collection</h2>
+            <span id="collectionStatus"></span>
+          </div>
+          <div class="mini-metrics">
+            <div><span>General</span><strong id="collectionGeneral">ILS 0</strong></div>
+            <div><span>Tax-return fees</span><strong id="collectionTaxReturn">ILS 0</strong></div>
+            <div><span>Total</span><strong id="collectionTotal">ILS 0</strong></div>
+            <div><span>Referrals</span><strong id="collectionReferrals">0</strong></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="visual-grid" aria-label="Management visuals">
+        <article class="panel">
+          <div class="panel-header">
+            <h2>Revenue by source</h2>
+            <span id="revenueTotalLabel"></span>
+          </div>
+          <div id="revenueBars" class="bar-list"></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <h2>Service answer rate</h2>
+            <span id="answerRateLabel"></span>
+          </div>
+          <div class="gauge">
+            <div id="answerRateGauge" class="gauge-fill"></div>
+            <strong id="answerRateGaugeText">0%</strong>
+          </div>
+          <div id="serviceRiskList" class="risk-list"></div>
+        </article>
+      </section>
+
+      <section class="table-grid" aria-label="Department ranking tables">
+        <article class="panel">
+          <div class="panel-header"><h2>New Sales Ranking</h2><span id="newSalesRows"></span></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Salesperson</th><th>Sales</th><th>Revenue</th><th>Leads</th><th>Referrals</th></tr>
+              </thead>
+              <tbody id="newSalesTable"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header"><h2>Renewal Ranking</h2><span id="renewalRows"></span></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Salesperson</th><th>Renewals</th><th>Revenue</th><th>Leads</th><th>Referrals</th></tr>
+              </thead>
+              <tbody id="renewalTable"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header"><h2>Customer Service Ranking</h2><span id="serviceRows"></span></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Representative</th><th>Incoming</th><th>Answered</th><th>Answer rate</th><th>Cancellations</th><th>Service sales</th></tr>
+              </thead>
+              <tbody id="serviceTable"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header"><h2>Collection Ranking</h2><span id="collectionRows"></span></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Collector</th><th>General</th><th>Tax-return fees</th><th>Total</th><th>Referrals</th></tr>
+              </thead>
+              <tbody id="collectionTable"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
