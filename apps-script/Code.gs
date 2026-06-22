@@ -23,8 +23,7 @@ function doPost(e) {
   const payload = JSON.parse(e.postData.contents || "{}");
   const sheet = getSheet_();
   const values = payload.values || {};
-
-  sheet.appendRow([
+  const rowValues = [
     payload.submittedAt || new Date().toISOString(),
     payload.date || "",
     payload.department || "",
@@ -42,9 +41,16 @@ function doPost(e) {
     number_(values.answers || values.serviceSales),
     number_(values.general),
     number_(values.taxReturnFees),
-  ]);
+  ];
+  const existingRow = findExistingRow_(sheet, payload.date || "", payload.department || "", payload.name || "");
 
-  return json_({ ok: true });
+  if (existingRow) {
+    sheet.getRange(existingRow, 1, 1, rowValues.length).setValues([rowValues]);
+    return json_({ ok: true, mode: "updated" });
+  }
+
+  sheet.appendRow(rowValues);
+  return json_({ ok: true, mode: "created" });
 }
 
 function doGet(e) {
@@ -82,6 +88,31 @@ function getRows_(date) {
     .map((row) => Object.fromEntries(headers.map((header, index) => [header, row[index]])))
     .filter((row) => !date || String(row.date) === String(date))
     .map(rowToSubmission_);
+}
+
+function findExistingRow_(sheet, date, department, name) {
+  if (!date || !department || !name) return 0;
+
+  const values = sheet.getDataRange().getValues();
+  if (values.length < 2) return 0;
+
+  const headers = values[0];
+  const dateIndex = headers.indexOf("date");
+  const departmentIndex = headers.indexOf("department");
+  const nameIndex = headers.indexOf("name");
+
+  for (let index = values.length - 1; index >= 1; index--) {
+    const row = values[index];
+    if (
+      String(row[dateIndex]) === String(date) &&
+      String(row[departmentIndex]) === String(department) &&
+      String(row[nameIndex]).trim().toLowerCase() === String(name).trim().toLowerCase()
+    ) {
+      return index + 1;
+    }
+  }
+
+  return 0;
 }
 
 function rowToSubmission_(row) {

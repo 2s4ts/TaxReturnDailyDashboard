@@ -49,6 +49,12 @@ https://2s4ts.github.io/TaxReturnDailyDashboard/form.html?department=service
 https://2s4ts.github.io/TaxReturnDailyDashboard/form.html?department=collection
 ```
 
+## Fixing Mistakes
+
+If someone submits wrong numbers, they should open the same department form again, use the same date and same name, and submit the corrected numbers.
+
+The Apps Script backend replaces the previous row for the same `date + department + name`, so the dashboard uses the corrected data without manually deleting rows.
+
 ## Security
 
 - Visitors receive only static HTML, CSS, and JavaScript from GitHub Pages.
