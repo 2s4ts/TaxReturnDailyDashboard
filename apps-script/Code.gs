@@ -1,4 +1,5 @@
 const SHEET_NAME = "Daily Submissions";
+const SPREADSHEET_ID_PROPERTY = "DASHBOARD_SPREADSHEET_ID";
 const HEADERS = [
   "submittedAt",
   "date",
@@ -68,7 +69,7 @@ function doGet(e) {
 }
 
 function getSheet_() {
-  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  const spreadsheet = getSpreadsheet_();
   let sheet = spreadsheet.getSheetByName(SHEET_NAME);
   if (!sheet) sheet = spreadsheet.insertSheet(SHEET_NAME);
 
@@ -77,6 +78,19 @@ function getSheet_() {
   }
 
   return sheet;
+}
+
+function getSpreadsheet_() {
+  const properties = PropertiesService.getScriptProperties();
+  const existingId = properties.getProperty(SPREADSHEET_ID_PROPERTY);
+
+  if (existingId) {
+    return SpreadsheetApp.openById(existingId);
+  }
+
+  const spreadsheet = SpreadsheetApp.create("Tax Return Daily Dashboard Submissions");
+  properties.setProperty(SPREADSHEET_ID_PROPERTY, spreadsheet.getId());
+  return spreadsheet;
 }
 
 function getRows_(date) {
