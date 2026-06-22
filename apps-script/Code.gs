@@ -24,9 +24,10 @@ function doPost(e) {
   const payload = JSON.parse(e.postData.contents || "{}");
   const sheet = getSheet_();
   const values = payload.values || {};
+  const date = dateKey_(payload.date || new Date());
   const rowValues = [
     payload.submittedAt || new Date().toISOString(),
-    payload.date || "",
+    date,
     payload.department || "",
     payload.name || "",
     number_(values.sales),
@@ -43,7 +44,7 @@ function doPost(e) {
     number_(values.general),
     number_(values.taxReturnFees),
   ];
-  const existingRow = findExistingRow_(sheet, payload.date || "", payload.department || "", payload.name || "");
+  const existingRow = findExistingRow_(sheet, date, payload.department || "", payload.name || "");
 
   if (existingRow) {
     sheet.getRange(existingRow, 1, 1, rowValues.length).setValues([rowValues]);
@@ -77,6 +78,8 @@ function getSheet_() {
     sheet.appendRow(HEADERS);
   }
 
+  sheet.getRange("B:B").setNumberFormat("@");
+
   return sheet;
 }
 
@@ -97,10 +100,11 @@ function getRows_(date) {
   const sheet = getSheet_();
   const values = sheet.getDataRange().getValues();
   const headers = values.shift();
+  const requestedDate = date ? dateKey_(date) : "";
 
   return values
     .map((row) => Object.fromEntries(headers.map((header, index) => [header, row[index]])))
-    .filter((row) => !date || String(row.date) === String(date))
+    .filter((row) => !requestedDate || dateKey_(row.date) === requestedDate)
     .map(rowToSubmission_);
 }
 
@@ -118,7 +122,7 @@ function findExistingRow_(sheet, date, department, name) {
   for (let index = values.length - 1; index >= 1; index--) {
     const row = values[index];
     if (
-      String(row[dateIndex]) === String(date) &&
+      dateKey_(row[dateIndex]) === dateKey_(date) &&
       String(row[departmentIndex]) === String(department) &&
       String(row[nameIndex]).trim().toLowerCase() === String(name).trim().toLowerCase()
     ) {
@@ -133,7 +137,7 @@ function rowToSubmission_(row) {
   return {
     version: 1,
     submittedAt: row.submittedAt,
-    date: row.date,
+    date: dateKey_(row.date),
     department: row.department,
     name: row.name,
     values: {
@@ -157,6 +161,24 @@ function rowToSubmission_(row) {
 function number_(value) {
   const parsed = Number(value || 0);
   return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function dateKey_(value) {
+  if (!value) return "";
+
+  if (Object.prototype.toString.call(value) === "[object Date]" && !isNaN(value.getTime())) {
+    return Utilities.formatDate(value, "Asia/Jerusalem", "yyyy-MM-dd");
+  }
+
+  const text = String(value).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return text;
+
+  const parsed = new Date(text);
+  if (!isNaN(parsed.getTime())) {
+    return Utilities.formatDate(parsed, "Asia/Jerusalem", "yyyy-MM-dd");
+  }
+
+  return text;
 }
 
 function json_(payload) {
