@@ -2,6 +2,7 @@ data/
 tools/
 *.log
 *.pid
+*.zip
 PUBLIC-LINKS.txt
 PUBLISH-STATUS.txt
 node_modules/
