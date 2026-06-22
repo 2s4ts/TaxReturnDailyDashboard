@@ -18,11 +18,7 @@
             <span>Dashboard date</span>
             <input id="dashboardDate" type="date" />
           </label>
-          <label class="file-button">
-            <span>Import daily files</span>
-            <input id="importSubmissions" type="file" accept=".json,application/json" multiple />
-          </label>
-          <button id="loadOnlineData" class="secondary-button" type="button">Load online data</button>
+          <button id="refreshData" class="secondary-button" type="button">Refresh</button>
           <button id="exportHtml" class="primary-button" type="button">Export HTML</button>
         </div>
       </header>
@@ -35,6 +31,11 @@
       </section>
 
       <section class="summary-grid" aria-label="Executive summary">
+        <article class="metric-card daily-mark-card">
+          <span>Daily mark</span>
+          <strong id="dailyMark">0%</strong>
+          <small id="dailyMarkLabel">Waiting for today's data</small>
+        </article>
         <article class="metric-card metric-card-money">
           <span>Total daily revenue</span>
           <strong id="totalRevenue">ILS 0</strong>
@@ -56,10 +57,17 @@
           <small>All departments</small>
         </article>
         <article class="metric-card metric-card-alert">
-          <span>Cancellations</span>
+          <span>Canceled calls</span>
           <strong id="totalCancellations">0</strong>
           <small>Customer service daily risk</small>
         </article>
+      </section>
+
+      <section class="marker-legend" aria-label="Daily marker legend">
+        <span class="marker marker-bad">Bad</span>
+        <span class="marker marker-okay">Okay</span>
+        <span class="marker marker-good">Okay okay</span>
+        <span class="marker marker-great">Really good</span>
       </section>
 
       <section class="department-grid" aria-label="Department scorecards">
@@ -95,10 +103,13 @@
             <span id="serviceStatus"></span>
           </div>
           <div class="mini-metrics">
-            <div><span>Incoming</span><strong id="serviceIncoming">0</strong></div>
-            <div><span>Answered</span><strong id="serviceAnswered">0</strong></div>
+            <div><span>Calls received</span><strong id="serviceIncoming">0</strong></div>
+            <div><span>Calls answered</span><strong id="serviceAnswered">0</strong></div>
+            <div><span>Missed calls</span><strong id="serviceMissed">0</strong></div>
             <div><span>Answer rate</span><strong id="serviceAnswerRate">0%</strong></div>
-            <div><span>Service sales</span><strong id="serviceSales">0</strong></div>
+            <div><span>Canceled calls</span><strong id="serviceCanceled">0</strong></div>
+            <div><span>Deleted calls</span><strong id="serviceDeleted">0</strong></div>
+            <div><span>Answers sent</span><strong id="serviceAnswers">0</strong></div>
           </div>
         </article>
 
@@ -168,7 +179,7 @@
           <div class="table-wrap">
             <table>
               <thead>
-                <tr><th>Representative</th><th>Incoming</th><th>Answered</th><th>Answer rate</th><th>Cancellations</th><th>Service sales</th></tr>
+                <tr><th>Representative</th><th>Received</th><th>Answered</th><th>Missed</th><th>Answer rate</th><th>Canceled</th><th>Deleted</th><th>Answers</th></tr>
               </thead>
               <tbody id="serviceTable"></tbody>
             </table>

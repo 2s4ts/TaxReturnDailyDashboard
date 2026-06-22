@@ -5,30 +5,8 @@ const emptyData = {
   collection: [],
 };
 
-const sampleData = {
-  newSales: [
-    { name: "Salesperson A", sales: 8, revenue: 14200, leads: 21, referrals: 4 },
-    { name: "Salesperson B", sales: 6, revenue: 10850, leads: 18, referrals: 3 },
-    { name: "Salesperson C", sales: 4, revenue: 7200, leads: 12, referrals: 2 },
-  ],
-  renewals: [
-    { name: "Renewal Rep A", renewals: 5, revenue: 8100, leads: 9, referrals: 2 },
-    { name: "Renewal Rep B", renewals: 3, revenue: 4700, leads: 7, referrals: 1 },
-    { name: "Renewal Rep C", renewals: 2, revenue: 2800, leads: 4, referrals: 1 },
-  ],
-  service: [
-    { name: "Service Rep A", incoming: 58, answered: 52, cancellations: 2, serviceSales: 3 },
-    { name: "Service Rep B", incoming: 44, answered: 36, cancellations: 1, serviceSales: 1 },
-    { name: "Service Rep C", incoming: 39, answered: 32, cancellations: 3, serviceSales: 2 },
-  ],
-  collection: [
-    { name: "Collector A", general: 18400, taxReturnFees: 22600, referrals: 5 },
-    { name: "Collector B", general: 9700, taxReturnFees: 14400, referrals: 2 },
-    { name: "Collector C", general: 6200, taxReturnFees: 8600, referrals: 1 },
-  ],
-};
-
-let dashboardData = structuredClone(sampleData);
+let dashboardData = structuredClone(emptyData);
+let backendWarningShown = false;
 
 const targets = {
   newSalesRevenue: 30000,
@@ -39,9 +17,10 @@ const targets = {
 
 const elements = {
   dashboardDate: document.querySelector("#dashboardDate"),
-  importSubmissions: document.querySelector("#importSubmissions"),
-  loadOnlineData: document.querySelector("#loadOnlineData"),
+  refreshData: document.querySelector("#refreshData"),
   exportHtml: document.querySelector("#exportHtml"),
+  dailyMark: document.querySelector("#dailyMark"),
+  dailyMarkLabel: document.querySelector("#dailyMarkLabel"),
   totalRevenue: document.querySelector("#totalRevenue"),
   totalSales: document.querySelector("#totalSales"),
   totalLeads: document.querySelector("#totalLeads"),
@@ -61,8 +40,11 @@ const elements = {
   renewalReferrals: document.querySelector("#renewalReferrals"),
   serviceIncoming: document.querySelector("#serviceIncoming"),
   serviceAnswered: document.querySelector("#serviceAnswered"),
+  serviceMissed: document.querySelector("#serviceMissed"),
   serviceAnswerRate: document.querySelector("#serviceAnswerRate"),
-  serviceSales: document.querySelector("#serviceSales"),
+  serviceCanceled: document.querySelector("#serviceCanceled"),
+  serviceDeleted: document.querySelector("#serviceDeleted"),
+  serviceAnswers: document.querySelector("#serviceAnswers"),
   collectionGeneral: document.querySelector("#collectionGeneral"),
   collectionTaxReturn: document.querySelector("#collectionTaxReturn"),
   collectionTotal: document.querySelector("#collectionTotal"),
@@ -87,6 +69,19 @@ function sum(rows, key) {
   return rows.reduce((total, row) => total + (Number(row[key]) || 0), 0);
 }
 
+function value(row, ...keys) {
+  for (const key of keys) {
+    if (row[key] !== undefined && row[key] !== null && row[key] !== "") {
+      return Number(row[key]) || 0;
+    }
+  }
+  return 0;
+}
+
+function sumAny(rows, ...keys) {
+  return rows.reduce((total, row) => total + value(row, ...keys), 0);
+}
+
 function money(value) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -100,12 +95,36 @@ function percent(value) {
   return `${Math.round(value)}%`;
 }
 
-function todayKey() {
-  return new Date().toISOString().slice(0, 10);
+function localDateKey() {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Jerusalem",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${values.year}-${values.month}-${values.day}`;
 }
 
 function backendUrl() {
   return String(window.DASHBOARD_BACKEND_URL || "").trim();
+}
+
+function canUseLocalApi() {
+  return ["localhost", "127.0.0.1"].includes(window.location.hostname);
+}
+
+async function currentServerDate() {
+  if (backendUrl() || !canUseLocalApi()) return localDateKey();
+
+  try {
+    const response = await fetch("/api/day", { cache: "no-store" });
+    if (!response.ok) throw new Error("Could not load server day.");
+    const payload = await response.json();
+    return payload.date || localDateKey();
+  } catch {
+    return localDateKey();
+  }
 }
 
 function getMetrics(data) {
@@ -117,10 +136,13 @@ function getMetrics(data) {
   const renewalRevenue = sum(data.renewals, "revenue");
   const renewalLeads = sum(data.renewals, "leads");
   const renewalReferrals = sum(data.renewals, "referrals");
-  const serviceIncoming = sum(data.service, "incoming");
-  const serviceAnswered = sum(data.service, "answered");
-  const serviceCancellations = sum(data.service, "cancellations");
-  const serviceSales = sum(data.service, "serviceSales");
+  const serviceIncoming = sumAny(data.service, "callsReceived", "incoming");
+  const serviceAnswered = sumAny(data.service, "callsAnswered", "answered");
+  const enteredMissedCalls = sumAny(data.service, "missedCalls");
+  const serviceMissed = enteredMissedCalls || Math.max(serviceIncoming - serviceAnswered, 0);
+  const serviceCancellations = sumAny(data.service, "canceledCalls", "cancellations");
+  const serviceDeleted = sumAny(data.service, "deletedCalls");
+  const serviceAnswers = sumAny(data.service, "answers", "serviceSales");
   const serviceAnswerRate = serviceIncoming ? (serviceAnswered / serviceIncoming) * 100 : 0;
   const collectionGeneral = sum(data.collection, "general");
   const collectionTaxReturn = sum(data.collection, "taxReturnFees");
@@ -138,8 +160,10 @@ function getMetrics(data) {
     renewalReferrals,
     serviceIncoming,
     serviceAnswered,
+    serviceMissed,
     serviceCancellations,
-    serviceSales,
+    serviceDeleted,
+    serviceAnswers,
     serviceAnswerRate,
     collectionGeneral,
     collectionTaxReturn,
@@ -152,12 +176,42 @@ function getMetrics(data) {
   };
 }
 
+function markerForRatio(ratio) {
+  if (ratio >= 1) return { key: "great", label: "Really good" };
+  if (ratio >= 0.75) return { key: "good", label: "Okay okay" };
+  if (ratio >= 0.5) return { key: "okay", label: "Okay" };
+  return { key: "bad", label: "Bad" };
+}
+
+function setMarker(element, ratio, detail) {
+  const marker = markerForRatio(ratio);
+  element.textContent = marker.label;
+  element.className = `marker marker-${marker.key}`;
+  element.title = detail;
+}
+
 function setStatus(element, value, target, unit = "money") {
   const ratio = target ? value / target : 0;
-  const label = ratio >= 1 ? "On target" : `${Math.round(ratio * 100)}% of target`;
-  element.textContent = label;
-  element.classList.toggle("warning", ratio < 0.75);
-  element.title = unit === "percent" ? `${percent(value)} / ${percent(target)}` : `${money(value)} / ${money(target)}`;
+  const detail = unit === "percent" ? `${percent(value)} / ${percent(target)}` : `${money(value)} / ${money(target)}`;
+  setMarker(element, ratio, detail);
+}
+
+function weightedDailyRatio(metrics) {
+  const ratios = [
+    Math.min(metrics.newSalesRevenue / targets.newSalesRevenue, 1.25),
+    Math.min(metrics.renewalRevenue / targets.renewalRevenue, 1.25),
+    Math.min(metrics.serviceAnswerRate / targets.serviceAnswerRate, 1.25),
+    Math.min(metrics.collectionTotal / targets.collectionTotal, 1.25),
+  ];
+  return ratios.reduce((total, ratio) => total + ratio, 0) / ratios.length;
+}
+
+function renderDailyMark(metrics) {
+  const ratio = weightedDailyRatio(metrics);
+  const marker = markerForRatio(ratio);
+  elements.dailyMark.textContent = percent(ratio * 100);
+  elements.dailyMarkLabel.textContent = marker.label;
+  elements.dailyMark.closest(".metric-card").className = `metric-card daily-mark-card marker-card-${marker.key}`;
 }
 
 function renderBars(rows) {
@@ -180,11 +234,11 @@ function renderBars(rows) {
 }
 
 function renderRiskList(metrics) {
-  const unanswered = Math.max(metrics.serviceIncoming - metrics.serviceAnswered, 0);
   const risks = [
-    ["Unanswered workload", `${unanswered} calls / missions`],
-    ["Cancellations", `${metrics.serviceCancellations} today`],
-    ["Sales via service", `${metrics.serviceSales} generated`],
+    ["Missed calls", `${metrics.serviceMissed} today`],
+    ["Canceled calls", `${metrics.serviceCancellations} today`],
+    ["Deleted calls", `${metrics.serviceDeleted} today`],
+    ["Answers / responses", `${metrics.serviceAnswers} sent`],
   ];
 
   elements.serviceRiskList.innerHTML = "";
@@ -200,7 +254,7 @@ function renderTable(tbody, rows, labels, rowBuilder) {
   tbody.innerHTML = "";
 
   if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="${labels.length}">No daily files imported for this department.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="${labels.length}">No submissions saved for this department on this date.</td></tr>`;
     return;
   }
 
@@ -215,6 +269,7 @@ function renderTable(tbody, rows, labels, rowBuilder) {
 function renderDashboard() {
   const metrics = getMetrics(dashboardData);
 
+  renderDailyMark(metrics);
   elements.totalRevenue.textContent = money(metrics.totalRevenue);
   elements.totalSales.textContent = String(metrics.totalSales);
   elements.totalLeads.textContent = String(metrics.totalLeads);
@@ -233,8 +288,11 @@ function renderDashboard() {
 
   elements.serviceIncoming.textContent = String(metrics.serviceIncoming);
   elements.serviceAnswered.textContent = String(metrics.serviceAnswered);
+  elements.serviceMissed.textContent = String(metrics.serviceMissed);
   elements.serviceAnswerRate.textContent = percent(metrics.serviceAnswerRate);
-  elements.serviceSales.textContent = String(metrics.serviceSales);
+  elements.serviceCanceled.textContent = String(metrics.serviceCancellations);
+  elements.serviceDeleted.textContent = String(metrics.serviceDeleted);
+  elements.serviceAnswers.textContent = String(metrics.serviceAnswers);
 
   elements.collectionGeneral.textContent = money(metrics.collectionGeneral);
   elements.collectionTaxReturn.textContent = money(metrics.collectionTaxReturn);
@@ -262,7 +320,7 @@ function renderDashboard() {
 
   const newSalesRows = [...dashboardData.newSales].sort((a, b) => b.revenue - a.revenue);
   const renewalRows = [...dashboardData.renewals].sort((a, b) => b.revenue - a.revenue);
-  const serviceRows = [...dashboardData.service].sort((a, b) => b.answered - a.answered);
+  const serviceRows = [...dashboardData.service].sort((a, b) => value(b, "callsAnswered", "answered") - value(a, "callsAnswered", "answered"));
   const collectionRows = [...dashboardData.collection].sort((a, b) => b.general + b.taxReturnFees - (a.general + a.taxReturnFees));
 
   elements.newSalesRows.textContent = `${newSalesRows.length} people`;
@@ -286,13 +344,15 @@ function renderDashboard() {
     row.referrals,
   ]);
 
-  renderTable(elements.serviceTable, serviceRows, ["Representative", "Incoming", "Answered", "Answer rate", "Cancellations", "Service sales"], (row) => [
+  renderTable(elements.serviceTable, serviceRows, ["Representative", "Received", "Answered", "Missed", "Answer rate", "Canceled", "Deleted", "Answers"], (row) => [
     row.name,
-    row.incoming,
-    row.answered,
-    percent(row.incoming ? (row.answered / row.incoming) * 100 : 0),
-    row.cancellations,
-    row.serviceSales,
+    value(row, "callsReceived", "incoming"),
+    value(row, "callsAnswered", "answered"),
+    value(row, "missedCalls") || Math.max(value(row, "callsReceived", "incoming") - value(row, "callsAnswered", "answered"), 0),
+    percent(value(row, "callsReceived", "incoming") ? (value(row, "callsAnswered", "answered") / value(row, "callsReceived", "incoming")) * 100 : 0),
+    value(row, "canceledCalls", "cancellations"),
+    value(row, "deletedCalls"),
+    value(row, "answers", "serviceSales"),
   ]);
 
   renderTable(elements.collectionTable, collectionRows, ["Collector", "General", "Tax-return fees", "Total", "Referrals"], (row) => [
@@ -318,7 +378,21 @@ function normalizeSubmission(submission) {
   }
 
   if (submission.department === "service") {
-    return { department: "service", row: { name, incoming: Number(values.incoming) || 0, answered: Number(values.answered) || 0, cancellations: Number(values.cancellations) || 0, serviceSales: Number(values.serviceSales) || 0 } };
+    const callsReceived = value(values, "callsReceived", "incoming");
+    const callsAnswered = value(values, "callsAnswered", "answered");
+    const missedCalls = value(values, "missedCalls") || Math.max(callsReceived - callsAnswered, 0);
+    return {
+      department: "service",
+      row: {
+        name,
+        callsReceived,
+        callsAnswered,
+        missedCalls,
+        canceledCalls: value(values, "canceledCalls", "cancellations"),
+        deletedCalls: value(values, "deletedCalls"),
+        answers: value(values, "answers", "serviceSales"),
+      },
+    };
   }
 
   if (submission.department === "collection") {
@@ -326,20 +400,6 @@ function normalizeSubmission(submission) {
   }
 
   return null;
-}
-
-async function importSubmissions(fileList) {
-  const nextData = structuredClone(emptyData);
-
-  for (const file of Array.from(fileList || [])) {
-    const text = await file.text();
-    const normalized = normalizeSubmission(JSON.parse(text));
-    if (!normalized) continue;
-    nextData[normalized.department].push(normalized.row);
-  }
-
-  dashboardData = nextData;
-  renderDashboard();
 }
 
 function normalizeSubmissionList(submissions) {
@@ -367,37 +427,44 @@ function loadJsonp(url) {
     script.onerror = () => {
       delete window[callbackName];
       script.remove();
-      reject(new Error("Could not load online dashboard data."));
+      reject(new Error("Could not load hosted dashboard data."));
     };
 
-    script.src = `${url}${separator}action=data&date=${encodeURIComponent(elements.dashboardDate.value || todayKey())}&callback=${encodeURIComponent(callbackName)}`;
+    script.src = `${url}${separator}date=${encodeURIComponent(elements.dashboardDate.value || localDateKey())}&callback=${encodeURIComponent(callbackName)}`;
     document.body.append(script);
   });
 }
 
-async function loadOnlineData() {
-  const endpoint = backendUrl();
-  if (!endpoint) {
-    window.alert("Online backend is not configured yet. Paste the Google Apps Script web app URL into config.js.");
-    return;
-  }
-
-  elements.loadOnlineData.disabled = true;
-  elements.loadOnlineData.textContent = "Loading...";
+async function loadDashboardData() {
+  elements.refreshData.disabled = true;
+  elements.refreshData.textContent = "Refreshing...";
 
   try {
-    const payload = await loadJsonp(endpoint);
+    const date = elements.dashboardDate.value || await currentServerDate();
+    let payload;
+
+    if (backendUrl()) {
+      payload = await loadJsonp(backendUrl());
+    } else if (canUseLocalApi()) {
+      const response = await fetch(`/api/submissions?date=${encodeURIComponent(date)}`, { cache: "no-store" });
+      if (!response.ok) throw new Error("Could not load dashboard data.");
+      payload = await response.json();
+    } else {
+      if (!backendWarningShown) {
+        backendWarningShown = true;
+        window.alert("Online backend is not configured. Add the Apps Script web app URL in config.js.");
+      }
+      payload = { date, submissions: [] };
+    }
+
     dashboardData = normalizeSubmissionList(payload.submissions || []);
+    elements.dashboardDate.value = payload.date || date;
     renderDashboard();
-    elements.loadOnlineData.textContent = "Loaded";
   } catch (error) {
-    window.alert(error instanceof Error ? error.message : "Could not load online dashboard data.");
-    elements.loadOnlineData.textContent = "Load online data";
+    window.alert(error instanceof Error ? error.message : "Could not load dashboard data.");
   } finally {
-    setTimeout(() => {
-      elements.loadOnlineData.disabled = false;
-      elements.loadOnlineData.textContent = "Load online data";
-    }, 1200);
+    elements.refreshData.disabled = false;
+    elements.refreshData.textContent = "Refresh";
   }
 }
 
@@ -406,33 +473,29 @@ function exportHtml() {
   clone.querySelectorAll("script").forEach((script) => script.remove());
   clone.querySelectorAll("input").forEach((input) => {
     if (input.type === "date") input.setAttribute("value", input.value);
-    if (input.type === "file") input.closest("label")?.remove();
   });
   clone.querySelector("#exportHtml")?.remove();
+  clone.querySelector("#refreshData")?.remove();
   const html = `<!doctype html>\n${clone.outerHTML}`;
   const blob = new Blob([html], { type: "text/html;charset=utf-8" });
   const link = document.createElement("a");
   const url = URL.createObjectURL(blob);
 
   link.href = url;
-  link.download = `tax-return-daily-dashboard-${elements.dashboardDate.value || todayKey()}.html`;
+  link.download = `tax-return-daily-dashboard-${elements.dashboardDate.value || localDateKey()}.html`;
   document.body.append(link);
   link.click();
   link.remove();
   URL.revokeObjectURL(url);
 }
 
-function init() {
-  elements.dashboardDate.value = todayKey();
+async function init() {
+  elements.dashboardDate.value = await currentServerDate();
   elements.exportHtml.addEventListener("click", exportHtml);
-  elements.importSubmissions.addEventListener("change", (event) => {
-    importSubmissions(event.target.files).catch((error) => {
-      window.alert(error instanceof Error ? error.message : "Could not import the daily files.");
-    });
-    event.target.value = "";
-  });
-  elements.loadOnlineData.addEventListener("click", loadOnlineData);
-  renderDashboard();
+  elements.refreshData.addEventListener("click", loadDashboardData);
+  elements.dashboardDate.addEventListener("change", loadDashboardData);
+  await loadDashboardData();
+  setInterval(loadDashboardData, 60000);
 }
 
 init();

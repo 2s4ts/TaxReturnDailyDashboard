@@ -1,35 +1,46 @@
 # Tax Return Daily Dashboard
 
-Static daily performance dashboard for a B2C tax return company.
+Public daily dashboard for tax-return operations.
 
-## Current version
+## Recommended Deployment
 
-- Runs by opening `index.html` in a browser.
-- Uses sample data in `app.js`.
-- Shows executive summary KPIs.
-- Breaks performance into four departments:
-  - New Sales
-  - Renewal Sales
-  - Customer Service
-  - Collection
-- Includes revenue source bars, service answer-rate visual, and ranking tables.
-- Includes department form links for daily submissions.
-- Imports department daily `.json` files into the dashboard.
-- Supports an online Google Apps Script backend for submissions from any computer or phone.
-- Includes a static HTML export button for the filled dashboard result.
+Use GitHub Pages:
 
-## Department links
+```text
+https://2s4ts.github.io/TaxReturnDailyDashboard/
+```
 
-Open `department-links.md` for the four department-head links and the daily workflow.
+Setup instructions are in `GITHUB_PAGES_SETUP.md`.
 
-## Online setup
+## Why GitHub Pages
 
-Open `ONLINE_SETUP.md` to connect the forms to Google Sheets.
+- Free public HTTPS website hosting.
+- No company computer has to stay open.
+- No static IP, router, firewall, tunnel, or administrator network setup.
+- Users open normal public links from desktop or mobile.
 
-## Next build steps
+## Data Storage
 
-1. Push the separate repo to GitHub after the private repo exists.
-2. Replace local file sharing with hosted links.
-3. Add Google Forms, Google Sheets, or a small database when you want live submissions.
-4. Add Hebrew language labels if needed.
-5. Add validation warnings for missing daily department submissions.
+GitHub Pages is static hosting. It cannot save form submissions by itself.
+
+This project uses the included Google Apps Script backend with Google Sheets for free daily submission storage. Put the Apps Script web app URL in `config.js`:
+
+```js
+window.DASHBOARD_BACKEND_URL = "PASTE_WEB_APP_URL_HERE";
+```
+
+## Department Links
+
+```text
+https://2s4ts.github.io/TaxReturnDailyDashboard/form.html?department=newSales
+https://2s4ts.github.io/TaxReturnDailyDashboard/form.html?department=renewals
+https://2s4ts.github.io/TaxReturnDailyDashboard/form.html?department=service
+https://2s4ts.github.io/TaxReturnDailyDashboard/form.html?department=collection
+```
+
+## Security Notes
+
+- The public site is static HTML/CSS/JavaScript, served over HTTPS by GitHub Pages.
+- A website visitor cannot run `.bat`, `.ps1`, or local server files on their computer just by opening the page.
+- Do not put passwords, API secrets, or sensitive personal data in the public files.
+- Forms are public by design, so anyone with a link can submit daily numbers.

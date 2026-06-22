@@ -1,0 +1,16 @@
+data/
+tools/
+*.log
+*.pid
+PUBLIC-LINKS.txt
+PUBLISH-STATUS.txt
+node_modules/
+.DS_Store
+Thumbs.db
+
+# Local-only server/tunnel launchers. The public deployment uses GitHub Pages.
+server.js
+package.json
+*.bat
+*.ps1
+PUBLISHING.md

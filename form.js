@@ -23,10 +23,12 @@ const departmentForms = {
     title: "Customer Service Daily Form",
     filePrefix: "customer-service",
     fields: [
-      { key: "incoming", label: "Incoming Calls / Missions Received", type: "number" },
-      { key: "answered", label: "Calls Answered", type: "number" },
-      { key: "cancellations", label: "Daily Cancellations", type: "number" },
-      { key: "serviceSales", label: "Sales Generated via Service", type: "number" },
+      { key: "callsReceived", label: "Calls Received Today", type: "number" },
+      { key: "callsAnswered", label: "Calls Answered Today", type: "number" },
+      { key: "missedCalls", label: "Missed Calls", type: "number" },
+      { key: "canceledCalls", label: "Canceled Calls", type: "number" },
+      { key: "deletedCalls", label: "Deleted Calls", type: "number" },
+      { key: "answers", label: "Answers / Responses Sent", type: "number" },
     ],
   },
   collection: {
@@ -51,14 +53,39 @@ const elements = {
   fieldGrid: document.querySelector("#fieldGrid"),
   departmentForm: document.querySelector("#departmentForm"),
   copyJson: document.querySelector("#copyJson"),
+  copyShareLink: document.querySelector("#copyShareLink"),
 };
+
+function todayKey() {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Jerusalem",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${values.year}-${values.month}-${values.day}`;
+}
 
 function backendUrl() {
   return String(window.DASHBOARD_BACKEND_URL || "").trim();
 }
 
-function todayKey() {
-  return new Date().toISOString().slice(0, 10);
+function canUseLocalApi() {
+  return ["localhost", "127.0.0.1"].includes(window.location.hostname);
+}
+
+async function currentServerDate() {
+  if (backendUrl()) return todayKey();
+
+  try {
+    const response = await fetch("/api/day", { cache: "no-store" });
+    if (!response.ok) throw new Error("Could not load server day.");
+    const payload = await response.json();
+    return payload.date || todayKey();
+  } catch {
+    return todayKey();
+  }
 }
 
 function numberValue(key) {
@@ -82,21 +109,6 @@ function collectSubmission() {
   };
 }
 
-function downloadSubmission(submission) {
-  const json = JSON.stringify(submission, null, 2);
-  const blob = new Blob([json], { type: "application/json;charset=utf-8" });
-  const link = document.createElement("a");
-  const url = URL.createObjectURL(blob);
-  const safeName = submission.name.replace(/[^a-z0-9\u0590-\u05ff]+/gi, "-").replace(/^-+|-+$/g, "") || "department";
-
-  link.href = url;
-  link.download = `${config.filePrefix}-${safeName}-${submission.date || todayKey()}.json`;
-  document.body.append(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
-}
-
 async function copySubmission() {
   const submission = collectSubmission();
   await navigator.clipboard.writeText(JSON.stringify(submission, null, 2));
@@ -106,22 +118,79 @@ async function copySubmission() {
   }, 1500);
 }
 
-async function submitOnline(submission) {
-  const endpoint = backendUrl();
-  if (!endpoint) return false;
+async function copyText(text) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
 
-  await fetch(endpoint, {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify(submission),
-  });
-  return true;
+  const input = document.createElement("textarea");
+  input.value = text;
+  input.setAttribute("readonly", "");
+  input.style.position = "fixed";
+  input.style.left = "-9999px";
+  document.body.append(input);
+  input.select();
+  document.execCommand("copy");
+  input.remove();
 }
 
-function renderFields() {
+async function getShareLink() {
+  const path = `/form.html?department=${encodeURIComponent(departmentKey)}`;
+  if (backendUrl()) {
+    return `${window.location.origin}${path}`;
+  }
+
+  try {
+    const response = await fetch(`/api/share-link?path=${encodeURIComponent(path)}`, { cache: "no-store" });
+    if (!response.ok) throw new Error("Could not build share link.");
+    const payload = await response.json();
+    return payload.url || `${window.location.origin}${path}`;
+  } catch {
+    return `${window.location.origin}${path}`;
+  }
+}
+
+async function copyShareLink() {
+  const link = await getShareLink();
+  await copyText(link);
+  elements.copyShareLink.textContent = "Link copied";
+  elements.copyShareLink.title = link;
+  setTimeout(() => {
+    elements.copyShareLink.textContent = "Copy share link";
+  }, 1800);
+}
+
+async function submitOnline(submission) {
+  const endpoint = backendUrl();
+
+  if (endpoint) {
+    await fetch(endpoint, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(submission),
+    });
+    return { ok: true };
+  }
+
+  if (!canUseLocalApi()) {
+    throw new Error("Online backend is not configured. Add the Apps Script web app URL in config.js.");
+  }
+
+  const response = await fetch("/api/submissions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(submission),
+  });
+
+  if (!response.ok) throw new Error("The local dashboard server could not save this submission.");
+  return response.json();
+}
+
+async function renderFields() {
   elements.formTitle.textContent = config.title;
-  elements.entryDate.value = todayKey();
+  elements.entryDate.value = await currentServerDate();
   elements.fieldGrid.innerHTML = "";
 
   for (const field of config.fields) {
@@ -142,24 +211,18 @@ elements.departmentForm.addEventListener("submit", async (event) => {
   button.textContent = "Sending...";
 
   try {
-    const sentOnline = await submitOnline(submission);
-    if (sentOnline) {
-      button.textContent = "Submitted";
-      elements.departmentForm.reset();
-      elements.entryDate.value = todayKey();
-      setTimeout(() => {
-        button.disabled = false;
-        button.textContent = "Submit daily numbers";
-      }, 1800);
-      return;
-    }
-
-    downloadSubmission(submission);
-    button.disabled = false;
-    button.textContent = "Submit daily numbers";
+    await submitOnline(submission);
+    button.textContent = "Submitted";
+    elements.departmentForm.reset();
+    elements.entryDate.value = await currentServerDate();
+    setTimeout(() => {
+      button.disabled = false;
+      button.textContent = "Submit daily numbers";
+    }, 1800);
   } catch (error) {
     button.disabled = false;
     button.textContent = "Submit failed";
+    window.alert(error instanceof Error ? error.message : "Could not save this submission.");
     setTimeout(() => {
       button.textContent = "Submit daily numbers";
     }, 1800);
@@ -169,6 +232,15 @@ elements.departmentForm.addEventListener("submit", async (event) => {
 elements.copyJson.addEventListener("click", () => {
   copySubmission().catch(() => {
     elements.copyJson.textContent = "Copy failed";
+  });
+});
+
+elements.copyShareLink.addEventListener("click", () => {
+  copyShareLink().catch(() => {
+    elements.copyShareLink.textContent = "Copy failed";
+    setTimeout(() => {
+      elements.copyShareLink.textContent = "Copy share link";
+    }, 1800);
   });
 });
 

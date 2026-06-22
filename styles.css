@@ -13,11 +13,18 @@
 body {
   margin: 0;
   min-width: 320px;
+  min-height: 100vh;
 }
 
 button,
 input {
   font: inherit;
+}
+
+button,
+a,
+input {
+  -webkit-tap-highlight-color: transparent;
 }
 
 .app-shell {
@@ -51,8 +58,8 @@ p {
 }
 
 h1 {
-  font-size: clamp(30px, 5vw, 48px);
-  line-height: 1;
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1.05;
 }
 
 h2 {
@@ -111,10 +118,10 @@ h2 {
 }
 
 .primary-button {
-  min-height: 40px;
+  min-height: 44px;
   border: 1px solid #136f4a;
   border-radius: 6px;
-  padding: 0 14px;
+  padding: 0 16px;
   color: #ffffff;
   background: #136f4a;
   cursor: pointer;
@@ -123,13 +130,13 @@ h2 {
 
 .secondary-button,
 .secondary-link {
-  min-height: 40px;
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border: 1px solid #ccd5df;
   border-radius: 6px;
-  padding: 0 14px;
+  padding: 0 16px;
   color: #16202a;
   background: #ffffff;
   cursor: pointer;
@@ -172,7 +179,7 @@ h2 {
 }
 
 .summary-grid {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   margin-bottom: 16px;
 }
 
@@ -234,6 +241,70 @@ h2 {
   background: #fff9ed;
 }
 
+.daily-mark-card {
+  border-color: #9aa8b7;
+  background: #f7f9fb;
+}
+
+.marker-card-bad {
+  border-color: #c83b3b;
+  background: #fff1f1;
+}
+
+.marker-card-okay {
+  border-color: #d77a1f;
+  background: #fff5eb;
+}
+
+.marker-card-good {
+  border-color: #d6b21e;
+  background: #fffbe8;
+}
+
+.marker-card-great {
+  border-color: #1f7a4d;
+  background: #f1fbf5;
+}
+
+.marker-legend {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: -4px 0 16px;
+}
+
+.marker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.marker-bad {
+  color: #ffffff;
+  background: #c83b3b;
+}
+
+.marker-okay {
+  color: #ffffff;
+  background: #d77a1f;
+}
+
+.marker-good {
+  color: #4f3f00;
+  background: #f2d448;
+}
+
+.marker-great {
+  color: #ffffff;
+  background: #1f7a4d;
+}
+
 .department-card,
 .panel {
   padding: 16px;
@@ -264,12 +335,13 @@ h2 {
 }
 
 .form-grid input {
-  min-height: 44px;
+  min-height: 48px;
   border: 1px solid #ccd5df;
   border-radius: 6px;
   padding: 0 12px;
   color: #16202a;
   background: #ffffff;
+  font-size: 16px;
 }
 
 .form-actions {
@@ -294,19 +366,8 @@ h2 {
   margin-bottom: 14px;
 }
 
-.department-header span {
-  border-radius: 999px;
-  padding: 4px 9px;
-  color: #14452f;
-  background: #e6f5ec;
-  font-size: 12px;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.department-header span.warning {
-  color: #7b3f00;
-  background: #fff2d7;
+.department-header .marker {
+  flex: 0 0 auto;
 }
 
 .mini-metrics {
@@ -463,16 +524,64 @@ tbody tr:last-child td {
 }
 
 @media (max-width: 620px) {
+  :root {
+    background: #ffffff;
+  }
+
   .app-shell {
-    padding: 12px;
+    padding: 14px;
+  }
+
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    margin: -14px -14px 14px;
+    padding: 14px;
+    border-bottom: 1px solid #e5eaf0;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(8px);
   }
 
   .topbar,
-  .date-panel,
   .department-header,
   .panel-header {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .date-panel {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  h1 {
+    font-size: 28px;
+    line-height: 1.1;
+  }
+
+  h2 {
+    font-size: 17px;
+  }
+
+  .eyebrow {
+    font-size: 12px;
+  }
+
+  .date-panel input,
+  .primary-button,
+  .secondary-button,
+  .secondary-link {
+    width: 100%;
+    min-height: 48px;
+  }
+
+  .link-grid a {
+    min-height: 48px;
+    justify-content: flex-start;
+    padding: 0 14px;
   }
 
   .summary-grid,
@@ -483,8 +592,78 @@ tbody tr:last-child td {
     grid-template-columns: 1fr;
   }
 
+  .summary-grid,
+  .department-grid,
+  .visual-grid,
+  .table-grid {
+    gap: 12px;
+  }
+
+  .metric-card {
+    min-height: 104px;
+    padding: 14px;
+  }
+
+  .metric-card strong {
+    font-size: 28px;
+  }
+
+  .department-card,
+  .panel {
+    padding: 14px;
+    border-radius: 0;
+    margin-right: -14px;
+    margin-left: -14px;
+    border-right: 0;
+    border-left: 0;
+    box-shadow: none;
+  }
+
+  .form-shell .panel {
+    margin-right: 0;
+    margin-left: 0;
+    border-right: 1px solid #d8dee6;
+    border-left: 1px solid #d8dee6;
+    border-radius: 8px;
+  }
+
+  .form-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 8;
+    display: grid;
+    grid-template-columns: 1fr;
+    margin: 0 -14px -14px;
+    padding: 12px 14px;
+    border-top: 1px solid #e5eaf0;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(8px);
+  }
+
+  .form-actions .secondary-button {
+    min-height: 42px;
+  }
+
+  .form-grid {
+    gap: 12px;
+  }
+
+  .form-grid label {
+    font-size: 14px;
+  }
+
+  .form-grid input {
+    min-height: 52px;
+    font-size: 18px;
+  }
+
+  .mini-metrics div {
+    min-height: 68px;
+  }
+
   .bar-row {
     grid-template-columns: 1fr;
+    gap: 8px;
   }
 
   .bar-value {
@@ -518,7 +697,7 @@ tbody tr:last-child td {
 
   td {
     display: grid;
-    grid-template-columns: minmax(115px, 42%) minmax(0, 1fr);
+    grid-template-columns: minmax(110px, 38%) minmax(0, 1fr);
     gap: 10px;
     padding: 10px 12px;
     white-space: normal;
@@ -531,5 +710,10 @@ tbody tr:last-child td {
     font-size: 12px;
     font-weight: 800;
     text-transform: uppercase;
+  }
+
+  .steps {
+    padding-left: 18px;
+    font-size: 14px;
   }
 }
