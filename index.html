@@ -30,6 +30,57 @@
         <a href="form.html?department=collection">Collection form</a>
       </section>
 
+      <section class="management-grid" aria-label="Dashboard management">
+        <article class="panel">
+          <div class="panel-header">
+            <h2>Daily Goals</h2>
+            <span id="goalStatus">Using saved goals</span>
+          </div>
+          <div class="settings-grid">
+            <label>
+              <span>New sales revenue goal</span>
+              <input id="goalNewSalesRevenue" type="number" min="0" step="1" />
+            </label>
+            <label>
+              <span>Renewal revenue goal</span>
+              <input id="goalRenewalRevenue" type="number" min="0" step="1" />
+            </label>
+            <label>
+              <span>Service answer rate goal (%)</span>
+              <input id="goalServiceAnswerRate" type="number" min="0" max="100" step="1" />
+            </label>
+            <label>
+              <span>Collection total goal</span>
+              <input id="goalCollectionTotal" type="number" min="0" step="1" />
+            </label>
+          </div>
+          <div class="panel-actions">
+            <button id="saveGoals" class="primary-button" type="button">Save goals</button>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <h2>Fix Mistakes</h2>
+            <span id="deleteStatus">Delete selected department data</span>
+          </div>
+          <div class="settings-grid settings-grid-compact">
+            <label>
+              <span>Department</span>
+              <select id="deleteDepartment">
+                <option value="newSales">New Sales</option>
+                <option value="renewals">Renewal Sales</option>
+                <option value="service">Customer Service</option>
+                <option value="collection">Collection</option>
+              </select>
+            </label>
+          </div>
+          <div class="panel-actions">
+            <button id="deleteDepartmentData" class="danger-button" type="button">Delete data for selected date</button>
+          </div>
+        </article>
+      </section>
+
       <section class="summary-grid" aria-label="Executive summary">
         <article class="metric-card daily-mark-card">
           <span>Daily mark</span>
@@ -149,55 +200,6 @@
         </article>
       </section>
 
-      <section class="table-grid" aria-label="Department ranking tables">
-        <article class="panel">
-          <div class="panel-header"><h2>New Sales Ranking</h2><span id="newSalesRows"></span></div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr><th>Salesperson</th><th>Sales</th><th>Revenue</th><th>Leads</th><th>Referrals</th></tr>
-              </thead>
-              <tbody id="newSalesTable"></tbody>
-            </table>
-          </div>
-        </article>
-
-        <article class="panel">
-          <div class="panel-header"><h2>Renewal Ranking</h2><span id="renewalRows"></span></div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr><th>Salesperson</th><th>Renewals</th><th>Revenue</th><th>Leads</th><th>Referrals</th></tr>
-              </thead>
-              <tbody id="renewalTable"></tbody>
-            </table>
-          </div>
-        </article>
-
-        <article class="panel">
-          <div class="panel-header"><h2>Customer Service Ranking</h2><span id="serviceRows"></span></div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr><th>Representative</th><th>Received</th><th>Answered</th><th>Missed</th><th>Answer rate</th><th>Canceled</th><th>Deleted</th><th>Answers</th></tr>
-              </thead>
-              <tbody id="serviceTable"></tbody>
-            </table>
-          </div>
-        </article>
-
-        <article class="panel">
-          <div class="panel-header"><h2>Collection Ranking</h2><span id="collectionRows"></span></div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr><th>Collector</th><th>General</th><th>Tax-return fees</th><th>Total</th><th>Referrals</th></tr>
-              </thead>
-              <tbody id="collectionTable"></tbody>
-            </table>
-          </div>
-        </article>
-      </section>
     </main>
 
     <script src="config.js"></script>

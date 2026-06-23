@@ -8,12 +8,14 @@ const emptyData = {
 let dashboardData = structuredClone(emptyData);
 let backendWarningShown = false;
 
-const targets = {
+const defaultTargets = {
   newSalesRevenue: 30000,
   renewalRevenue: 14000,
   serviceAnswerRate: 85,
   collectionTotal: 65000,
 };
+
+let targets = { ...defaultTargets };
 
 const elements = {
   dashboardDate: document.querySelector("#dashboardDate"),
@@ -55,14 +57,15 @@ const elements = {
   answerRateGauge: document.querySelector("#answerRateGauge"),
   answerRateGaugeText: document.querySelector("#answerRateGaugeText"),
   serviceRiskList: document.querySelector("#serviceRiskList"),
-  newSalesRows: document.querySelector("#newSalesRows"),
-  renewalRows: document.querySelector("#renewalRows"),
-  serviceRows: document.querySelector("#serviceRows"),
-  collectionRows: document.querySelector("#collectionRows"),
-  newSalesTable: document.querySelector("#newSalesTable"),
-  renewalTable: document.querySelector("#renewalTable"),
-  serviceTable: document.querySelector("#serviceTable"),
-  collectionTable: document.querySelector("#collectionTable"),
+  goalStatus: document.querySelector("#goalStatus"),
+  goalNewSalesRevenue: document.querySelector("#goalNewSalesRevenue"),
+  goalRenewalRevenue: document.querySelector("#goalRenewalRevenue"),
+  goalServiceAnswerRate: document.querySelector("#goalServiceAnswerRate"),
+  goalCollectionTotal: document.querySelector("#goalCollectionTotal"),
+  saveGoals: document.querySelector("#saveGoals"),
+  deleteStatus: document.querySelector("#deleteStatus"),
+  deleteDepartment: document.querySelector("#deleteDepartment"),
+  deleteDepartmentData: document.querySelector("#deleteDepartmentData"),
 };
 
 function sum(rows, key) {
@@ -129,6 +132,22 @@ function dateKeyFromValue(value) {
 
 function backendUrl() {
   return String(window.DASHBOARD_BACKEND_URL || "").trim();
+}
+
+function localGoalsKey() {
+  return "dailyDashboardGoals";
+}
+
+function getLocalGoals() {
+  try {
+    return JSON.parse(localStorage.getItem(localGoalsKey()) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function saveLocalGoals(goals) {
+  localStorage.setItem(localGoalsKey(), JSON.stringify(goals));
 }
 
 function canUseLocalApi() {
@@ -227,6 +246,31 @@ function weightedDailyRatio(metrics) {
   return ratios.reduce((total, ratio) => total + ratio, 0) / ratios.length;
 }
 
+function normalizeGoals(goals = {}) {
+  return {
+    newSalesRevenue: Number(goals.newSalesRevenue) || defaultTargets.newSalesRevenue,
+    renewalRevenue: Number(goals.renewalRevenue) || defaultTargets.renewalRevenue,
+    serviceAnswerRate: Number(goals.serviceAnswerRate) || defaultTargets.serviceAnswerRate,
+    collectionTotal: Number(goals.collectionTotal) || defaultTargets.collectionTotal,
+  };
+}
+
+function readGoalsFromInputs() {
+  return normalizeGoals({
+    newSalesRevenue: elements.goalNewSalesRevenue.value,
+    renewalRevenue: elements.goalRenewalRevenue.value,
+    serviceAnswerRate: elements.goalServiceAnswerRate.value,
+    collectionTotal: elements.goalCollectionTotal.value,
+  });
+}
+
+function renderGoalInputs() {
+  elements.goalNewSalesRevenue.value = targets.newSalesRevenue;
+  elements.goalRenewalRevenue.value = targets.renewalRevenue;
+  elements.goalServiceAnswerRate.value = targets.serviceAnswerRate;
+  elements.goalCollectionTotal.value = targets.collectionTotal;
+}
+
 function renderDailyMark(metrics) {
   const ratio = weightedDailyRatio(metrics);
   const marker = markerForRatio(ratio);
@@ -268,22 +312,6 @@ function renderRiskList(metrics) {
     item.className = "risk-item";
     item.innerHTML = `<span>${label}</span><strong>${value}</strong>`;
     elements.serviceRiskList.append(item);
-  }
-}
-
-function renderTable(tbody, rows, labels, rowBuilder) {
-  tbody.innerHTML = "";
-
-  if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="${labels.length}">No submissions saved for this department on this date.</td></tr>`;
-    return;
-  }
-
-  for (const row of rows) {
-    const tr = document.createElement("tr");
-    const cells = rowBuilder(row);
-    tr.innerHTML = cells.map((cell, index) => `<td data-label="${labels[index]}">${cell}</td>`).join("");
-    tbody.append(tr);
   }
 }
 
@@ -338,51 +366,6 @@ function renderDashboard() {
   elements.answerRateGauge.style.width = `${answerRate}%`;
   elements.answerRateGaugeText.textContent = percent(answerRate);
   renderRiskList(metrics);
-
-  const newSalesRows = [...dashboardData.newSales].sort((a, b) => b.revenue - a.revenue);
-  const renewalRows = [...dashboardData.renewals].sort((a, b) => b.revenue - a.revenue);
-  const serviceRows = [...dashboardData.service].sort((a, b) => value(b, "callsAnswered", "answered") - value(a, "callsAnswered", "answered"));
-  const collectionRows = [...dashboardData.collection].sort((a, b) => b.general + b.taxReturnFees - (a.general + a.taxReturnFees));
-
-  elements.newSalesRows.textContent = `${newSalesRows.length} people`;
-  elements.renewalRows.textContent = `${renewalRows.length} people`;
-  elements.serviceRows.textContent = `${serviceRows.length} people`;
-  elements.collectionRows.textContent = `${collectionRows.length} people`;
-
-  renderTable(elements.newSalesTable, newSalesRows, ["Salesperson", "Sales", "Revenue", "Leads", "Referrals"], (row) => [
-    row.name,
-    row.sales,
-    money(row.revenue),
-    row.leads,
-    row.referrals,
-  ]);
-
-  renderTable(elements.renewalTable, renewalRows, ["Salesperson", "Renewals", "Revenue", "Leads", "Referrals"], (row) => [
-    row.name,
-    row.renewals,
-    money(row.revenue),
-    row.leads,
-    row.referrals,
-  ]);
-
-  renderTable(elements.serviceTable, serviceRows, ["Representative", "Received", "Answered", "Missed", "Answer rate", "Canceled", "Deleted", "Answers"], (row) => [
-    row.name,
-    value(row, "callsReceived", "incoming"),
-    value(row, "callsAnswered", "answered"),
-    value(row, "missedCalls") || Math.max(value(row, "callsReceived", "incoming") - value(row, "callsAnswered", "answered"), 0),
-    percent(value(row, "callsReceived", "incoming") ? (value(row, "callsAnswered", "answered") / value(row, "callsReceived", "incoming")) * 100 : 0),
-    value(row, "canceledCalls", "cancellations"),
-    value(row, "deletedCalls"),
-    value(row, "answers", "serviceSales"),
-  ]);
-
-  renderTable(elements.collectionTable, collectionRows, ["Collector", "General", "Tax-return fees", "Total", "Referrals"], (row) => [
-    row.name,
-    money(row.general),
-    money(row.taxReturnFees),
-    money(row.general + row.taxReturnFees),
-    row.referrals,
-  ]);
 }
 
 function normalizeSubmission(submission) {
@@ -462,6 +445,33 @@ function loadJsonp(url, params = {}) {
   });
 }
 
+async function postBackend(payload) {
+  const endpoint = backendUrl();
+
+  if (endpoint) {
+    await fetch(endpoint, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload),
+    });
+    return { ok: true };
+  }
+
+  if (!canUseLocalApi()) {
+    throw new Error("Online backend is not configured. Add the Apps Script web app URL in config.js.");
+  }
+
+  const response = await fetch("/api/submissions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) throw new Error("The local dashboard server could not save this change.");
+  return response.json();
+}
+
 async function loadDashboardData() {
   elements.refreshData.disabled = true;
   elements.refreshData.textContent = "Refreshing...";
@@ -484,6 +494,8 @@ async function loadDashboardData() {
       payload = { date, submissions: [] };
     }
 
+    targets = normalizeGoals(payload.goals || getLocalGoals());
+    renderGoalInputs();
     dashboardData = normalizeSubmissionList(payload.submissions || [], date);
     elements.dashboardDate.value = dateKeyFromValue(payload.date) || date;
     renderDashboard();
@@ -492,6 +504,48 @@ async function loadDashboardData() {
   } finally {
     elements.refreshData.disabled = false;
     elements.refreshData.textContent = "Refresh";
+  }
+}
+
+async function saveGoals() {
+  const goals = readGoalsFromInputs();
+  targets = goals;
+  saveLocalGoals(goals);
+  elements.saveGoals.disabled = true;
+  elements.goalStatus.textContent = "Saving...";
+
+  try {
+    await postBackend({ action: "saveGoals", goals });
+    elements.goalStatus.textContent = "Goals saved";
+    renderDashboard();
+  } catch (error) {
+    elements.goalStatus.textContent = "Could not save goals";
+    window.alert(error instanceof Error ? error.message : "Could not save goals.");
+  } finally {
+    elements.saveGoals.disabled = false;
+  }
+}
+
+async function deleteDepartmentData() {
+  const department = elements.deleteDepartment.value;
+  const date = elements.dashboardDate.value || localDateKey();
+  const departmentName = elements.deleteDepartment.selectedOptions[0]?.textContent || department;
+  const confirmed = window.confirm(`Delete ${departmentName} data for ${date}?`);
+  if (!confirmed) return;
+
+  elements.deleteDepartmentData.disabled = true;
+  elements.deleteStatus.textContent = "Deleting...";
+
+  try {
+    await postBackend({ action: "deleteDepartment", date, department });
+    elements.deleteStatus.textContent = "Deleted. Refreshing...";
+    await loadDashboardData();
+    elements.deleteStatus.textContent = "Department data deleted";
+  } catch (error) {
+    elements.deleteStatus.textContent = "Delete failed";
+    window.alert(error instanceof Error ? error.message : "Could not delete department data.");
+  } finally {
+    elements.deleteDepartmentData.disabled = false;
   }
 }
 
@@ -517,10 +571,14 @@ function exportHtml() {
 }
 
 async function init() {
+  targets = normalizeGoals(getLocalGoals());
+  renderGoalInputs();
   elements.dashboardDate.value = await currentServerDate();
   elements.exportHtml.addEventListener("click", exportHtml);
   elements.refreshData.addEventListener("click", loadDashboardData);
   elements.dashboardDate.addEventListener("change", loadDashboardData);
+  elements.saveGoals.addEventListener("click", saveGoals);
+  elements.deleteDepartmentData.addEventListener("click", deleteDepartmentData);
   await loadDashboardData();
   setInterval(loadDashboardData, 60000);
 }

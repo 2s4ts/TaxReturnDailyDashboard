@@ -1,4 +1,5 @@
 const SHEET_NAME = "Daily Submissions";
+const SETTINGS_SHEET_NAME = "Dashboard Settings";
 const SPREADSHEET_ID_PROPERTY = "DASHBOARD_SPREADSHEET_ID";
 const HEADERS = [
   "submittedAt",
@@ -19,9 +20,26 @@ const HEADERS = [
   "general",
   "taxReturnFees",
 ];
+const DEFAULT_GOALS = {
+  newSalesRevenue: 30000,
+  renewalRevenue: 14000,
+  serviceAnswerRate: 85,
+  collectionTotal: 65000,
+};
 
 function doPost(e) {
   const payload = JSON.parse(e.postData.contents || "{}");
+
+  if (payload.action === "saveGoals") {
+    saveGoals_(payload.goals || {});
+    return json_({ ok: true, mode: "goalsSaved", goals: getGoals_() });
+  }
+
+  if (payload.action === "deleteDepartment") {
+    const deleted = deleteDepartmentRows_(payload.date, payload.department);
+    return json_({ ok: true, mode: "deleted", deleted: deleted });
+  }
+
   const sheet = getSheet_();
   const values = payload.values || {};
   const date = dateKey_(payload.date || new Date());
@@ -59,7 +77,7 @@ function doGet(e) {
   const callback = e.parameter.callback || "";
   const date = e.parameter.date || "";
   const rows = getRows_(date);
-  const payload = { ok: true, submissions: rows };
+  const payload = { ok: true, submissions: rows, goals: getGoals_() };
 
   if (callback) {
     return ContentService.createTextOutput(`${callback}(${JSON.stringify(payload)});`)
@@ -79,6 +97,18 @@ function getSheet_() {
   }
 
   sheet.getRange("B:B").setNumberFormat("@");
+
+  return sheet;
+}
+
+function getSettingsSheet_() {
+  const spreadsheet = getSpreadsheet_();
+  let sheet = spreadsheet.getSheetByName(SETTINGS_SHEET_NAME);
+  if (!sheet) sheet = spreadsheet.insertSheet(SETTINGS_SHEET_NAME);
+
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(["key", "value"]);
+  }
 
   return sheet;
 }
@@ -106,6 +136,62 @@ function getRows_(date) {
     .map((row) => Object.fromEntries(headers.map((header, index) => [header, row[index]])))
     .filter((row) => !requestedDate || dateKey_(row.date) === requestedDate)
     .map(rowToSubmission_);
+}
+
+function getGoals_() {
+  const sheet = getSettingsSheet_();
+  const values = sheet.getDataRange().getValues();
+  const goals = Object.assign({}, DEFAULT_GOALS);
+
+  for (let index = 1; index < values.length; index++) {
+    const key = String(values[index][0] || "");
+    if (!key) continue;
+    goals[key] = number_(values[index][1]);
+  }
+
+  return goals;
+}
+
+function saveGoals_(goals) {
+  const sheet = getSettingsSheet_();
+  const nextGoals = {
+    newSalesRevenue: number_(goals.newSalesRevenue) || DEFAULT_GOALS.newSalesRevenue,
+    renewalRevenue: number_(goals.renewalRevenue) || DEFAULT_GOALS.renewalRevenue,
+    serviceAnswerRate: number_(goals.serviceAnswerRate) || DEFAULT_GOALS.serviceAnswerRate,
+    collectionTotal: number_(goals.collectionTotal) || DEFAULT_GOALS.collectionTotal,
+  };
+
+  sheet.clearContents();
+  sheet.appendRow(["key", "value"]);
+  Object.keys(nextGoals).forEach(function(key) {
+    sheet.appendRow([key, nextGoals[key]]);
+  });
+}
+
+function deleteDepartmentRows_(date, department) {
+  const sheet = getSheet_();
+  const values = sheet.getDataRange().getValues();
+  if (values.length < 2) return 0;
+
+  const requestedDate = dateKey_(date);
+  const requestedDepartment = String(department || "");
+  const headers = values[0];
+  const dateIndex = headers.indexOf("date");
+  const departmentIndex = headers.indexOf("department");
+  let deleted = 0;
+
+  for (let index = values.length - 1; index >= 1; index--) {
+    const row = values[index];
+    if (
+      dateKey_(row[dateIndex]) === requestedDate &&
+      String(row[departmentIndex]) === requestedDepartment
+    ) {
+      sheet.deleteRow(index + 1);
+      deleted++;
+    }
+  }
+
+  return deleted;
 }
 
 function findExistingRow_(sheet, date, department, name) {
