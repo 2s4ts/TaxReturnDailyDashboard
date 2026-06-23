@@ -24,61 +24,11 @@
       </header>
 
       <section class="link-grid" aria-label="Department form links">
-        <a href="form.html?department=newSales">New Sales form</a>
+        <a id="newSalesFormLink" href="form.html?department=newSales">Sales Department 1 form</a>
+        <a id="newSales2FormLink" href="form.html?department=newSales2">Sales Department 2 form</a>
         <a href="form.html?department=renewals">Renewal Sales form</a>
         <a href="form.html?department=service">Customer Service form</a>
         <a href="form.html?department=collection">Collection form</a>
-      </section>
-
-      <section class="management-grid" aria-label="Dashboard management">
-        <article class="panel">
-          <div class="panel-header">
-            <h2>Daily Goals</h2>
-            <span id="goalStatus">Using saved goals</span>
-          </div>
-          <div class="settings-grid">
-            <label>
-              <span>New sales revenue goal</span>
-              <input id="goalNewSalesRevenue" type="number" min="0" step="1" />
-            </label>
-            <label>
-              <span>Renewal revenue goal</span>
-              <input id="goalRenewalRevenue" type="number" min="0" step="1" />
-            </label>
-            <label>
-              <span>Service answer rate goal (%)</span>
-              <input id="goalServiceAnswerRate" type="number" min="0" max="100" step="1" />
-            </label>
-            <label>
-              <span>Collection total goal</span>
-              <input id="goalCollectionTotal" type="number" min="0" step="1" />
-            </label>
-          </div>
-          <div class="panel-actions">
-            <button id="saveGoals" class="primary-button" type="button">Save goals</button>
-          </div>
-        </article>
-
-        <article class="panel">
-          <div class="panel-header">
-            <h2>Fix Mistakes</h2>
-            <span id="deleteStatus">Delete selected department data</span>
-          </div>
-          <div class="settings-grid settings-grid-compact">
-            <label>
-              <span>Department</span>
-              <select id="deleteDepartment">
-                <option value="newSales">New Sales</option>
-                <option value="renewals">Renewal Sales</option>
-                <option value="service">Customer Service</option>
-                <option value="collection">Collection</option>
-              </select>
-            </label>
-          </div>
-          <div class="panel-actions">
-            <button id="deleteDepartmentData" class="danger-button" type="button">Delete data for selected date</button>
-          </div>
-        </article>
       </section>
 
       <section class="summary-grid" aria-label="Executive summary">
@@ -95,7 +45,7 @@
         <article class="metric-card">
           <span>Total daily sales</span>
           <strong id="totalSales">0</strong>
-          <small>New sales + renewals</small>
+          <small>Sales departments + renewals</small>
         </article>
         <article class="metric-card">
           <span>Total leads</span>
@@ -124,7 +74,7 @@
       <section class="department-grid" aria-label="Department scorecards">
         <article class="department-card" data-department="newSales">
           <div class="department-header">
-            <h2>New Sales</h2>
+            <h2 id="newSalesTitle">Sales Department 1</h2>
             <span id="newSalesStatus"></span>
           </div>
           <div class="mini-metrics">
@@ -132,6 +82,19 @@
             <div><span>Revenue</span><strong id="newSalesRevenue">ILS 0</strong></div>
             <div><span>Leads</span><strong id="newSalesLeads">0</strong></div>
             <div><span>Referrals</span><strong id="newSalesReferrals">0</strong></div>
+          </div>
+        </article>
+
+        <article class="department-card" data-department="newSales2">
+          <div class="department-header">
+            <h2 id="newSales2Title">Sales Department 2</h2>
+            <span id="newSales2Status"></span>
+          </div>
+          <div class="mini-metrics">
+            <div><span>Sales</span><strong id="newSales2Count">0</strong></div>
+            <div><span>Revenue</span><strong id="newSales2Revenue">ILS 0</strong></div>
+            <div><span>Leads</span><strong id="newSales2Leads">0</strong></div>
+            <div><span>Referrals</span><strong id="newSales2Referrals">0</strong></div>
           </div>
         </article>
 
@@ -197,6 +160,70 @@
             <strong id="answerRateGaugeText">0%</strong>
           </div>
           <div id="serviceRiskList" class="risk-list"></div>
+        </article>
+      </section>
+
+      <section class="management-grid" aria-label="Dashboard management">
+        <article class="panel">
+          <div class="panel-header">
+            <h2>Daily Goals</h2>
+            <span id="goalStatus">Using saved goals</span>
+          </div>
+          <div class="settings-grid">
+            <label>
+              <span>Sales department 1 name</span>
+              <input id="salesDepartmentOneName" type="text" maxlength="40" />
+            </label>
+            <label>
+              <span>Sales department 1 revenue goal</span>
+              <input id="goalNewSalesRevenue" type="number" min="0" step="1" />
+            </label>
+            <label>
+              <span>Sales department 2 name</span>
+              <input id="salesDepartmentTwoName" type="text" maxlength="40" />
+            </label>
+            <label>
+              <span>Sales department 2 revenue goal</span>
+              <input id="goalNewSales2Revenue" type="number" min="0" step="1" />
+            </label>
+            <label>
+              <span>Renewal revenue goal</span>
+              <input id="goalRenewalRevenue" type="number" min="0" step="1" />
+            </label>
+            <label>
+              <span>Service answer rate goal (%)</span>
+              <input id="goalServiceAnswerRate" type="number" min="0" max="100" step="1" />
+            </label>
+            <label>
+              <span>Collection total goal</span>
+              <input id="goalCollectionTotal" type="number" min="0" step="1" />
+            </label>
+          </div>
+          <div class="panel-actions">
+            <button id="saveGoals" class="primary-button" type="button">Save goals</button>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <h2>Fix Mistakes</h2>
+            <span id="deleteStatus">Delete selected department data</span>
+          </div>
+          <div class="settings-grid settings-grid-compact">
+            <label>
+              <span>Department</span>
+              <select id="deleteDepartment">
+                <option value="newSales">Sales Department 1</option>
+                <option value="newSales2">Sales Department 2</option>
+                <option value="renewals">Renewal Sales</option>
+                <option value="service">Customer Service</option>
+                <option value="collection">Collection</option>
+              </select>
+            </label>
+          </div>
+          <div class="panel-actions">
+            <button id="deleteDepartmentData" class="danger-button" type="button">Delete data for selected date</button>
+          </div>
         </article>
       </section>
 

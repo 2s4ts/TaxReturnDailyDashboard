@@ -21,7 +21,10 @@ const HEADERS = [
   "taxReturnFees",
 ];
 const DEFAULT_GOALS = {
+  salesDepartmentOneName: "Sales Department 1",
+  salesDepartmentTwoName: "Sales Department 2",
   newSalesRevenue: 30000,
+  newSales2Revenue: 30000,
   renewalRevenue: 14000,
   serviceAnswerRate: 85,
   collectionTotal: 65000,
@@ -146,7 +149,7 @@ function getGoals_() {
   for (let index = 1; index < values.length; index++) {
     const key = String(values[index][0] || "");
     if (!key) continue;
-    goals[key] = number_(values[index][1]);
+    goals[key] = stringGoalKey_(key) ? String(values[index][1] || DEFAULT_GOALS[key]) : number_(values[index][1]);
   }
 
   return goals;
@@ -155,7 +158,10 @@ function getGoals_() {
 function saveGoals_(goals) {
   const sheet = getSettingsSheet_();
   const nextGoals = {
+    salesDepartmentOneName: string_(goals.salesDepartmentOneName) || DEFAULT_GOALS.salesDepartmentOneName,
+    salesDepartmentTwoName: string_(goals.salesDepartmentTwoName) || DEFAULT_GOALS.salesDepartmentTwoName,
     newSalesRevenue: number_(goals.newSalesRevenue) || DEFAULT_GOALS.newSalesRevenue,
+    newSales2Revenue: number_(goals.newSales2Revenue) || DEFAULT_GOALS.newSales2Revenue,
     renewalRevenue: number_(goals.renewalRevenue) || DEFAULT_GOALS.renewalRevenue,
     serviceAnswerRate: number_(goals.serviceAnswerRate) || DEFAULT_GOALS.serviceAnswerRate,
     collectionTotal: number_(goals.collectionTotal) || DEFAULT_GOALS.collectionTotal,
@@ -194,8 +200,8 @@ function deleteDepartmentRows_(date, department) {
   return deleted;
 }
 
-function findExistingRow_(sheet, date, department, name) {
-  if (!date || !department || !name) return 0;
+function findExistingRow_(sheet, date, department) {
+  if (!date || !department) return 0;
 
   const values = sheet.getDataRange().getValues();
   if (values.length < 2) return 0;
@@ -203,14 +209,12 @@ function findExistingRow_(sheet, date, department, name) {
   const headers = values[0];
   const dateIndex = headers.indexOf("date");
   const departmentIndex = headers.indexOf("department");
-  const nameIndex = headers.indexOf("name");
 
   for (let index = values.length - 1; index >= 1; index--) {
     const row = values[index];
     if (
       dateKey_(row[dateIndex]) === dateKey_(date) &&
-      String(row[departmentIndex]) === String(department) &&
-      String(row[nameIndex]).trim().toLowerCase() === String(name).trim().toLowerCase()
+      String(row[departmentIndex]) === String(department)
     ) {
       return index + 1;
     }
@@ -247,6 +251,14 @@ function rowToSubmission_(row) {
 function number_(value) {
   const parsed = Number(value || 0);
   return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function string_(value) {
+  return String(value || "").trim().slice(0, 40);
+}
+
+function stringGoalKey_(key) {
+  return key === "salesDepartmentOneName" || key === "salesDepartmentTwoName";
 }
 
 function dateKey_(value) {

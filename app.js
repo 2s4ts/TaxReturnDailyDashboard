@@ -1,5 +1,6 @@
 const emptyData = {
   newSales: [],
+  newSales2: [],
   renewals: [],
   service: [],
   collection: [],
@@ -9,7 +10,10 @@ let dashboardData = structuredClone(emptyData);
 let backendWarningShown = false;
 
 const defaultTargets = {
+  salesDepartmentOneName: "Sales Department 1",
+  salesDepartmentTwoName: "Sales Department 2",
   newSalesRevenue: 30000,
+  newSales2Revenue: 30000,
   renewalRevenue: 14000,
   serviceAnswerRate: 85,
   collectionTotal: 65000,
@@ -29,6 +33,7 @@ const elements = {
   totalReferrals: document.querySelector("#totalReferrals"),
   totalCancellations: document.querySelector("#totalCancellations"),
   newSalesStatus: document.querySelector("#newSalesStatus"),
+  newSales2Status: document.querySelector("#newSales2Status"),
   renewalsStatus: document.querySelector("#renewalsStatus"),
   serviceStatus: document.querySelector("#serviceStatus"),
   collectionStatus: document.querySelector("#collectionStatus"),
@@ -36,6 +41,14 @@ const elements = {
   newSalesRevenue: document.querySelector("#newSalesRevenue"),
   newSalesLeads: document.querySelector("#newSalesLeads"),
   newSalesReferrals: document.querySelector("#newSalesReferrals"),
+  newSales2Title: document.querySelector("#newSales2Title"),
+  newSalesTitle: document.querySelector("#newSalesTitle"),
+  newSalesFormLink: document.querySelector("#newSalesFormLink"),
+  newSales2FormLink: document.querySelector("#newSales2FormLink"),
+  newSales2Count: document.querySelector("#newSales2Count"),
+  newSales2Revenue: document.querySelector("#newSales2Revenue"),
+  newSales2Leads: document.querySelector("#newSales2Leads"),
+  newSales2Referrals: document.querySelector("#newSales2Referrals"),
   renewalSalesCount: document.querySelector("#renewalSalesCount"),
   renewalRevenue: document.querySelector("#renewalRevenue"),
   renewalLeads: document.querySelector("#renewalLeads"),
@@ -58,7 +71,10 @@ const elements = {
   answerRateGaugeText: document.querySelector("#answerRateGaugeText"),
   serviceRiskList: document.querySelector("#serviceRiskList"),
   goalStatus: document.querySelector("#goalStatus"),
+  salesDepartmentOneName: document.querySelector("#salesDepartmentOneName"),
+  salesDepartmentTwoName: document.querySelector("#salesDepartmentTwoName"),
   goalNewSalesRevenue: document.querySelector("#goalNewSalesRevenue"),
+  goalNewSales2Revenue: document.querySelector("#goalNewSales2Revenue"),
   goalRenewalRevenue: document.querySelector("#goalRenewalRevenue"),
   goalServiceAnswerRate: document.querySelector("#goalServiceAnswerRate"),
   goalCollectionTotal: document.querySelector("#goalCollectionTotal"),
@@ -172,6 +188,10 @@ function getMetrics(data) {
   const newSalesRevenue = sum(data.newSales, "revenue");
   const newSalesLeads = sum(data.newSales, "leads");
   const newSalesReferrals = sum(data.newSales, "referrals");
+  const newSales2Count = sum(data.newSales2, "sales");
+  const newSales2Revenue = sum(data.newSales2, "revenue");
+  const newSales2Leads = sum(data.newSales2, "leads");
+  const newSales2Referrals = sum(data.newSales2, "referrals");
   const renewalSalesCount = sum(data.renewals, "renewals");
   const renewalRevenue = sum(data.renewals, "revenue");
   const renewalLeads = sum(data.renewals, "leads");
@@ -194,6 +214,10 @@ function getMetrics(data) {
     newSalesRevenue,
     newSalesLeads,
     newSalesReferrals,
+    newSales2Count,
+    newSales2Revenue,
+    newSales2Leads,
+    newSales2Referrals,
     renewalSalesCount,
     renewalRevenue,
     renewalLeads,
@@ -209,10 +233,10 @@ function getMetrics(data) {
     collectionTaxReturn,
     collectionReferrals,
     collectionTotal,
-    totalRevenue: newSalesRevenue + renewalRevenue + collectionTotal,
-    totalSales: newSalesCount + renewalSalesCount,
-    totalLeads: newSalesLeads + renewalLeads,
-    totalReferrals: newSalesReferrals + renewalReferrals + collectionReferrals,
+    totalRevenue: newSalesRevenue + newSales2Revenue + renewalRevenue + collectionTotal,
+    totalSales: newSalesCount + newSales2Count + renewalSalesCount,
+    totalLeads: newSalesLeads + newSales2Leads + renewalLeads,
+    totalReferrals: newSalesReferrals + newSales2Referrals + renewalReferrals + collectionReferrals,
   };
 }
 
@@ -239,6 +263,7 @@ function setStatus(element, value, target, unit = "money") {
 function weightedDailyRatio(metrics) {
   const ratios = [
     Math.min(metrics.newSalesRevenue / targets.newSalesRevenue, 1.25),
+    Math.min(metrics.newSales2Revenue / targets.newSales2Revenue, 1.25),
     Math.min(metrics.renewalRevenue / targets.renewalRevenue, 1.25),
     Math.min(metrics.serviceAnswerRate / targets.serviceAnswerRate, 1.25),
     Math.min(metrics.collectionTotal / targets.collectionTotal, 1.25),
@@ -248,7 +273,10 @@ function weightedDailyRatio(metrics) {
 
 function normalizeGoals(goals = {}) {
   return {
+    salesDepartmentOneName: String(goals.salesDepartmentOneName || defaultTargets.salesDepartmentOneName).trim() || defaultTargets.salesDepartmentOneName,
+    salesDepartmentTwoName: String(goals.salesDepartmentTwoName || defaultTargets.salesDepartmentTwoName).trim() || defaultTargets.salesDepartmentTwoName,
     newSalesRevenue: Number(goals.newSalesRevenue) || defaultTargets.newSalesRevenue,
+    newSales2Revenue: Number(goals.newSales2Revenue) || defaultTargets.newSales2Revenue,
     renewalRevenue: Number(goals.renewalRevenue) || defaultTargets.renewalRevenue,
     serviceAnswerRate: Number(goals.serviceAnswerRate) || defaultTargets.serviceAnswerRate,
     collectionTotal: Number(goals.collectionTotal) || defaultTargets.collectionTotal,
@@ -257,7 +285,10 @@ function normalizeGoals(goals = {}) {
 
 function readGoalsFromInputs() {
   return normalizeGoals({
+    salesDepartmentOneName: elements.salesDepartmentOneName.value,
+    salesDepartmentTwoName: elements.salesDepartmentTwoName.value,
     newSalesRevenue: elements.goalNewSalesRevenue.value,
+    newSales2Revenue: elements.goalNewSales2Revenue.value,
     renewalRevenue: elements.goalRenewalRevenue.value,
     serviceAnswerRate: elements.goalServiceAnswerRate.value,
     collectionTotal: elements.goalCollectionTotal.value,
@@ -265,10 +296,26 @@ function readGoalsFromInputs() {
 }
 
 function renderGoalInputs() {
+  elements.salesDepartmentOneName.value = targets.salesDepartmentOneName;
+  elements.salesDepartmentTwoName.value = targets.salesDepartmentTwoName;
   elements.goalNewSalesRevenue.value = targets.newSalesRevenue;
+  elements.goalNewSales2Revenue.value = targets.newSales2Revenue;
   elements.goalRenewalRevenue.value = targets.renewalRevenue;
   elements.goalServiceAnswerRate.value = targets.serviceAnswerRate;
   elements.goalCollectionTotal.value = targets.collectionTotal;
+}
+
+function renderSalesLabels() {
+  elements.newSalesTitle.textContent = targets.salesDepartmentOneName;
+  elements.newSales2Title.textContent = targets.salesDepartmentTwoName;
+  elements.newSalesFormLink.textContent = `${targets.salesDepartmentOneName} form`;
+  elements.newSales2FormLink.textContent = `${targets.salesDepartmentTwoName} form`;
+
+  const options = Array.from(elements.deleteDepartment.options);
+  const salesOne = options.find((option) => option.value === "newSales");
+  const salesTwo = options.find((option) => option.value === "newSales2");
+  if (salesOne) salesOne.textContent = targets.salesDepartmentOneName;
+  if (salesTwo) salesTwo.textContent = targets.salesDepartmentTwoName;
 }
 
 function renderDailyMark(metrics) {
@@ -330,6 +377,11 @@ function renderDashboard() {
   elements.newSalesLeads.textContent = String(metrics.newSalesLeads);
   elements.newSalesReferrals.textContent = String(metrics.newSalesReferrals);
 
+  elements.newSales2Count.textContent = String(metrics.newSales2Count);
+  elements.newSales2Revenue.textContent = money(metrics.newSales2Revenue);
+  elements.newSales2Leads.textContent = String(metrics.newSales2Leads);
+  elements.newSales2Referrals.textContent = String(metrics.newSales2Referrals);
+
   elements.renewalSalesCount.textContent = String(metrics.renewalSalesCount);
   elements.renewalRevenue.textContent = money(metrics.renewalRevenue);
   elements.renewalLeads.textContent = String(metrics.renewalLeads);
@@ -349,13 +401,15 @@ function renderDashboard() {
   elements.collectionReferrals.textContent = String(metrics.collectionReferrals);
 
   setStatus(elements.newSalesStatus, metrics.newSalesRevenue, targets.newSalesRevenue);
+  setStatus(elements.newSales2Status, metrics.newSales2Revenue, targets.newSales2Revenue);
   setStatus(elements.renewalsStatus, metrics.renewalRevenue, targets.renewalRevenue);
   setStatus(elements.serviceStatus, metrics.serviceAnswerRate, targets.serviceAnswerRate, "percent");
   setStatus(elements.collectionStatus, metrics.collectionTotal, targets.collectionTotal);
 
   elements.revenueTotalLabel.textContent = money(metrics.totalRevenue);
   renderBars([
-    { label: "New Sales", value: metrics.newSalesRevenue, meta: `${metrics.newSalesCount} sales` },
+    { label: targets.salesDepartmentOneName, value: metrics.newSalesRevenue, meta: `${metrics.newSalesCount} sales` },
+    { label: targets.salesDepartmentTwoName, value: metrics.newSales2Revenue, meta: `${metrics.newSales2Count} sales` },
     { label: "Renewal Sales", value: metrics.renewalRevenue, meta: `${metrics.renewalSalesCount} renewals` },
     { label: "Collection - General", value: metrics.collectionGeneral, meta: "General collection" },
     { label: "Collection - Tax-return fees", value: metrics.collectionTaxReturn, meta: "Successful returns" },
@@ -373,8 +427,8 @@ function normalizeSubmission(submission) {
   const values = submission.values || {};
   const name = submission.name || "Submitted total";
 
-  if (submission.department === "newSales") {
-    return { department: "newSales", row: { name, sales: Number(values.sales) || 0, revenue: Number(values.revenue) || 0, leads: Number(values.leads) || 0, referrals: Number(values.referrals) || 0 } };
+  if (submission.department === "newSales" || submission.department === "newSales2") {
+    return { department: submission.department, row: { name, sales: Number(values.sales) || 0, revenue: Number(values.revenue) || 0, leads: Number(values.leads) || 0, referrals: Number(values.referrals) || 0 } };
   }
 
   if (submission.department === "renewals") {
@@ -496,6 +550,7 @@ async function loadDashboardData() {
 
     targets = normalizeGoals(payload.goals || getLocalGoals());
     renderGoalInputs();
+    renderSalesLabels();
     dashboardData = normalizeSubmissionList(payload.submissions || [], date);
     elements.dashboardDate.value = dateKeyFromValue(payload.date) || date;
     renderDashboard();
@@ -511,6 +566,7 @@ async function saveGoals() {
   const goals = readGoalsFromInputs();
   targets = goals;
   saveLocalGoals(goals);
+  renderSalesLabels();
   elements.saveGoals.disabled = true;
   elements.goalStatus.textContent = "Saving...";
 
@@ -573,6 +629,7 @@ function exportHtml() {
 async function init() {
   targets = normalizeGoals(getLocalGoals());
   renderGoalInputs();
+  renderSalesLabels();
   elements.dashboardDate.value = await currentServerDate();
   elements.exportHtml.addEventListener("click", exportHtml);
   elements.refreshData.addEventListener("click", loadDashboardData);

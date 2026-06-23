@@ -1,7 +1,17 @@
 const departmentForms = {
   newSales: {
-    title: "New Sales Daily Form",
-    filePrefix: "new-sales",
+    title: "Sales Department 1 Daily Form",
+    filePrefix: "sales-department-1",
+    fields: [
+      { key: "sales", label: "Total Sales", type: "number" },
+      { key: "revenue", label: "Total Revenue Collected", type: "money" },
+      { key: "leads", label: "New Leads Generated", type: "number" },
+      { key: "referrals", label: "Insurance Referrals Created", type: "number" },
+    ],
+  },
+  newSales2: {
+    title: "Sales Department 2 Daily Form",
+    filePrefix: "sales-department-2",
     fields: [
       { key: "sales", label: "Total Sales", type: "number" },
       { key: "revenue", label: "Total Revenue Collected", type: "money" },
@@ -69,6 +79,54 @@ function todayKey() {
 
 function backendUrl() {
   return String(window.DASHBOARD_BACKEND_URL || "").trim();
+}
+
+function applyGoalLabels(goals = {}) {
+  if (departmentKey === "newSales" && goals.salesDepartmentOneName) {
+    config.title = `${goals.salesDepartmentOneName} Daily Form`;
+  }
+
+  if (departmentKey === "newSales2" && goals.salesDepartmentTwoName) {
+    config.title = `${goals.salesDepartmentTwoName} Daily Form`;
+  }
+}
+
+function loadJsonp(url) {
+  return new Promise((resolve, reject) => {
+    const callbackName = `dailyFormCallback_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    const script = document.createElement("script");
+    const separator = url.includes("?") ? "&" : "?";
+    const query = new URLSearchParams({
+      _: String(Date.now()),
+      callback: callbackName,
+    });
+
+    window[callbackName] = (payload) => {
+      delete window[callbackName];
+      script.remove();
+      resolve(payload);
+    };
+
+    script.onerror = () => {
+      delete window[callbackName];
+      script.remove();
+      reject(new Error("Could not load form settings."));
+    };
+
+    script.src = `${url}${separator}${query.toString()}`;
+    document.body.append(script);
+  });
+}
+
+async function loadFormSettings() {
+  if (!backendUrl()) return;
+
+  try {
+    const payload = await loadJsonp(backendUrl());
+    applyGoalLabels(payload.goals || {});
+  } catch {
+    // The form can still submit with its default title if settings are unavailable.
+  }
 }
 
 function canUseLocalApi() {
@@ -244,4 +302,4 @@ elements.copyShareLink.addEventListener("click", () => {
   });
 });
 
-renderFields();
+loadFormSettings().finally(renderFields);
