@@ -78,9 +78,17 @@ function doPost(e) {
 
 function doGet(e) {
   const callback = e.parameter.callback || "";
-  const date = e.parameter.date || "";
-  const rows = getRows_(date);
-  const payload = { ok: true, submissions: rows, goals: getGoals_() };
+  const action = e.parameter.action || "";
+  let payload;
+
+  if (action === "deleteDepartment") {
+    const deleted = deleteDepartmentRows_(e.parameter.date, e.parameter.department);
+    payload = { ok: true, mode: "deleted", deleted: deleted };
+  } else {
+    const date = e.parameter.date || "";
+    const rows = getRows_(date);
+    payload = { ok: true, submissions: rows, goals: getGoals_() };
+  }
 
   if (callback) {
     return ContentService.createTextOutput(`${callback}(${JSON.stringify(payload)});`)
