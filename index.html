@@ -15,6 +15,13 @@
         </div>
         <div class="date-panel">
           <label>
+            <span id="languageLabel">Language</span>
+            <select id="languageSelect">
+              <option value="en">English</option>
+              <option value="he">עברית</option>
+            </select>
+          </label>
+          <label>
             <span>Dashboard date</span>
             <input id="dashboardDate" type="date" />
           </label>
@@ -58,9 +65,14 @@
           <small>All departments</small>
         </article>
         <article class="metric-card metric-card-alert">
-          <span>Canceled calls</span>
-          <strong id="totalCancellations">0</strong>
+          <span>Abandon calls</span>
+          <strong id="totalAbandonCalls">0</strong>
           <small>Customer service daily risk</small>
+        </article>
+        <article class="metric-card">
+          <span>New tax returns</span>
+          <strong id="totalNewTaxReturns">0</strong>
+          <small>Collection tracking only</small>
         </article>
       </section>
 
@@ -119,11 +131,10 @@
           <div class="mini-metrics">
             <div><span>Calls received</span><strong id="serviceIncoming">0</strong></div>
             <div><span>Calls answered</span><strong id="serviceAnswered">0</strong></div>
-            <div><span>Missed calls</span><strong id="serviceMissed">0</strong></div>
+            <div><span>Abandon calls</span><strong id="serviceAbandonCalls">0</strong></div>
             <div><span>Answer rate</span><strong id="serviceAnswerRate">0%</strong></div>
-            <div><span>Canceled calls</span><strong id="serviceCanceled">0</strong></div>
-            <div><span>Deleted calls</span><strong id="serviceDeleted">0</strong></div>
-            <div><span>Answers sent</span><strong id="serviceAnswers">0</strong></div>
+            <div><span>New Chat</span><strong id="serviceNewChat">0</strong></div>
+            <div><span>Chat Closed</span><strong id="serviceChatClosed">0</strong></div>
           </div>
         </article>
 
@@ -134,8 +145,8 @@
           </div>
           <div class="mini-metrics">
             <div><span>General</span><strong id="collectionGeneral">ILS 0</strong></div>
-            <div><span>Tax-return fees</span><strong id="collectionTaxReturn">ILS 0</strong></div>
-            <div><span>Total</span><strong id="collectionTotal">ILS 0</strong></div>
+            <div><span>Total revenue</span><strong id="collectionTotal">ILS 0</strong></div>
+            <div><span>New tax returns</span><strong id="collectionNewTaxReturns">0</strong></div>
             <div><span>Referrals</span><strong id="collectionReferrals">0</strong></div>
           </div>
         </article>
@@ -197,6 +208,10 @@
             <label>
               <span>Collection total goal</span>
               <input id="goalCollectionTotal" type="number" min="0" step="1" />
+            </label>
+            <label>
+              <span>New tax returns goal</span>
+              <input id="goalNewTaxReturns" type="number" min="0" step="1" />
             </label>
           </div>
           <div class="panel-actions">

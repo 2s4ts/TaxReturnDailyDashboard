@@ -17,9 +17,94 @@ const defaultTargets = {
   renewalRevenue: 14000,
   serviceAnswerRate: 85,
   collectionTotal: 65000,
+  newTaxReturns: 20,
 };
 
 let targets = { ...defaultTargets };
+
+const translations = {
+  he: {
+    "Daily performance": "ביצועים יומיים",
+    "Tax Return Operations": "תפעול החזרי מס",
+    Language: "שפה",
+    "Dashboard date": "תאריך לוח הבקרה",
+    Refresh: "רענן",
+    "Export HTML": "ייצוא HTML",
+    "Daily mark": "ציון יומי",
+    "Waiting for today's data": "ממתין לנתוני היום",
+    "Total daily revenue": "סה\"כ הכנסה יומית",
+    "Sales, renewals, and collections": "מכירות, חידושים וגבייה",
+    "Total daily sales": "סה\"כ מכירות יומיות",
+    "Sales departments + renewals": "מחלקות מכירות + חידושים",
+    "Total leads": "סה\"כ לידים",
+    "New + renewal leads": "לידים חדשים + חידושים",
+    "Insurance referrals": "הפניות ביטוח",
+    "All departments": "כל המחלקות",
+    "Abandon calls": "שיחות נטושות",
+    "Customer service daily risk": "מדד סיכון יומי שירות לקוחות",
+    "New tax returns": "דוחות מס חדשים",
+    "Collection tracking only": "מעקב גבייה בלבד",
+    Bad: "לא טוב",
+    Okay: "בסדר",
+    "Okay okay": "בסדר טוב",
+    "Really good": "מצוין",
+    Sales: "מכירות",
+    Revenue: "הכנסה",
+    Leads: "לידים",
+    Referrals: "הפניות",
+    "Renewal Sales": "מכירות חידושים",
+    Renewals: "חידושים",
+    "Customer Service": "שירות לקוחות",
+    "Calls received": "שיחות שהתקבלו",
+    "Calls answered": "שיחות שנענו",
+    "Answer rate": "אחוז מענה",
+    "New Chat": "צ'אט חדש",
+    "Chat Closed": "צ'אט נסגר",
+    Collection: "גבייה",
+    General: "כללי",
+    "Total revenue": "סה\"כ הכנסה",
+    "Revenue by source": "הכנסה לפי מקור",
+    "Service answer rate": "אחוז מענה שירות",
+    "Daily Goals": "יעדים יומיים",
+    "Using saved goals": "משתמש ביעדים שמורים",
+    "Sales department 1 name": "שם מחלקת מכירות 1",
+    "Sales department 1 revenue goal": "יעד הכנסה מחלקת מכירות 1",
+    "Sales department 2 name": "שם מחלקת מכירות 2",
+    "Sales department 2 revenue goal": "יעד הכנסה מחלקת מכירות 2",
+    "Renewal revenue goal": "יעד הכנסה חידושים",
+    "Service answer rate goal (%)": "יעד אחוז מענה שירות (%)",
+    "Collection total goal": "יעד גבייה כללי",
+    "New tax returns goal": "יעד דוחות מס חדשים",
+    "Save goals": "שמור יעדים",
+    "Fix Mistakes": "תיקון טעויות",
+    "Delete selected department data": "מחיקת נתוני מחלקה נבחרת",
+    Department: "מחלקה",
+    "Delete data for selected date": "מחק נתונים לתאריך הנבחר",
+    "Sales Department 1": "מחלקת מכירות 1",
+    "Sales Department 2": "מחלקת מכירות 2",
+    form: "טופס",
+    "Sales Department 1 form": "טופס מחלקת מכירות 1",
+    "Sales Department 2 form": "טופס מחלקת מכירות 2",
+    "Renewal Sales form": "טופס מכירות חידושים",
+    "Customer Service form": "טופס שירות לקוחות",
+    "Collection form": "טופס גבייה",
+    "Collection - General": "גבייה - כללי",
+    "Goals saved": "היעדים נשמרו",
+    "Could not save goals": "לא ניתן לשמור יעדים",
+    Saving: "שומר...",
+    Refreshing: "מרענן...",
+    Deleting: "מוחק...",
+    "Delete failed": "המחיקה נכשלה",
+  },
+};
+
+function languageKey() {
+  return localStorage.getItem("dashboardLanguage") || "en";
+}
+
+function t(text) {
+  return translations[languageKey()]?.[text] || text;
+}
 
 const elements = {
   dashboardDate: document.querySelector("#dashboardDate"),
@@ -31,7 +116,9 @@ const elements = {
   totalSales: document.querySelector("#totalSales"),
   totalLeads: document.querySelector("#totalLeads"),
   totalReferrals: document.querySelector("#totalReferrals"),
-  totalCancellations: document.querySelector("#totalCancellations"),
+  totalAbandonCalls: document.querySelector("#totalAbandonCalls"),
+  totalNewTaxReturns: document.querySelector("#totalNewTaxReturns"),
+  languageSelect: document.querySelector("#languageSelect"),
   newSalesStatus: document.querySelector("#newSalesStatus"),
   newSales2Status: document.querySelector("#newSales2Status"),
   renewalsStatus: document.querySelector("#renewalsStatus"),
@@ -55,14 +142,13 @@ const elements = {
   renewalReferrals: document.querySelector("#renewalReferrals"),
   serviceIncoming: document.querySelector("#serviceIncoming"),
   serviceAnswered: document.querySelector("#serviceAnswered"),
-  serviceMissed: document.querySelector("#serviceMissed"),
+  serviceAbandonCalls: document.querySelector("#serviceAbandonCalls"),
   serviceAnswerRate: document.querySelector("#serviceAnswerRate"),
-  serviceCanceled: document.querySelector("#serviceCanceled"),
-  serviceDeleted: document.querySelector("#serviceDeleted"),
-  serviceAnswers: document.querySelector("#serviceAnswers"),
+  serviceNewChat: document.querySelector("#serviceNewChat"),
+  serviceChatClosed: document.querySelector("#serviceChatClosed"),
   collectionGeneral: document.querySelector("#collectionGeneral"),
-  collectionTaxReturn: document.querySelector("#collectionTaxReturn"),
   collectionTotal: document.querySelector("#collectionTotal"),
+  collectionNewTaxReturns: document.querySelector("#collectionNewTaxReturns"),
   collectionReferrals: document.querySelector("#collectionReferrals"),
   revenueTotalLabel: document.querySelector("#revenueTotalLabel"),
   revenueBars: document.querySelector("#revenueBars"),
@@ -78,6 +164,7 @@ const elements = {
   goalRenewalRevenue: document.querySelector("#goalRenewalRevenue"),
   goalServiceAnswerRate: document.querySelector("#goalServiceAnswerRate"),
   goalCollectionTotal: document.querySelector("#goalCollectionTotal"),
+  goalNewTaxReturns: document.querySelector("#goalNewTaxReturns"),
   saveGoals: document.querySelector("#saveGoals"),
   deleteStatus: document.querySelector("#deleteStatus"),
   deleteDepartment: document.querySelector("#deleteDepartment"),
@@ -198,16 +285,14 @@ function getMetrics(data) {
   const renewalReferrals = sum(data.renewals, "referrals");
   const serviceIncoming = sumAny(data.service, "callsReceived", "incoming");
   const serviceAnswered = sumAny(data.service, "callsAnswered", "answered");
-  const enteredMissedCalls = sumAny(data.service, "missedCalls");
-  const serviceMissed = enteredMissedCalls || Math.max(serviceIncoming - serviceAnswered, 0);
-  const serviceCancellations = sumAny(data.service, "canceledCalls", "cancellations");
-  const serviceDeleted = sumAny(data.service, "deletedCalls");
-  const serviceAnswers = sumAny(data.service, "answers", "serviceSales");
+  const serviceAbandonCalls = sumAny(data.service, "abandonCalls");
+  const serviceNewChat = sumAny(data.service, "newChat");
+  const serviceChatClosed = sumAny(data.service, "chatClosed");
   const serviceAnswerRate = serviceIncoming ? (serviceAnswered / serviceIncoming) * 100 : 0;
   const collectionGeneral = sum(data.collection, "general");
-  const collectionTaxReturn = sum(data.collection, "taxReturnFees");
+  const collectionNewTaxReturns = sumAny(data.collection, "newTaxReturns");
   const collectionReferrals = sum(data.collection, "referrals");
-  const collectionTotal = collectionGeneral + collectionTaxReturn;
+  const collectionTotal = collectionGeneral;
 
   return {
     newSalesCount,
@@ -224,13 +309,12 @@ function getMetrics(data) {
     renewalReferrals,
     serviceIncoming,
     serviceAnswered,
-    serviceMissed,
-    serviceCancellations,
-    serviceDeleted,
-    serviceAnswers,
+    serviceAbandonCalls,
+    serviceNewChat,
+    serviceChatClosed,
     serviceAnswerRate,
     collectionGeneral,
-    collectionTaxReturn,
+    collectionNewTaxReturns,
     collectionReferrals,
     collectionTotal,
     totalRevenue: newSalesRevenue + newSales2Revenue + renewalRevenue + collectionTotal,
@@ -241,10 +325,10 @@ function getMetrics(data) {
 }
 
 function markerForRatio(ratio) {
-  if (ratio >= 1) return { key: "great", label: "Really good" };
-  if (ratio >= 0.75) return { key: "good", label: "Okay okay" };
-  if (ratio >= 0.5) return { key: "okay", label: "Okay" };
-  return { key: "bad", label: "Bad" };
+  if (ratio >= 1) return { key: "great", label: t("Really good") };
+  if (ratio >= 0.75) return { key: "good", label: t("Okay okay") };
+  if (ratio >= 0.5) return { key: "okay", label: t("Okay") };
+  return { key: "bad", label: t("Bad") };
 }
 
 function setMarker(element, ratio, detail) {
@@ -267,6 +351,7 @@ function weightedDailyRatio(metrics) {
     Math.min(metrics.renewalRevenue / targets.renewalRevenue, 1.25),
     Math.min(metrics.serviceAnswerRate / targets.serviceAnswerRate, 1.25),
     Math.min(metrics.collectionTotal / targets.collectionTotal, 1.25),
+    Math.min(metrics.collectionNewTaxReturns / targets.newTaxReturns, 1.25),
   ];
   return ratios.reduce((total, ratio) => total + ratio, 0) / ratios.length;
 }
@@ -280,6 +365,7 @@ function normalizeGoals(goals = {}) {
     renewalRevenue: Number(goals.renewalRevenue) || defaultTargets.renewalRevenue,
     serviceAnswerRate: Number(goals.serviceAnswerRate) || defaultTargets.serviceAnswerRate,
     collectionTotal: Number(goals.collectionTotal) || defaultTargets.collectionTotal,
+    newTaxReturns: Number(goals.newTaxReturns) || defaultTargets.newTaxReturns,
   };
 }
 
@@ -292,6 +378,7 @@ function readGoalsFromInputs() {
     renewalRevenue: elements.goalRenewalRevenue.value,
     serviceAnswerRate: elements.goalServiceAnswerRate.value,
     collectionTotal: elements.goalCollectionTotal.value,
+    newTaxReturns: elements.goalNewTaxReturns.value,
   });
 }
 
@@ -303,19 +390,43 @@ function renderGoalInputs() {
   elements.goalRenewalRevenue.value = targets.renewalRevenue;
   elements.goalServiceAnswerRate.value = targets.serviceAnswerRate;
   elements.goalCollectionTotal.value = targets.collectionTotal;
+  elements.goalNewTaxReturns.value = targets.newTaxReturns;
 }
 
 function renderSalesLabels() {
-  elements.newSalesTitle.textContent = targets.salesDepartmentOneName;
-  elements.newSales2Title.textContent = targets.salesDepartmentTwoName;
-  elements.newSalesFormLink.textContent = `${targets.salesDepartmentOneName} form`;
-  elements.newSales2FormLink.textContent = `${targets.salesDepartmentTwoName} form`;
+  const salesOneName = t(targets.salesDepartmentOneName);
+  const salesTwoName = t(targets.salesDepartmentTwoName);
+  elements.newSalesTitle.textContent = salesOneName;
+  elements.newSales2Title.textContent = salesTwoName;
+  elements.newSalesFormLink.textContent = `${salesOneName} ${t("form")}`;
+  elements.newSales2FormLink.textContent = `${salesTwoName} ${t("form")}`;
 
   const options = Array.from(elements.deleteDepartment.options);
   const salesOne = options.find((option) => option.value === "newSales");
   const salesTwo = options.find((option) => option.value === "newSales2");
-  if (salesOne) salesOne.textContent = targets.salesDepartmentOneName;
-  if (salesTwo) salesTwo.textContent = targets.salesDepartmentTwoName;
+  if (salesOne) salesOne.textContent = salesOneName;
+  if (salesTwo) salesTwo.textContent = salesTwoName;
+}
+
+function translateStaticDashboardText() {
+  document.documentElement.lang = languageKey();
+  document.documentElement.dir = languageKey() === "he" ? "rtl" : "ltr";
+  document.title = t("Daily performance");
+  elements.languageSelect.value = languageKey();
+
+  const textNodes = [];
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  let node = walker.nextNode();
+  while (node) {
+    if (node.nodeValue.trim()) textNodes.push(node);
+    node = walker.nextNode();
+  }
+
+  for (const textNode of textNodes) {
+    const text = textNode.nodeValue.trim();
+    const translated = t(text);
+    if (translated !== text) textNode.nodeValue = textNode.nodeValue.replace(text, translated);
+  }
 }
 
 function renderDailyMark(metrics) {
@@ -335,7 +446,7 @@ function renderBars(rows) {
     wrapper.className = "bar-row";
     wrapper.innerHTML = `
       <div class="bar-label">
-        <strong>${row.label}</strong>
+        <strong>${t(row.label)}</strong>
         <span class="bar-meta">${row.meta}</span>
       </div>
       <div class="bar-track"><div style="width: ${Math.max((row.value / largest) * 100, 3)}%"></div></div>
@@ -347,10 +458,9 @@ function renderBars(rows) {
 
 function renderRiskList(metrics) {
   const risks = [
-    ["Missed calls", `${metrics.serviceMissed} today`],
-    ["Canceled calls", `${metrics.serviceCancellations} today`],
-    ["Deleted calls", `${metrics.serviceDeleted} today`],
-    ["Answers / responses", `${metrics.serviceAnswers} sent`],
+    [t("Abandon calls"), `${metrics.serviceAbandonCalls}`],
+    [t("New Chat"), `${metrics.serviceNewChat}`],
+    [t("Chat Closed"), `${metrics.serviceChatClosed}`],
   ];
 
   elements.serviceRiskList.innerHTML = "";
@@ -370,7 +480,8 @@ function renderDashboard() {
   elements.totalSales.textContent = String(metrics.totalSales);
   elements.totalLeads.textContent = String(metrics.totalLeads);
   elements.totalReferrals.textContent = String(metrics.totalReferrals);
-  elements.totalCancellations.textContent = String(metrics.serviceCancellations);
+  elements.totalAbandonCalls.textContent = String(metrics.serviceAbandonCalls);
+  elements.totalNewTaxReturns.textContent = String(metrics.collectionNewTaxReturns);
 
   elements.newSalesCount.textContent = String(metrics.newSalesCount);
   elements.newSalesRevenue.textContent = money(metrics.newSalesRevenue);
@@ -389,15 +500,14 @@ function renderDashboard() {
 
   elements.serviceIncoming.textContent = String(metrics.serviceIncoming);
   elements.serviceAnswered.textContent = String(metrics.serviceAnswered);
-  elements.serviceMissed.textContent = String(metrics.serviceMissed);
+  elements.serviceAbandonCalls.textContent = String(metrics.serviceAbandonCalls);
   elements.serviceAnswerRate.textContent = percent(metrics.serviceAnswerRate);
-  elements.serviceCanceled.textContent = String(metrics.serviceCancellations);
-  elements.serviceDeleted.textContent = String(metrics.serviceDeleted);
-  elements.serviceAnswers.textContent = String(metrics.serviceAnswers);
+  elements.serviceNewChat.textContent = String(metrics.serviceNewChat);
+  elements.serviceChatClosed.textContent = String(metrics.serviceChatClosed);
 
   elements.collectionGeneral.textContent = money(metrics.collectionGeneral);
-  elements.collectionTaxReturn.textContent = money(metrics.collectionTaxReturn);
   elements.collectionTotal.textContent = money(metrics.collectionTotal);
+  elements.collectionNewTaxReturns.textContent = String(metrics.collectionNewTaxReturns);
   elements.collectionReferrals.textContent = String(metrics.collectionReferrals);
 
   setStatus(elements.newSalesStatus, metrics.newSalesRevenue, targets.newSalesRevenue);
@@ -408,11 +518,10 @@ function renderDashboard() {
 
   elements.revenueTotalLabel.textContent = money(metrics.totalRevenue);
   renderBars([
-    { label: targets.salesDepartmentOneName, value: metrics.newSalesRevenue, meta: `${metrics.newSalesCount} sales` },
-    { label: targets.salesDepartmentTwoName, value: metrics.newSales2Revenue, meta: `${metrics.newSales2Count} sales` },
-    { label: "Renewal Sales", value: metrics.renewalRevenue, meta: `${metrics.renewalSalesCount} renewals` },
-    { label: "Collection - General", value: metrics.collectionGeneral, meta: "General collection" },
-    { label: "Collection - Tax-return fees", value: metrics.collectionTaxReturn, meta: "Successful returns" },
+    { label: targets.salesDepartmentOneName, value: metrics.newSalesRevenue, meta: `${metrics.newSalesCount} ${t("Sales")}` },
+    { label: targets.salesDepartmentTwoName, value: metrics.newSales2Revenue, meta: `${metrics.newSales2Count} ${t("Sales")}` },
+    { label: "Renewal Sales", value: metrics.renewalRevenue, meta: `${metrics.renewalSalesCount} ${t("Renewals")}` },
+    { label: "Collection - General", value: metrics.collectionGeneral, meta: t("General") },
   ]);
 
   const answerRate = Math.min(metrics.serviceAnswerRate, 100);
@@ -438,23 +547,21 @@ function normalizeSubmission(submission) {
   if (submission.department === "service") {
     const callsReceived = value(values, "callsReceived", "incoming");
     const callsAnswered = value(values, "callsAnswered", "answered");
-    const missedCalls = value(values, "missedCalls") || Math.max(callsReceived - callsAnswered, 0);
     return {
       department: "service",
       row: {
         name,
         callsReceived,
         callsAnswered,
-        missedCalls,
-        canceledCalls: value(values, "canceledCalls", "cancellations"),
-        deletedCalls: value(values, "deletedCalls"),
-        answers: value(values, "answers", "serviceSales"),
+        abandonCalls: value(values, "abandonCalls"),
+        newChat: value(values, "newChat"),
+        chatClosed: value(values, "chatClosed"),
       },
     };
   }
 
   if (submission.department === "collection") {
-    return { department: "collection", row: { name, general: Number(values.general) || 0, taxReturnFees: Number(values.taxReturnFees) || 0, referrals: Number(values.referrals) || 0 } };
+    return { department: "collection", row: { name, general: Number(values.general) || 0, newTaxReturns: Number(values.newTaxReturns) || 0, referrals: Number(values.referrals) || 0 } };
   }
 
   return null;
@@ -528,7 +635,7 @@ async function postBackend(payload) {
 
 async function loadDashboardData() {
   elements.refreshData.disabled = true;
-  elements.refreshData.textContent = "Refreshing...";
+  elements.refreshData.textContent = t("Refreshing");
 
   try {
     const date = elements.dashboardDate.value || await currentServerDate();
@@ -558,7 +665,7 @@ async function loadDashboardData() {
     window.alert(error instanceof Error ? error.message : "Could not load dashboard data.");
   } finally {
     elements.refreshData.disabled = false;
-    elements.refreshData.textContent = "Refresh";
+    elements.refreshData.textContent = t("Refresh");
   }
 }
 
@@ -568,14 +675,14 @@ async function saveGoals() {
   saveLocalGoals(goals);
   renderSalesLabels();
   elements.saveGoals.disabled = true;
-  elements.goalStatus.textContent = "Saving...";
+  elements.goalStatus.textContent = t("Saving");
 
   try {
     await postBackend({ action: "saveGoals", goals });
-    elements.goalStatus.textContent = "Goals saved";
+    elements.goalStatus.textContent = t("Goals saved");
     renderDashboard();
   } catch (error) {
-    elements.goalStatus.textContent = "Could not save goals";
+    elements.goalStatus.textContent = t("Could not save goals");
     window.alert(error instanceof Error ? error.message : "Could not save goals.");
   } finally {
     elements.saveGoals.disabled = false;
@@ -590,7 +697,7 @@ async function deleteDepartmentData() {
   if (!confirmed) return;
 
   elements.deleteDepartmentData.disabled = true;
-  elements.deleteStatus.textContent = "Deleting...";
+  elements.deleteStatus.textContent = t("Deleting");
 
   try {
     let result = { deleted: 0 };
@@ -610,7 +717,7 @@ async function deleteDepartmentData() {
     await loadDashboardData();
     elements.deleteStatus.textContent = `Deleted ${deletedCount}`;
   } catch (error) {
-    elements.deleteStatus.textContent = "Delete failed";
+    elements.deleteStatus.textContent = t("Delete failed");
     window.alert(error instanceof Error ? error.message : "Could not delete department data.");
   } finally {
     elements.deleteDepartmentData.disabled = false;
@@ -639,6 +746,7 @@ function exportHtml() {
 }
 
 async function init() {
+  translateStaticDashboardText();
   targets = normalizeGoals(getLocalGoals());
   renderGoalInputs();
   renderSalesLabels();
@@ -648,6 +756,10 @@ async function init() {
   elements.dashboardDate.addEventListener("change", loadDashboardData);
   elements.saveGoals.addEventListener("click", saveGoals);
   elements.deleteDepartmentData.addEventListener("click", deleteDepartmentData);
+  elements.languageSelect.addEventListener("change", () => {
+    localStorage.setItem("dashboardLanguage", elements.languageSelect.value);
+    window.location.reload();
+  });
   await loadDashboardData();
   setInterval(loadDashboardData, 60000);
 }

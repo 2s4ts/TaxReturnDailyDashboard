@@ -82,13 +82,22 @@ h2 {
   font-weight: 800;
 }
 
-.date-panel input {
+.date-panel input,
+.date-panel select {
   min-height: 40px;
   border: 1px solid #ccd5df;
   border-radius: 6px;
   padding: 0 10px;
   color: #16202a;
   background: #ffffff;
+}
+
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="rtl"] .bar-value {
+  text-align: left;
 }
 
 .file-button {

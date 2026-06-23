@@ -19,6 +19,10 @@ const HEADERS = [
   "answers",
   "general",
   "taxReturnFees",
+  "abandonCalls",
+  "newChat",
+  "chatClosed",
+  "newTaxReturns",
 ];
 const DEFAULT_GOALS = {
   salesDepartmentOneName: "Sales Department 1",
@@ -28,6 +32,7 @@ const DEFAULT_GOALS = {
   renewalRevenue: 14000,
   serviceAnswerRate: 85,
   collectionTotal: 65000,
+  newTaxReturns: 20,
 };
 
 function doPost(e) {
@@ -64,6 +69,10 @@ function doPost(e) {
     number_(values.answers || values.serviceSales),
     number_(values.general),
     number_(values.taxReturnFees),
+    number_(values.abandonCalls),
+    number_(values.newChat),
+    number_(values.chatClosed),
+    number_(values.newTaxReturns),
   ];
   const existingRow = findExistingRow_(sheet, date, payload.department || "", payload.name || "");
 
@@ -106,6 +115,7 @@ function getSheet_() {
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(HEADERS);
   }
+  sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
 
   sheet.getRange("B:B").setNumberFormat("@");
 
@@ -173,6 +183,7 @@ function saveGoals_(goals) {
     renewalRevenue: number_(goals.renewalRevenue) || DEFAULT_GOALS.renewalRevenue,
     serviceAnswerRate: number_(goals.serviceAnswerRate) || DEFAULT_GOALS.serviceAnswerRate,
     collectionTotal: number_(goals.collectionTotal) || DEFAULT_GOALS.collectionTotal,
+    newTaxReturns: number_(goals.newTaxReturns) || DEFAULT_GOALS.newTaxReturns,
   };
 
   sheet.clearContents();
@@ -252,6 +263,10 @@ function rowToSubmission_(row) {
       answers: number_(row.answers || row.serviceSales),
       general: number_(row.general),
       taxReturnFees: number_(row.taxReturnFees),
+      abandonCalls: number_(row.abandonCalls),
+      newChat: number_(row.newChat),
+      chatClosed: number_(row.chatClosed),
+      newTaxReturns: number_(row.newTaxReturns),
     },
   };
 }
