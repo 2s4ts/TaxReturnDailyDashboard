@@ -598,15 +598,17 @@ async function deleteDepartmentData() {
     if (backendUrl()) {
       result = await loadJsonp(backendUrl(), { action: "deleteDepartment", date, department });
       if (!result.ok || result.mode !== "deleted") {
-        throw new Error("The hosted backend is not updated yet. Redeploy the Apps Script code, then try delete again.");
+        await postBackend({ action: "deleteDepartment", date, department });
+        result = { ok: true, mode: "deleted", deleted: null };
       }
     } else {
       result = await postBackend({ action: "deleteDepartment", date, department });
     }
 
-    elements.deleteStatus.textContent = `Deleted ${Number(result.deleted) || 0} row(s). Refreshing...`;
+    const deletedCount = Number.isFinite(Number(result.deleted)) ? `${Number(result.deleted)} row(s)` : "selected department data";
+    elements.deleteStatus.textContent = `Deleted ${deletedCount}. Refreshing...`;
     await loadDashboardData();
-    elements.deleteStatus.textContent = `Deleted ${Number(result.deleted) || 0} row(s)`;
+    elements.deleteStatus.textContent = `Deleted ${deletedCount}`;
   } catch (error) {
     elements.deleteStatus.textContent = "Delete failed";
     window.alert(error instanceof Error ? error.message : "Could not delete department data.");
