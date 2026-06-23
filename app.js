@@ -106,6 +106,27 @@ function localDateKey() {
   return `${values.year}-${values.month}-${values.day}`;
 }
 
+function dateKeyFromValue(value) {
+  if (!value) return "";
+
+  if (typeof value === "string") {
+    const simpleDate = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (simpleDate) return value;
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Jerusalem",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
 function backendUrl() {
   return String(window.DASHBOARD_BACKEND_URL || "").trim();
 }
@@ -402,9 +423,10 @@ function normalizeSubmission(submission) {
   return null;
 }
 
-function normalizeSubmissionList(submissions) {
+function normalizeSubmissionList(submissions, date) {
   const nextData = structuredClone(emptyData);
   for (const submission of submissions || []) {
+    if (date && dateKeyFromValue(submission.date) !== date) continue;
     const normalized = normalizeSubmission(submission);
     if (!normalized) continue;
     nextData[normalized.department].push(normalized.row);
@@ -412,10 +434,15 @@ function normalizeSubmissionList(submissions) {
   return nextData;
 }
 
-function loadJsonp(url) {
+function loadJsonp(url, params = {}) {
   return new Promise((resolve, reject) => {
     const callbackName = `dailyDashboardCallback_${Date.now()}_${Math.random().toString(36).slice(2)}`;
     const script = document.createElement("script");
+    const query = new URLSearchParams({
+      ...params,
+      _: String(Date.now()),
+      callback: callbackName,
+    });
     const separator = url.includes("?") ? "&" : "?";
 
     window[callbackName] = (payload) => {
@@ -430,7 +457,7 @@ function loadJsonp(url) {
       reject(new Error("Could not load hosted dashboard data."));
     };
 
-    script.src = `${url}${separator}date=${encodeURIComponent(elements.dashboardDate.value || localDateKey())}&callback=${encodeURIComponent(callbackName)}`;
+    script.src = `${url}${separator}${query.toString()}`;
     document.body.append(script);
   });
 }
@@ -457,8 +484,8 @@ async function loadDashboardData() {
       payload = { date, submissions: [] };
     }
 
-    dashboardData = normalizeSubmissionList(payload.submissions || []);
-    elements.dashboardDate.value = payload.date || date;
+    dashboardData = normalizeSubmissionList(payload.submissions || [], date);
+    elements.dashboardDate.value = dateKeyFromValue(payload.date) || date;
     renderDashboard();
   } catch (error) {
     window.alert(error instanceof Error ? error.message : "Could not load dashboard data.");
