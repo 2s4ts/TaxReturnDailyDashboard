@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Opening dashboard</title>
+    <script>
+      const basePath = "/TaxReturnDailyDashboard/";
+      const path = window.location.pathname.toLowerCase();
+      const dashboardPaths = ["/dashboard", "/dashboard/", "/dashbord", "/dashbord/", "/dasborad", "/dasborad/"];
+      const relativePath = path.replace(basePath.toLowerCase(), "/");
+
+      if (dashboardPaths.includes(relativePath)) {
+        window.location.replace(`${basePath}dashboard.html${window.location.search}`);
+      } else {
+        window.location.replace(basePath);
+      }
+    </script>
+  </head>
+  <body>
+    <p>Opening the correct page...</p>
+  </body>
+</html>
