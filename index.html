@@ -3,248 +3,57 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Daily Tax Return Dashboard</title>
+    <title>Daily Department Forms</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <main class="app-shell">
+    <main class="app-shell portal-shell">
       <header class="topbar">
         <div>
-          <p class="eyebrow">Daily performance</p>
-          <h1>Tax Return Operations</h1>
+          <p class="eyebrow" data-i18n="Daily entry portal">Daily entry portal</p>
+          <h1 data-i18n="Choose your department form">Choose your department form</h1>
         </div>
         <div class="date-panel">
           <label>
-            <span id="languageLabel">Language</span>
+            <span data-i18n="Language">Language</span>
             <select id="languageSelect">
               <option value="en">English</option>
               <option value="he">עברית</option>
             </select>
           </label>
-          <label>
-            <span>Dashboard date</span>
-            <input id="dashboardDate" type="date" />
-          </label>
-          <button id="refreshData" class="secondary-button" type="button">Refresh</button>
-          <button id="exportHtml" class="primary-button" type="button">Export HTML</button>
         </div>
       </header>
 
-      <section class="link-grid" aria-label="Department form links">
-        <a id="newSalesFormLink" href="form.html?department=newSales">Sales Department 1 form</a>
-        <a id="newSales2FormLink" href="form.html?department=newSales2">Sales Department 2 form</a>
-        <a href="form.html?department=renewals">Renewal Sales form</a>
-        <a href="form.html?department=service">Customer Service form</a>
-        <a href="form.html?department=collection">Collection form</a>
+      <section class="portal-panel">
+        <p data-i18n="Open your department form and submit today's numbers.">
+          Open your department form and submit today's numbers.
+        </p>
+        <div class="portal-grid" aria-label="Department form links">
+          <a id="newSalesFormLink" href="form.html?department=newSales">
+            <strong data-i18n="Sales Department 1">Sales Department 1</strong>
+            <span data-i18n="Daily Form">Daily Form</span>
+          </a>
+          <a id="newSales2FormLink" href="form.html?department=newSales2">
+            <strong data-i18n="Sales Department 2">Sales Department 2</strong>
+            <span data-i18n="Daily Form">Daily Form</span>
+          </a>
+          <a href="form.html?department=renewals">
+            <strong data-i18n="Renewal Sales">Renewal Sales</strong>
+            <span data-i18n="Daily Form">Daily Form</span>
+          </a>
+          <a href="form.html?department=service">
+            <strong data-i18n="Customer Service">Customer Service</strong>
+            <span data-i18n="Daily Form">Daily Form</span>
+          </a>
+          <a href="form.html?department=collection">
+            <strong data-i18n="Collection">Collection</strong>
+            <span data-i18n="Daily Form">Daily Form</span>
+          </a>
+        </div>
       </section>
-
-      <section class="summary-grid" aria-label="Executive summary">
-        <article class="metric-card daily-mark-card">
-          <span>Daily mark</span>
-          <strong id="dailyMark">0%</strong>
-          <small id="dailyMarkLabel">Waiting for today's data</small>
-        </article>
-        <article class="metric-card metric-card-money">
-          <span>Total daily revenue</span>
-          <strong id="totalRevenue">ILS 0</strong>
-          <small>Sales, renewals, and collections</small>
-        </article>
-        <article class="metric-card">
-          <span>Total daily sales</span>
-          <strong id="totalSales">0</strong>
-          <small>Sales departments + renewals</small>
-        </article>
-        <article class="metric-card">
-          <span>Total leads</span>
-          <strong id="totalLeads">0</strong>
-          <small>New + renewal leads</small>
-        </article>
-        <article class="metric-card">
-          <span>Insurance referrals</span>
-          <strong id="totalReferrals">0</strong>
-          <small>All departments</small>
-        </article>
-        <article class="metric-card metric-card-alert">
-          <span>Abandon calls</span>
-          <strong id="totalAbandonCalls">0</strong>
-          <small>Customer service daily risk</small>
-        </article>
-        <article class="metric-card">
-          <span>New tax returns</span>
-          <strong id="totalNewTaxReturns">0</strong>
-          <small>Collection tracking only</small>
-        </article>
-      </section>
-
-      <section class="marker-legend" aria-label="Daily marker legend">
-        <span class="marker marker-bad">Bad</span>
-        <span class="marker marker-okay">Okay</span>
-        <span class="marker marker-good">Okay okay</span>
-        <span class="marker marker-great">Really good</span>
-      </section>
-
-      <section class="department-grid" aria-label="Department scorecards">
-        <article class="department-card" data-department="newSales">
-          <div class="department-header">
-            <h2 id="newSalesTitle">Sales Department 1</h2>
-            <span id="newSalesStatus"></span>
-          </div>
-          <div class="mini-metrics">
-            <div><span>Sales</span><strong id="newSalesCount">0</strong></div>
-            <div><span>Revenue</span><strong id="newSalesRevenue">ILS 0</strong></div>
-            <div><span>Leads</span><strong id="newSalesLeads">0</strong></div>
-            <div><span>Referrals</span><strong id="newSalesReferrals">0</strong></div>
-          </div>
-        </article>
-
-        <article class="department-card" data-department="newSales2">
-          <div class="department-header">
-            <h2 id="newSales2Title">Sales Department 2</h2>
-            <span id="newSales2Status"></span>
-          </div>
-          <div class="mini-metrics">
-            <div><span>Sales</span><strong id="newSales2Count">0</strong></div>
-            <div><span>Revenue</span><strong id="newSales2Revenue">ILS 0</strong></div>
-            <div><span>Leads</span><strong id="newSales2Leads">0</strong></div>
-            <div><span>Referrals</span><strong id="newSales2Referrals">0</strong></div>
-          </div>
-        </article>
-
-        <article class="department-card" data-department="renewals">
-          <div class="department-header">
-            <h2>Renewal Sales</h2>
-            <span id="renewalsStatus"></span>
-          </div>
-          <div class="mini-metrics">
-            <div><span>Renewals</span><strong id="renewalSalesCount">0</strong></div>
-            <div><span>Revenue</span><strong id="renewalRevenue">ILS 0</strong></div>
-            <div><span>Leads</span><strong id="renewalLeads">0</strong></div>
-            <div><span>Referrals</span><strong id="renewalReferrals">0</strong></div>
-          </div>
-        </article>
-
-        <article class="department-card" data-department="service">
-          <div class="department-header">
-            <h2>Customer Service</h2>
-            <span id="serviceStatus"></span>
-          </div>
-          <div class="mini-metrics">
-            <div><span>Calls received</span><strong id="serviceIncoming">0</strong></div>
-            <div><span>Calls answered</span><strong id="serviceAnswered">0</strong></div>
-            <div><span>Abandon calls</span><strong id="serviceAbandonCalls">0</strong></div>
-            <div><span>Answer rate</span><strong id="serviceAnswerRate">0%</strong></div>
-            <div><span>New Chat</span><strong id="serviceNewChat">0</strong></div>
-            <div><span>Chat Closed</span><strong id="serviceChatClosed">0</strong></div>
-          </div>
-        </article>
-
-        <article class="department-card" data-department="collection">
-          <div class="department-header">
-            <h2>Collection</h2>
-            <span id="collectionStatus"></span>
-          </div>
-          <div class="mini-metrics">
-            <div><span>General</span><strong id="collectionGeneral">ILS 0</strong></div>
-            <div><span>Total revenue</span><strong id="collectionTotal">ILS 0</strong></div>
-            <div><span>New tax returns</span><strong id="collectionNewTaxReturns">0</strong></div>
-            <div><span>Referrals</span><strong id="collectionReferrals">0</strong></div>
-          </div>
-        </article>
-      </section>
-
-      <section class="visual-grid" aria-label="Management visuals">
-        <article class="panel">
-          <div class="panel-header">
-            <h2>Revenue by source</h2>
-            <span id="revenueTotalLabel"></span>
-          </div>
-          <div id="revenueBars" class="bar-list"></div>
-        </article>
-
-        <article class="panel">
-          <div class="panel-header">
-            <h2>Service answer rate</h2>
-            <span id="answerRateLabel"></span>
-          </div>
-          <div class="gauge">
-            <div id="answerRateGauge" class="gauge-fill"></div>
-            <strong id="answerRateGaugeText">0%</strong>
-          </div>
-          <div id="serviceRiskList" class="risk-list"></div>
-        </article>
-      </section>
-
-      <section class="management-grid" aria-label="Dashboard management">
-        <article class="panel">
-          <div class="panel-header">
-            <h2>Daily Goals</h2>
-            <span id="goalStatus">Using saved goals</span>
-          </div>
-          <div class="settings-grid">
-            <label>
-              <span>Sales department 1 name</span>
-              <input id="salesDepartmentOneName" type="text" maxlength="40" />
-            </label>
-            <label>
-              <span>Sales department 1 revenue goal</span>
-              <input id="goalNewSalesRevenue" type="number" min="0" step="1" />
-            </label>
-            <label>
-              <span>Sales department 2 name</span>
-              <input id="salesDepartmentTwoName" type="text" maxlength="40" />
-            </label>
-            <label>
-              <span>Sales department 2 revenue goal</span>
-              <input id="goalNewSales2Revenue" type="number" min="0" step="1" />
-            </label>
-            <label>
-              <span>Renewal revenue goal</span>
-              <input id="goalRenewalRevenue" type="number" min="0" step="1" />
-            </label>
-            <label>
-              <span>Service answer rate goal (%)</span>
-              <input id="goalServiceAnswerRate" type="number" min="0" max="100" step="1" />
-            </label>
-            <label>
-              <span>Collection total goal</span>
-              <input id="goalCollectionTotal" type="number" min="0" step="1" />
-            </label>
-            <label>
-              <span>New tax returns goal</span>
-              <input id="goalNewTaxReturns" type="number" min="0" step="1" />
-            </label>
-          </div>
-          <div class="panel-actions">
-            <button id="saveGoals" class="primary-button" type="button">Save goals</button>
-          </div>
-        </article>
-
-        <article class="panel">
-          <div class="panel-header">
-            <h2>Fix Mistakes</h2>
-            <span id="deleteStatus">Delete selected department data</span>
-          </div>
-          <div class="settings-grid settings-grid-compact">
-            <label>
-              <span>Department</span>
-              <select id="deleteDepartment">
-                <option value="newSales">Sales Department 1</option>
-                <option value="newSales2">Sales Department 2</option>
-                <option value="renewals">Renewal Sales</option>
-                <option value="service">Customer Service</option>
-                <option value="collection">Collection</option>
-              </select>
-            </label>
-          </div>
-          <div class="panel-actions">
-            <button id="deleteDepartmentData" class="danger-button" type="button">Delete data for selected date</button>
-          </div>
-        </article>
-      </section>
-
     </main>
 
     <script src="config.js"></script>
-    <script src="app.js"></script>
+    <script src="portal.js"></script>
   </body>
 </html>

@@ -57,7 +57,7 @@ const translations = {
     "Daily department entry": "הזנת מחלקה יומית",
     "Department Form": "טופס מחלקה",
     "Copy share link": "העתק קישור לשיתוף",
-    "Back to dashboard": "חזרה ללוח הבקרה",
+    "All department forms": "כל טפסי המחלקות",
     Date: "תאריך",
     "Department head / person": "מנהל מחלקה / שם",
     Name: "שם",

@@ -337,6 +337,61 @@ h2 {
   width: min(920px, 100%);
 }
 
+.portal-shell {
+  width: min(980px, 100%);
+}
+
+.portal-panel {
+  display: grid;
+  gap: 18px;
+  border: 1px solid #d8dee6;
+  border-radius: 8px;
+  padding: 18px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+}
+
+.portal-panel p {
+  color: #4d5e72;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.portal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.portal-grid a {
+  min-height: 96px;
+  display: grid;
+  align-content: center;
+  gap: 6px;
+  border: 1px solid #d8dee6;
+  border-radius: 8px;
+  padding: 16px;
+  color: #16202a;
+  background: #fbfcfd;
+  text-decoration: none;
+}
+
+.portal-grid a:hover,
+.portal-grid a:focus-visible {
+  outline: 2px solid #9ac7b0;
+  outline-offset: 2px;
+}
+
+.portal-grid strong {
+  font-size: 20px;
+}
+
+.portal-grid span {
+  color: #607085;
+  font-size: 14px;
+  font-weight: 800;
+}
+
 .form-panel {
   margin-bottom: 16px;
 }
@@ -645,6 +700,7 @@ tbody tr:last-child td {
   .summary-grid,
   .department-grid,
   .link-grid,
+  .portal-grid,
   .form-grid,
   .settings-grid,
   .mini-metrics {
