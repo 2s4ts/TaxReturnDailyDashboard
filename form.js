@@ -253,18 +253,21 @@ async function copyText(text) {
 }
 
 async function getShareLink() {
-  const path = `/form.html?department=${encodeURIComponent(departmentKey)}`;
+  const url = new URL("form.html", window.location.href);
+  url.searchParams.set("department", departmentKey);
+  const path = `${url.pathname}${url.search}`;
+
   if (backendUrl()) {
-    return `${window.location.origin}${path}`;
+    return url.href;
   }
 
   try {
     const response = await fetch(`/api/share-link?path=${encodeURIComponent(path)}`, { cache: "no-store" });
     if (!response.ok) throw new Error("Could not build share link.");
     const payload = await response.json();
-    return payload.url || `${window.location.origin}${path}`;
+    return payload.url || url.href;
   } catch {
-    return `${window.location.origin}${path}`;
+    return url.href;
   }
 }
 
