@@ -6,7 +6,8 @@ const departmentForms = {
       { key: "sales", label: "Total Sales", type: "number" },
       { key: "revenue", label: "Total Revenue Collected", type: "money" },
       { key: "leads", label: "New Leads Generated", type: "number" },
-      { key: "referrals", label: "Insurance Referrals Created", type: "number" },
+      { key: "insuranceReferrals", label: "Insurance Referrals Created", type: "number" },
+      { key: "friendReferrals", label: "Friend Referrals Created", type: "number" },
     ],
   },
   newSales2: {
@@ -15,7 +16,8 @@ const departmentForms = {
     fields: [
       { key: "sales", label: "Total Sales", type: "number" },
       { key: "revenue", label: "Total Revenue Collected", type: "money" },
-      { key: "referrals", label: "Insurance Referrals Created", type: "number" },
+      { key: "insuranceReferrals", label: "Insurance Referrals Created", type: "number" },
+      { key: "friendReferrals", label: "Friend Referrals Created", type: "number" },
     ],
   },
   renewals: {
@@ -25,7 +27,8 @@ const departmentForms = {
       { key: "renewals", label: "Total Renewal Sales", type: "number" },
       { key: "revenue", label: "Total Renewal Revenue", type: "money" },
       { key: "leads", label: "Renewal Leads Generated", type: "number" },
-      { key: "referrals", label: "Renewal Insurance Referrals Created", type: "number" },
+      { key: "insuranceReferrals", label: "Insurance Referrals Created", type: "number" },
+      { key: "friendReferrals", label: "Friend Referrals Created", type: "number" },
     ],
   },
   service: {
@@ -37,6 +40,8 @@ const departmentForms = {
       { key: "abandonCalls", label: "Abandon Calls", type: "number" },
       { key: "newChat", label: "New Chat", type: "number" },
       { key: "chatClosed", label: "Chat Closed", type: "number" },
+      { key: "insuranceReferrals", label: "Insurance Referrals Created", type: "number" },
+      { key: "friendReferrals", label: "Friend Referrals Created", type: "number" },
     ],
   },
   collection: {
@@ -44,7 +49,8 @@ const departmentForms = {
     filePrefix: "collection",
     fields: [
       { key: "general", label: "General Money Collected", type: "money" },
-      { key: "referrals", label: "Referrals Generated", type: "number" },
+      { key: "insuranceReferrals", label: "Insurance Referrals Created", type: "number" },
+      { key: "friendReferrals", label: "Friend Referrals Created", type: "number" },
       { key: "newTaxReturns", label: "New Tax Returns For Customer", type: "number" },
     ],
   },
@@ -86,17 +92,16 @@ const translations = {
     "Total Revenue Collected": "סה\"כ הכנסות שנגבו",
     "New Leads Generated": "לידים חדשים",
     "Insurance Referrals Created": "הפניות ביטוח",
+    "Friend Referrals Created": "הפניות חברים",
     "Total Renewal Sales": "סה\"כ חידושים",
     "Total Renewal Revenue": "סה\"כ הכנסות חידושים",
     "Renewal Leads Generated": "לידים לחידושים",
-    "Renewal Insurance Referrals Created": "הפניות ביטוח מחידושים",
     "Calls Received Today": "שיחות שהתקבלו היום",
     "Calls Answered Today": "שיחות שנענו היום",
     "Abandon Calls": "שיחות נטושות",
     "New Chat": "צ'אטים חדשים",
     "Chat Closed": "צ'אטים שנסגרו",
     "General Money Collected": "כסף כללי שנגבה",
-    "Referrals Generated": "הפניות שנוצרו",
     "New Tax Returns For Customer": "דוחות מס חדשים ללקוח",
   },
 };

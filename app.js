@@ -39,6 +39,7 @@ const translations = {
     "Total leads": "סה\"כ לידים",
     "New + renewal leads": "לידים חדשים + חידושים",
     "Insurance referrals": "הפניות ביטוח",
+    "Friend referrals": "הפניות חברים",
     "All departments": "כל המחלקות",
     "Abandon calls": "שיחות נטושות",
     "Customer service daily risk": "מדד סיכון יומי שירות לקוחות",
@@ -51,7 +52,8 @@ const translations = {
     Sales: "מכירות",
     Revenue: "הכנסה",
     Leads: "לידים",
-    Referrals: "הפניות",
+    "Insurance referrals": "הפניות ביטוח",
+    "Friend referrals": "הפניות חברים",
     "Renewal Sales": "מכירות חידושים",
     Renewals: "חידושים",
     "Customer Service": "שירות לקוחות",
@@ -115,7 +117,8 @@ const elements = {
   totalRevenue: document.querySelector("#totalRevenue"),
   totalSales: document.querySelector("#totalSales"),
   totalLeads: document.querySelector("#totalLeads"),
-  totalReferrals: document.querySelector("#totalReferrals"),
+  totalInsuranceReferrals: document.querySelector("#totalInsuranceReferrals"),
+  totalFriendReferrals: document.querySelector("#totalFriendReferrals"),
   totalAbandonCalls: document.querySelector("#totalAbandonCalls"),
   totalNewTaxReturns: document.querySelector("#totalNewTaxReturns"),
   languageSelect: document.querySelector("#languageSelect"),
@@ -127,28 +130,34 @@ const elements = {
   newSalesCount: document.querySelector("#newSalesCount"),
   newSalesRevenue: document.querySelector("#newSalesRevenue"),
   newSalesLeads: document.querySelector("#newSalesLeads"),
-  newSalesReferrals: document.querySelector("#newSalesReferrals"),
+  newSalesInsuranceReferrals: document.querySelector("#newSalesInsuranceReferrals"),
+  newSalesFriendReferrals: document.querySelector("#newSalesFriendReferrals"),
   newSales2Title: document.querySelector("#newSales2Title"),
   newSalesTitle: document.querySelector("#newSalesTitle"),
   newSalesFormLink: document.querySelector("#newSalesFormLink"),
   newSales2FormLink: document.querySelector("#newSales2FormLink"),
   newSales2Count: document.querySelector("#newSales2Count"),
   newSales2Revenue: document.querySelector("#newSales2Revenue"),
-  newSales2Referrals: document.querySelector("#newSales2Referrals"),
+  newSales2InsuranceReferrals: document.querySelector("#newSales2InsuranceReferrals"),
+  newSales2FriendReferrals: document.querySelector("#newSales2FriendReferrals"),
   renewalSalesCount: document.querySelector("#renewalSalesCount"),
   renewalRevenue: document.querySelector("#renewalRevenue"),
   renewalLeads: document.querySelector("#renewalLeads"),
-  renewalReferrals: document.querySelector("#renewalReferrals"),
+  renewalInsuranceReferrals: document.querySelector("#renewalInsuranceReferrals"),
+  renewalFriendReferrals: document.querySelector("#renewalFriendReferrals"),
   serviceIncoming: document.querySelector("#serviceIncoming"),
   serviceAnswered: document.querySelector("#serviceAnswered"),
   serviceAbandonCalls: document.querySelector("#serviceAbandonCalls"),
   serviceAnswerRate: document.querySelector("#serviceAnswerRate"),
   serviceNewChat: document.querySelector("#serviceNewChat"),
   serviceChatClosed: document.querySelector("#serviceChatClosed"),
+  serviceInsuranceReferrals: document.querySelector("#serviceInsuranceReferrals"),
+  serviceFriendReferrals: document.querySelector("#serviceFriendReferrals"),
   collectionGeneral: document.querySelector("#collectionGeneral"),
   collectionTotal: document.querySelector("#collectionTotal"),
   collectionNewTaxReturns: document.querySelector("#collectionNewTaxReturns"),
-  collectionReferrals: document.querySelector("#collectionReferrals"),
+  collectionInsuranceReferrals: document.querySelector("#collectionInsuranceReferrals"),
+  collectionFriendReferrals: document.querySelector("#collectionFriendReferrals"),
   revenueTotalLabel: document.querySelector("#revenueTotalLabel"),
   revenueBars: document.querySelector("#revenueBars"),
   answerRateLabel: document.querySelector("#answerRateLabel"),
@@ -273,51 +282,64 @@ function getMetrics(data) {
   const newSalesCount = sum(data.newSales, "sales");
   const newSalesRevenue = sum(data.newSales, "revenue");
   const newSalesLeads = sum(data.newSales, "leads");
-  const newSalesReferrals = sum(data.newSales, "referrals");
+  const newSalesInsuranceReferrals = sumAny(data.newSales, "insuranceReferrals", "referrals");
+  const newSalesFriendReferrals = sumAny(data.newSales, "friendReferrals");
   const newSales2Count = sum(data.newSales2, "sales");
   const newSales2Revenue = sum(data.newSales2, "revenue");
-  const newSales2Referrals = sum(data.newSales2, "referrals");
+  const newSales2InsuranceReferrals = sumAny(data.newSales2, "insuranceReferrals", "referrals");
+  const newSales2FriendReferrals = sumAny(data.newSales2, "friendReferrals");
   const renewalSalesCount = sum(data.renewals, "renewals");
   const renewalRevenue = sum(data.renewals, "revenue");
   const renewalLeads = sum(data.renewals, "leads");
-  const renewalReferrals = sum(data.renewals, "referrals");
+  const renewalInsuranceReferrals = sumAny(data.renewals, "insuranceReferrals", "referrals");
+  const renewalFriendReferrals = sumAny(data.renewals, "friendReferrals");
   const serviceIncoming = sumAny(data.service, "callsReceived", "incoming");
   const serviceAnswered = sumAny(data.service, "callsAnswered", "answered");
   const serviceAbandonCalls = sumAny(data.service, "abandonCalls");
   const serviceNewChat = sumAny(data.service, "newChat");
   const serviceChatClosed = sumAny(data.service, "chatClosed");
+  const serviceInsuranceReferrals = sumAny(data.service, "insuranceReferrals", "referrals");
+  const serviceFriendReferrals = sumAny(data.service, "friendReferrals");
   const serviceAnswerRate = serviceIncoming ? (serviceAnswered / serviceIncoming) * 100 : 0;
   const collectionGeneral = sum(data.collection, "general");
   const collectionNewTaxReturns = sumAny(data.collection, "newTaxReturns");
-  const collectionReferrals = sum(data.collection, "referrals");
+  const collectionInsuranceReferrals = sumAny(data.collection, "insuranceReferrals", "referrals");
+  const collectionFriendReferrals = sumAny(data.collection, "friendReferrals");
   const collectionTotal = collectionGeneral;
 
   return {
     newSalesCount,
     newSalesRevenue,
     newSalesLeads,
-    newSalesReferrals,
+    newSalesInsuranceReferrals,
+    newSalesFriendReferrals,
     newSales2Count,
     newSales2Revenue,
-    newSales2Referrals,
+    newSales2InsuranceReferrals,
+    newSales2FriendReferrals,
     renewalSalesCount,
     renewalRevenue,
     renewalLeads,
-    renewalReferrals,
+    renewalInsuranceReferrals,
+    renewalFriendReferrals,
     serviceIncoming,
     serviceAnswered,
     serviceAbandonCalls,
     serviceNewChat,
     serviceChatClosed,
+    serviceInsuranceReferrals,
+    serviceFriendReferrals,
     serviceAnswerRate,
     collectionGeneral,
     collectionNewTaxReturns,
-    collectionReferrals,
+    collectionInsuranceReferrals,
+    collectionFriendReferrals,
     collectionTotal,
     totalRevenue: newSalesRevenue + newSales2Revenue + renewalRevenue + collectionTotal,
     totalSales: newSalesCount + newSales2Count + renewalSalesCount,
     totalLeads: newSalesLeads + renewalLeads,
-    totalReferrals: newSalesReferrals + newSales2Referrals + renewalReferrals + collectionReferrals,
+    totalInsuranceReferrals: newSalesInsuranceReferrals + newSales2InsuranceReferrals + renewalInsuranceReferrals + serviceInsuranceReferrals + collectionInsuranceReferrals,
+    totalFriendReferrals: newSalesFriendReferrals + newSales2FriendReferrals + renewalFriendReferrals + serviceFriendReferrals + collectionFriendReferrals,
   };
 }
 
@@ -476,23 +498,27 @@ function renderDashboard() {
   elements.totalRevenue.textContent = money(metrics.totalRevenue);
   elements.totalSales.textContent = String(metrics.totalSales);
   elements.totalLeads.textContent = String(metrics.totalLeads);
-  elements.totalReferrals.textContent = String(metrics.totalReferrals);
+  elements.totalInsuranceReferrals.textContent = String(metrics.totalInsuranceReferrals);
+  elements.totalFriendReferrals.textContent = String(metrics.totalFriendReferrals);
   elements.totalAbandonCalls.textContent = String(metrics.serviceAbandonCalls);
   elements.totalNewTaxReturns.textContent = String(metrics.collectionNewTaxReturns);
 
   elements.newSalesCount.textContent = String(metrics.newSalesCount);
   elements.newSalesRevenue.textContent = money(metrics.newSalesRevenue);
   elements.newSalesLeads.textContent = String(metrics.newSalesLeads);
-  elements.newSalesReferrals.textContent = String(metrics.newSalesReferrals);
+  elements.newSalesInsuranceReferrals.textContent = String(metrics.newSalesInsuranceReferrals);
+  elements.newSalesFriendReferrals.textContent = String(metrics.newSalesFriendReferrals);
 
   elements.newSales2Count.textContent = String(metrics.newSales2Count);
   elements.newSales2Revenue.textContent = money(metrics.newSales2Revenue);
-  elements.newSales2Referrals.textContent = String(metrics.newSales2Referrals);
+  elements.newSales2InsuranceReferrals.textContent = String(metrics.newSales2InsuranceReferrals);
+  elements.newSales2FriendReferrals.textContent = String(metrics.newSales2FriendReferrals);
 
   elements.renewalSalesCount.textContent = String(metrics.renewalSalesCount);
   elements.renewalRevenue.textContent = money(metrics.renewalRevenue);
   elements.renewalLeads.textContent = String(metrics.renewalLeads);
-  elements.renewalReferrals.textContent = String(metrics.renewalReferrals);
+  elements.renewalInsuranceReferrals.textContent = String(metrics.renewalInsuranceReferrals);
+  elements.renewalFriendReferrals.textContent = String(metrics.renewalFriendReferrals);
 
   elements.serviceIncoming.textContent = String(metrics.serviceIncoming);
   elements.serviceAnswered.textContent = String(metrics.serviceAnswered);
@@ -500,11 +526,14 @@ function renderDashboard() {
   elements.serviceAnswerRate.textContent = percent(metrics.serviceAnswerRate);
   elements.serviceNewChat.textContent = String(metrics.serviceNewChat);
   elements.serviceChatClosed.textContent = String(metrics.serviceChatClosed);
+  elements.serviceInsuranceReferrals.textContent = String(metrics.serviceInsuranceReferrals);
+  elements.serviceFriendReferrals.textContent = String(metrics.serviceFriendReferrals);
 
   elements.collectionGeneral.textContent = money(metrics.collectionGeneral);
   elements.collectionTotal.textContent = money(metrics.collectionTotal);
   elements.collectionNewTaxReturns.textContent = String(metrics.collectionNewTaxReturns);
-  elements.collectionReferrals.textContent = String(metrics.collectionReferrals);
+  elements.collectionInsuranceReferrals.textContent = String(metrics.collectionInsuranceReferrals);
+  elements.collectionFriendReferrals.textContent = String(metrics.collectionFriendReferrals);
 
   setStatus(elements.newSalesStatus, metrics.newSalesRevenue, targets.newSalesRevenue);
   setStatus(elements.newSales2Status, metrics.newSales2Revenue, targets.newSales2Revenue);
@@ -533,15 +562,15 @@ function normalizeSubmission(submission) {
   const name = submission.name || "Submitted total";
 
   if (submission.department === "newSales") {
-    return { department: submission.department, row: { name, sales: Number(values.sales) || 0, revenue: Number(values.revenue) || 0, leads: Number(values.leads) || 0, referrals: Number(values.referrals) || 0 } };
+    return { department: submission.department, row: { name, sales: Number(values.sales) || 0, revenue: Number(values.revenue) || 0, leads: Number(values.leads) || 0, insuranceReferrals: value(values, "insuranceReferrals", "referrals"), friendReferrals: value(values, "friendReferrals") } };
   }
 
   if (submission.department === "newSales2") {
-    return { department: submission.department, row: { name, sales: Number(values.sales) || 0, revenue: Number(values.revenue) || 0, referrals: Number(values.referrals) || 0 } };
+    return { department: submission.department, row: { name, sales: Number(values.sales) || 0, revenue: Number(values.revenue) || 0, insuranceReferrals: value(values, "insuranceReferrals", "referrals"), friendReferrals: value(values, "friendReferrals") } };
   }
 
   if (submission.department === "renewals") {
-    return { department: "renewals", row: { name, renewals: Number(values.renewals) || 0, revenue: Number(values.revenue) || 0, leads: Number(values.leads) || 0, referrals: Number(values.referrals) || 0 } };
+    return { department: "renewals", row: { name, renewals: Number(values.renewals) || 0, revenue: Number(values.revenue) || 0, leads: Number(values.leads) || 0, insuranceReferrals: value(values, "insuranceReferrals", "referrals"), friendReferrals: value(values, "friendReferrals") } };
   }
 
   if (submission.department === "service") {
@@ -556,12 +585,14 @@ function normalizeSubmission(submission) {
         abandonCalls: value(values, "abandonCalls"),
         newChat: value(values, "newChat"),
         chatClosed: value(values, "chatClosed"),
+        insuranceReferrals: value(values, "insuranceReferrals", "referrals"),
+        friendReferrals: value(values, "friendReferrals"),
       },
     };
   }
 
   if (submission.department === "collection") {
-    return { department: "collection", row: { name, general: Number(values.general) || 0, newTaxReturns: Number(values.newTaxReturns) || 0, referrals: Number(values.referrals) || 0 } };
+    return { department: "collection", row: { name, general: Number(values.general) || 0, newTaxReturns: Number(values.newTaxReturns) || 0, insuranceReferrals: value(values, "insuranceReferrals", "referrals"), friendReferrals: value(values, "friendReferrals") } };
   }
 
   return null;

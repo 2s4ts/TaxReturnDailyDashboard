@@ -23,6 +23,8 @@ const HEADERS = [
   "newChat",
   "chatClosed",
   "newTaxReturns",
+  "insuranceReferrals",
+  "friendReferrals",
 ];
 const DEFAULT_GOALS = {
   salesDepartmentOneName: "Sales Department 1",
@@ -73,6 +75,8 @@ function doPost(e) {
     number_(values.newChat),
     number_(values.chatClosed),
     number_(values.newTaxReturns),
+    number_(values.insuranceReferrals || values.referrals),
+    number_(values.friendReferrals),
   ];
   const existingRow = findExistingRow_(sheet, date, payload.department || "", payload.name || "");
 
@@ -254,6 +258,8 @@ function rowToSubmission_(row) {
       revenue: number_(row.revenue),
       leads: number_(row.leads),
       referrals: number_(row.referrals),
+      insuranceReferrals: number_(row.insuranceReferrals || row.referrals),
+      friendReferrals: number_(row.friendReferrals),
       renewals: number_(row.renewals),
       callsReceived: number_(row.callsReceived || row.incoming),
       callsAnswered: number_(row.callsAnswered || row.answered),
