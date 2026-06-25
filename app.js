@@ -134,7 +134,6 @@ const elements = {
   newSales2FormLink: document.querySelector("#newSales2FormLink"),
   newSales2Count: document.querySelector("#newSales2Count"),
   newSales2Revenue: document.querySelector("#newSales2Revenue"),
-  newSales2Leads: document.querySelector("#newSales2Leads"),
   newSales2Referrals: document.querySelector("#newSales2Referrals"),
   renewalSalesCount: document.querySelector("#renewalSalesCount"),
   renewalRevenue: document.querySelector("#renewalRevenue"),
@@ -277,7 +276,6 @@ function getMetrics(data) {
   const newSalesReferrals = sum(data.newSales, "referrals");
   const newSales2Count = sum(data.newSales2, "sales");
   const newSales2Revenue = sum(data.newSales2, "revenue");
-  const newSales2Leads = sum(data.newSales2, "leads");
   const newSales2Referrals = sum(data.newSales2, "referrals");
   const renewalSalesCount = sum(data.renewals, "renewals");
   const renewalRevenue = sum(data.renewals, "revenue");
@@ -301,7 +299,6 @@ function getMetrics(data) {
     newSalesReferrals,
     newSales2Count,
     newSales2Revenue,
-    newSales2Leads,
     newSales2Referrals,
     renewalSalesCount,
     renewalRevenue,
@@ -319,7 +316,7 @@ function getMetrics(data) {
     collectionTotal,
     totalRevenue: newSalesRevenue + newSales2Revenue + renewalRevenue + collectionTotal,
     totalSales: newSalesCount + newSales2Count + renewalSalesCount,
-    totalLeads: newSalesLeads + newSales2Leads + renewalLeads,
+    totalLeads: newSalesLeads + renewalLeads,
     totalReferrals: newSalesReferrals + newSales2Referrals + renewalReferrals + collectionReferrals,
   };
 }
@@ -490,7 +487,6 @@ function renderDashboard() {
 
   elements.newSales2Count.textContent = String(metrics.newSales2Count);
   elements.newSales2Revenue.textContent = money(metrics.newSales2Revenue);
-  elements.newSales2Leads.textContent = String(metrics.newSales2Leads);
   elements.newSales2Referrals.textContent = String(metrics.newSales2Referrals);
 
   elements.renewalSalesCount.textContent = String(metrics.renewalSalesCount);
@@ -536,8 +532,12 @@ function normalizeSubmission(submission) {
   const values = submission.values || {};
   const name = submission.name || "Submitted total";
 
-  if (submission.department === "newSales" || submission.department === "newSales2") {
+  if (submission.department === "newSales") {
     return { department: submission.department, row: { name, sales: Number(values.sales) || 0, revenue: Number(values.revenue) || 0, leads: Number(values.leads) || 0, referrals: Number(values.referrals) || 0 } };
+  }
+
+  if (submission.department === "newSales2") {
+    return { department: submission.department, row: { name, sales: Number(values.sales) || 0, revenue: Number(values.revenue) || 0, referrals: Number(values.referrals) || 0 } };
   }
 
   if (submission.department === "renewals") {
