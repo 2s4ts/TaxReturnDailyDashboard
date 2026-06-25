@@ -64,6 +64,16 @@ const departmentForms = {
       { key: "newHires", label: "New hires", type: "number" },
     ],
   },
+  businessDevelopment: {
+    title: "Business Development Daily Form",
+    filePrefix: "business-development",
+    fields: [
+      { key: "initialContact", label: "Initial contact", type: "number" },
+      { key: "followUps", label: "Follow-ups", type: "number" },
+      { key: "setUpMeetings", label: "Set up meetings", type: "number" },
+      { key: "signedCompanyContracts", label: "Sign contracts between companies", type: "number" },
+    ],
+  },
 };
 
 const translations = {
@@ -96,6 +106,7 @@ const translations = {
     "Customer Service Daily Form": "טופס יומי שירות לקוחות",
     "Collection Daily Form": "טופס יומי גבייה",
     "HR Daily Form": "טופס יומי משאבי אנוש",
+    "Business Development Daily Form": "טופס יומי פיתוח עסקי",
     "Sales Department 1": "מחלקת מכירות 1",
     "Sales Department 2": "מחלקת מכירות 2",
     "Daily Form": "טופס יומי",
@@ -118,6 +129,10 @@ const translations = {
     "First interview": "ראיון ראשון",
     "Second interview": "ראיון שני",
     "New hires": "עובדים חדשים",
+    "Initial contact": "יצירת קשר ראשוני",
+    "Follow-ups": "מעקבים",
+    "Set up meetings": "קביעת פגישות",
+    "Sign contracts between companies": "חתימת חוזים בין חברות",
   },
 };
 

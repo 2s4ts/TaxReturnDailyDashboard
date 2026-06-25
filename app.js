@@ -5,6 +5,7 @@ const emptyData = {
   service: [],
   collection: [],
   hr: [],
+  businessDevelopment: [],
 };
 
 let dashboardData = structuredClone(emptyData);
@@ -20,6 +21,7 @@ const defaultTargets = {
   collectionTotal: 65000,
   newTaxReturns: 20,
   hrNewHires: 1,
+  businessSignedContracts: 1,
 };
 
 let targets = { ...defaultTargets };
@@ -66,6 +68,7 @@ const translations = {
     "Chat Closed": "צ'אט נסגר",
     Collection: "גבייה",
     HR: "משאבי אנוש",
+    "Business Development": "פיתוח עסקי",
     General: "כללי",
     "Total revenue": "סה\"כ הכנסה",
     "New candidates": "מועמדים חדשים",
@@ -73,6 +76,11 @@ const translations = {
     "Second interview": "ראיון שני",
     "New hires": "עובדים חדשים",
     "HR tracking": "מעקב משאבי אנוש",
+    "Initial contact": "יצירת קשר ראשוני",
+    "Follow-ups": "מעקבים",
+    "Set up meetings": "קביעת פגישות",
+    "Signed company contracts": "חוזים חתומים בין חברות",
+    "Business development": "פיתוח עסקי",
     "Revenue by source": "הכנסה לפי מקור",
     "Service answer rate": "אחוז מענה שירות",
     "Daily Goals": "יעדים יומיים",
@@ -86,6 +94,7 @@ const translations = {
     "Collection total goal": "יעד גבייה כללי",
     "New tax refund goal": "הודעות החזר",
     "HR new hires goal": "יעד עובדים חדשים למשאבי אנוש",
+    "Business signed contracts goal": "יעד חוזים חתומים בפיתוח עסקי",
     "Save goals": "שמור יעדים",
     "Fix Mistakes": "תיקון טעויות",
     "Delete selected department data": "מחיקת נתוני מחלקה נבחרת",
@@ -100,6 +109,7 @@ const translations = {
     "Customer Service form": "טופס שירות לקוחות",
     "Collection form": "טופס גבייה",
     "HR form": "טופס משאבי אנוש",
+    "Business Development form": "טופס פיתוח עסקי",
     "Collection - General": "גבייה - כללי",
     "Goals saved": "היעדים נשמרו",
     "Could not save goals": "לא ניתן לשמור יעדים",
@@ -132,6 +142,7 @@ const elements = {
   totalAbandonCalls: document.querySelector("#totalAbandonCalls"),
   totalNewTaxReturns: document.querySelector("#totalNewTaxReturns"),
   totalNewHires: document.querySelector("#totalNewHires"),
+  totalSignedCompanyContracts: document.querySelector("#totalSignedCompanyContracts"),
   languageSelect: document.querySelector("#languageSelect"),
   newSalesStatus: document.querySelector("#newSalesStatus"),
   newSales2Status: document.querySelector("#newSales2Status"),
@@ -139,6 +150,7 @@ const elements = {
   serviceStatus: document.querySelector("#serviceStatus"),
   collectionStatus: document.querySelector("#collectionStatus"),
   hrStatus: document.querySelector("#hrStatus"),
+  businessDevelopmentStatus: document.querySelector("#businessDevelopmentStatus"),
   newSalesCount: document.querySelector("#newSalesCount"),
   newSalesRevenue: document.querySelector("#newSalesRevenue"),
   newSalesLeads: document.querySelector("#newSalesLeads"),
@@ -174,6 +186,10 @@ const elements = {
   hrFirstInterview: document.querySelector("#hrFirstInterview"),
   hrSecondInterview: document.querySelector("#hrSecondInterview"),
   hrNewHires: document.querySelector("#hrNewHires"),
+  businessInitialContact: document.querySelector("#businessInitialContact"),
+  businessFollowUps: document.querySelector("#businessFollowUps"),
+  businessSetUpMeetings: document.querySelector("#businessSetUpMeetings"),
+  businessSignedCompanyContracts: document.querySelector("#businessSignedCompanyContracts"),
   revenueTotalLabel: document.querySelector("#revenueTotalLabel"),
   revenueBars: document.querySelector("#revenueBars"),
   answerRateLabel: document.querySelector("#answerRateLabel"),
@@ -190,6 +206,7 @@ const elements = {
   goalCollectionTotal: document.querySelector("#goalCollectionTotal"),
   goalNewTaxReturns: document.querySelector("#goalNewTaxReturns"),
   goalHrNewHires: document.querySelector("#goalHrNewHires"),
+  goalBusinessSignedContracts: document.querySelector("#goalBusinessSignedContracts"),
   saveGoals: document.querySelector("#saveGoals"),
   deleteStatus: document.querySelector("#deleteStatus"),
   deleteDepartment: document.querySelector("#deleteDepartment"),
@@ -327,6 +344,10 @@ function getMetrics(data) {
   const hrFirstInterview = sumAny(data.hr, "firstInterview");
   const hrSecondInterview = sumAny(data.hr, "secondInterview");
   const hrNewHires = sumAny(data.hr, "newHires");
+  const businessInitialContact = sumAny(data.businessDevelopment, "initialContact");
+  const businessFollowUps = sumAny(data.businessDevelopment, "followUps");
+  const businessSetUpMeetings = sumAny(data.businessDevelopment, "setUpMeetings");
+  const businessSignedCompanyContracts = sumAny(data.businessDevelopment, "signedCompanyContracts");
 
   return {
     newSalesCount,
@@ -360,6 +381,10 @@ function getMetrics(data) {
     hrFirstInterview,
     hrSecondInterview,
     hrNewHires,
+    businessInitialContact,
+    businessFollowUps,
+    businessSetUpMeetings,
+    businessSignedCompanyContracts,
     totalRevenue: newSalesRevenue + newSales2Revenue + renewalRevenue + collectionTotal,
     totalSales: newSalesCount + newSales2Count + renewalSalesCount,
     totalLeads: newSalesLeads + renewalLeads,
@@ -397,6 +422,7 @@ function weightedDailyRatio(metrics) {
     Math.min(metrics.collectionTotal / targets.collectionTotal, 1.25),
     Math.min(metrics.collectionNewTaxReturns / targets.newTaxReturns, 1.25),
     Math.min(metrics.hrNewHires / targets.hrNewHires, 1.25),
+    Math.min(metrics.businessSignedCompanyContracts / targets.businessSignedContracts, 1.25),
   ];
   return ratios.reduce((total, ratio) => total + ratio, 0) / ratios.length;
 }
@@ -412,6 +438,7 @@ function normalizeGoals(goals = {}) {
     collectionTotal: Number(goals.collectionTotal) || defaultTargets.collectionTotal,
     newTaxReturns: Number(goals.newTaxReturns) || defaultTargets.newTaxReturns,
     hrNewHires: Number(goals.hrNewHires) || defaultTargets.hrNewHires,
+    businessSignedContracts: Number(goals.businessSignedContracts) || defaultTargets.businessSignedContracts,
   };
 }
 
@@ -426,6 +453,7 @@ function readGoalsFromInputs() {
     collectionTotal: elements.goalCollectionTotal.value,
     newTaxReturns: elements.goalNewTaxReturns.value,
     hrNewHires: elements.goalHrNewHires.value,
+    businessSignedContracts: elements.goalBusinessSignedContracts.value,
   });
 }
 
@@ -439,6 +467,7 @@ function renderGoalInputs() {
   elements.goalCollectionTotal.value = targets.collectionTotal;
   elements.goalNewTaxReturns.value = targets.newTaxReturns;
   elements.goalHrNewHires.value = targets.hrNewHires;
+  elements.goalBusinessSignedContracts.value = targets.businessSignedContracts;
 }
 
 function renderSalesLabels() {
@@ -532,6 +561,7 @@ function renderDashboard() {
   elements.totalAbandonCalls.textContent = String(metrics.serviceAbandonCalls);
   elements.totalNewTaxReturns.textContent = String(metrics.collectionNewTaxReturns);
   elements.totalNewHires.textContent = String(metrics.hrNewHires);
+  elements.totalSignedCompanyContracts.textContent = String(metrics.businessSignedCompanyContracts);
 
   elements.newSalesCount.textContent = String(metrics.newSalesCount);
   elements.newSalesRevenue.textContent = money(metrics.newSalesRevenue);
@@ -570,12 +600,18 @@ function renderDashboard() {
   elements.hrSecondInterview.textContent = String(metrics.hrSecondInterview);
   elements.hrNewHires.textContent = String(metrics.hrNewHires);
 
+  elements.businessInitialContact.textContent = String(metrics.businessInitialContact);
+  elements.businessFollowUps.textContent = String(metrics.businessFollowUps);
+  elements.businessSetUpMeetings.textContent = String(metrics.businessSetUpMeetings);
+  elements.businessSignedCompanyContracts.textContent = String(metrics.businessSignedCompanyContracts);
+
   setStatus(elements.newSalesStatus, metrics.newSalesRevenue, targets.newSalesRevenue);
   setStatus(elements.newSales2Status, metrics.newSales2Revenue, targets.newSales2Revenue);
   setStatus(elements.renewalsStatus, metrics.renewalRevenue, targets.renewalRevenue);
   setStatus(elements.serviceStatus, metrics.serviceAnswerRate, targets.serviceAnswerRate, "percent");
   setStatus(elements.collectionStatus, metrics.collectionTotal, targets.collectionTotal);
   setMarker(elements.hrStatus, targets.hrNewHires ? metrics.hrNewHires / targets.hrNewHires : 0, `${metrics.hrNewHires} / ${targets.hrNewHires}`);
+  setMarker(elements.businessDevelopmentStatus, targets.businessSignedContracts ? metrics.businessSignedCompanyContracts / targets.businessSignedContracts : 0, `${metrics.businessSignedCompanyContracts} / ${targets.businessSignedContracts}`);
 
   elements.revenueTotalLabel.textContent = money(metrics.totalRevenue);
   renderBars([
@@ -640,6 +676,19 @@ function normalizeSubmission(submission) {
         firstInterview: value(values, "firstInterview"),
         secondInterview: value(values, "secondInterview"),
         newHires: value(values, "newHires"),
+      },
+    };
+  }
+
+  if (submission.department === "businessDevelopment") {
+    return {
+      department: "businessDevelopment",
+      row: {
+        name,
+        initialContact: value(values, "initialContact"),
+        followUps: value(values, "followUps"),
+        setUpMeetings: value(values, "setUpMeetings"),
+        signedCompanyContracts: value(values, "signedCompanyContracts"),
       },
     };
   }

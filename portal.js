@@ -10,6 +10,7 @@ const portalTranslations = {
     "Customer Service": "שירות לקוחות",
     Collection: "גבייה",
     HR: "משאבי אנוש",
+    "Business Development": "פיתוח עסקי",
     "Daily Form": "טופס יומי",
   },
 };

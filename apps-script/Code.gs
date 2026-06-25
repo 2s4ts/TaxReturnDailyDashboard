@@ -29,6 +29,10 @@ const HEADERS = [
   "firstInterview",
   "secondInterview",
   "newHires",
+  "initialContact",
+  "followUps",
+  "setUpMeetings",
+  "signedCompanyContracts",
 ];
 const DEFAULT_GOALS = {
   salesDepartmentOneName: "Sales Department 1",
@@ -40,6 +44,7 @@ const DEFAULT_GOALS = {
   collectionTotal: 65000,
   newTaxReturns: 20,
   hrNewHires: 1,
+  businessSignedContracts: 1,
 };
 
 function doPost(e) {
@@ -86,6 +91,10 @@ function doPost(e) {
     number_(values.firstInterview),
     number_(values.secondInterview),
     number_(values.newHires),
+    number_(values.initialContact),
+    number_(values.followUps),
+    number_(values.setUpMeetings),
+    number_(values.signedCompanyContracts),
   ];
   const existingRow = findExistingRow_(sheet, date, payload.department || "", payload.name || "");
 
@@ -198,6 +207,7 @@ function saveGoals_(goals) {
     collectionTotal: number_(goals.collectionTotal) || DEFAULT_GOALS.collectionTotal,
     newTaxReturns: number_(goals.newTaxReturns) || DEFAULT_GOALS.newTaxReturns,
     hrNewHires: number_(goals.hrNewHires) || DEFAULT_GOALS.hrNewHires,
+    businessSignedContracts: number_(goals.businessSignedContracts) || DEFAULT_GOALS.businessSignedContracts,
   };
 
   sheet.clearContents();
@@ -274,6 +284,10 @@ function rowToSubmission_(row) {
       firstInterview: number_(row.firstInterview),
       secondInterview: number_(row.secondInterview),
       newHires: number_(row.newHires),
+      initialContact: number_(row.initialContact),
+      followUps: number_(row.followUps),
+      setUpMeetings: number_(row.setUpMeetings),
+      signedCompanyContracts: number_(row.signedCompanyContracts),
       renewals: number_(row.renewals),
       callsReceived: number_(row.callsReceived || row.incoming),
       callsAnswered: number_(row.callsAnswered || row.answered),

@@ -37,6 +37,7 @@
         <a href="form.html?department=service">Customer Service form</a>
         <a href="form.html?department=collection">Collection form</a>
         <a href="form.html?department=hr">HR form</a>
+        <a href="form.html?department=businessDevelopment">Business Development form</a>
       </section>
 
       <section class="summary-grid" aria-label="Executive summary">
@@ -84,6 +85,11 @@
           <span>New hires</span>
           <strong id="totalNewHires">0</strong>
           <small>HR tracking</small>
+        </article>
+        <article class="metric-card">
+          <span>Signed company contracts</span>
+          <strong id="totalSignedCompanyContracts">0</strong>
+          <small>Business development</small>
         </article>
       </section>
 
@@ -179,6 +185,19 @@
             <div><span>New hires</span><strong id="hrNewHires">0</strong></div>
           </div>
         </article>
+
+        <article class="department-card" data-department="businessDevelopment">
+          <div class="department-header">
+            <h2>Business Development</h2>
+            <span id="businessDevelopmentStatus"></span>
+          </div>
+          <div class="mini-metrics">
+            <div><span>Initial contact</span><strong id="businessInitialContact">0</strong></div>
+            <div><span>Follow-ups</span><strong id="businessFollowUps">0</strong></div>
+            <div><span>Set up meetings</span><strong id="businessSetUpMeetings">0</strong></div>
+            <div><span>Signed company contracts</span><strong id="businessSignedCompanyContracts">0</strong></div>
+          </div>
+        </article>
       </section>
 
       <section class="visual-grid" aria-label="Management visuals">
@@ -246,6 +265,10 @@
               <span>HR new hires goal</span>
               <input id="goalHrNewHires" type="number" min="0" step="1" />
             </label>
+            <label>
+              <span>Business signed contracts goal</span>
+              <input id="goalBusinessSignedContracts" type="number" min="0" step="1" />
+            </label>
           </div>
           <div class="panel-actions">
             <button id="saveGoals" class="primary-button" type="button">Save goals</button>
@@ -267,6 +290,7 @@
                 <option value="service">Customer Service</option>
                 <option value="collection">Collection</option>
                 <option value="hr">HR</option>
+                <option value="businessDevelopment">Business Development</option>
               </select>
             </label>
           </div>
