@@ -51,7 +51,7 @@ const departmentForms = {
       { key: "general", label: "General Money Collected", type: "money" },
       { key: "insuranceReferrals", label: "Insurance Referrals Created", type: "number" },
       { key: "friendReferrals", label: "Friend Referrals Created", type: "number" },
-      { key: "newTaxReturns", label: "New Tax Returns For Customer", type: "number" },
+      { key: "newTaxReturns", label: "New Tax Returns For Customer", type: "money" },
     ],
   },
   hr: {

@@ -234,9 +234,9 @@ function money(value) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "ILS",
-    currencyDisplay: "code",
+    currencyDisplay: "narrowSymbol",
     maximumFractionDigits: 0,
-  }).format(value).replace("ILS", "ILS ");
+  }).format(value);
 }
 
 function percent(value) {
@@ -559,7 +559,7 @@ function renderDashboard() {
   elements.totalInsuranceReferrals.textContent = String(metrics.totalInsuranceReferrals);
   elements.totalFriendReferrals.textContent = String(metrics.totalFriendReferrals);
   elements.totalAbandonCalls.textContent = String(metrics.serviceAbandonCalls);
-  elements.totalNewTaxReturns.textContent = String(metrics.collectionNewTaxReturns);
+  elements.totalNewTaxReturns.textContent = money(metrics.collectionNewTaxReturns);
   elements.totalNewHires.textContent = String(metrics.hrNewHires);
   elements.totalSignedCompanyContracts.textContent = String(metrics.businessSignedCompanyContracts);
 
@@ -591,7 +591,7 @@ function renderDashboard() {
 
   elements.collectionGeneral.textContent = money(metrics.collectionGeneral);
   elements.collectionTotal.textContent = money(metrics.collectionTotal);
-  elements.collectionNewTaxReturns.textContent = String(metrics.collectionNewTaxReturns);
+  elements.collectionNewTaxReturns.textContent = money(metrics.collectionNewTaxReturns);
   elements.collectionInsuranceReferrals.textContent = String(metrics.collectionInsuranceReferrals);
   elements.collectionFriendReferrals.textContent = String(metrics.collectionFriendReferrals);
 
