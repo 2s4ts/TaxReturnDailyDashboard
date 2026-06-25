@@ -66,8 +66,6 @@ const translations = {
     "Answer rate": "אחוז מענה",
     "Missions opened": "משימות שנפתחו",
     "Missions closed": "משימות שנסגרו",
-    "Missions opened from chats": "משימות שנפתחו מצ'אטים",
-    "Missions closed from chats": "משימות שנסגרו מצ'אטים",
     "New human chats": "צ'אטים חדשים מאדם",
     "Closed human chats": "צ'אטים שנסגרו מאדם",
     "New bot chats": "צ'אטים חדשים מבוט",
@@ -180,8 +178,6 @@ const elements = {
   serviceAnswerRate: document.querySelector("#serviceAnswerRate"),
   serviceMissionsOpened: document.querySelector("#serviceMissionsOpened"),
   serviceMissionsClosed: document.querySelector("#serviceMissionsClosed"),
-  serviceMissionsOpenedFromChats: document.querySelector("#serviceMissionsOpenedFromChats"),
-  serviceMissionsClosedFromChats: document.querySelector("#serviceMissionsClosedFromChats"),
   serviceNewHumanChats: document.querySelector("#serviceNewHumanChats"),
   serviceClosedHumanChats: document.querySelector("#serviceClosedHumanChats"),
   serviceNewBotChats: document.querySelector("#serviceNewBotChats"),
@@ -342,8 +338,6 @@ function getMetrics(data) {
   const serviceAbandonCalls = sumAny(data.service, "abandonCalls");
   const serviceMissionsOpened = sumAny(data.service, "missionsOpened");
   const serviceMissionsClosed = sumAny(data.service, "missionsClosed");
-  const serviceMissionsOpenedFromChats = sumAny(data.service, "missionsOpenedFromChats");
-  const serviceMissionsClosedFromChats = sumAny(data.service, "missionsClosedFromChats");
   const serviceNewHumanChats = sumAny(data.service, "newHumanChats", "newChat");
   const serviceClosedHumanChats = sumAny(data.service, "closedHumanChats", "chatClosed");
   const serviceNewBotChats = sumAny(data.service, "newBotChats");
@@ -384,8 +378,6 @@ function getMetrics(data) {
     serviceAbandonCalls,
     serviceMissionsOpened,
     serviceMissionsClosed,
-    serviceMissionsOpenedFromChats,
-    serviceMissionsClosedFromChats,
     serviceNewHumanChats,
     serviceClosedHumanChats,
     serviceNewBotChats,
@@ -610,8 +602,6 @@ function renderDashboard() {
   elements.serviceAnswerRate.textContent = percent(metrics.serviceAnswerRate);
   elements.serviceMissionsOpened.textContent = String(metrics.serviceMissionsOpened);
   elements.serviceMissionsClosed.textContent = String(metrics.serviceMissionsClosed);
-  elements.serviceMissionsOpenedFromChats.textContent = String(metrics.serviceMissionsOpenedFromChats);
-  elements.serviceMissionsClosedFromChats.textContent = String(metrics.serviceMissionsClosedFromChats);
   elements.serviceNewHumanChats.textContent = String(metrics.serviceNewHumanChats);
   elements.serviceClosedHumanChats.textContent = String(metrics.serviceClosedHumanChats);
   elements.serviceNewBotChats.textContent = String(metrics.serviceNewBotChats);
@@ -687,8 +677,6 @@ function normalizeSubmission(submission) {
         abandonCalls: value(values, "abandonCalls"),
         missionsOpened: value(values, "missionsOpened"),
         missionsClosed: value(values, "missionsClosed"),
-        missionsOpenedFromChats: value(values, "missionsOpenedFromChats"),
-        missionsClosedFromChats: value(values, "missionsClosedFromChats"),
         newHumanChats: value(values, "newHumanChats", "newChat"),
         closedHumanChats: value(values, "closedHumanChats", "chatClosed"),
         newBotChats: value(values, "newBotChats"),
