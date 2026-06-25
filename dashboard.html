@@ -36,6 +36,7 @@
         <a href="form.html?department=renewals">Renewal Sales form</a>
         <a href="form.html?department=service">Customer Service form</a>
         <a href="form.html?department=collection">Collection form</a>
+        <a href="form.html?department=hr">HR form</a>
       </section>
 
       <section class="summary-grid" aria-label="Executive summary">
@@ -78,6 +79,11 @@
           <span>New tax returns</span>
           <strong id="totalNewTaxReturns">0</strong>
           <small>Collection tracking only</small>
+        </article>
+        <article class="metric-card">
+          <span>New hires</span>
+          <strong id="totalNewHires">0</strong>
+          <small>HR tracking</small>
         </article>
       </section>
 
@@ -160,6 +166,19 @@
             <div><span>Friend referrals</span><strong id="collectionFriendReferrals">0</strong></div>
           </div>
         </article>
+
+        <article class="department-card" data-department="hr">
+          <div class="department-header">
+            <h2>HR</h2>
+            <span id="hrStatus"></span>
+          </div>
+          <div class="mini-metrics">
+            <div><span>New candidates</span><strong id="hrNewCandidates">0</strong></div>
+            <div><span>First interview</span><strong id="hrFirstInterview">0</strong></div>
+            <div><span>Second interview</span><strong id="hrSecondInterview">0</strong></div>
+            <div><span>New hires</span><strong id="hrNewHires">0</strong></div>
+          </div>
+        </article>
       </section>
 
       <section class="visual-grid" aria-label="Management visuals">
@@ -223,6 +242,10 @@
               <span>New tax refund goal</span>
               <input id="goalNewTaxReturns" type="number" min="0" step="1" />
             </label>
+            <label>
+              <span>HR new hires goal</span>
+              <input id="goalHrNewHires" type="number" min="0" step="1" />
+            </label>
           </div>
           <div class="panel-actions">
             <button id="saveGoals" class="primary-button" type="button">Save goals</button>
@@ -243,6 +266,7 @@
                 <option value="renewals">Renewal Sales</option>
                 <option value="service">Customer Service</option>
                 <option value="collection">Collection</option>
+                <option value="hr">HR</option>
               </select>
             </label>
           </div>

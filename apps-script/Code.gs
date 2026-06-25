@@ -25,6 +25,10 @@ const HEADERS = [
   "newTaxReturns",
   "insuranceReferrals",
   "friendReferrals",
+  "newCandidates",
+  "firstInterview",
+  "secondInterview",
+  "newHires",
 ];
 const DEFAULT_GOALS = {
   salesDepartmentOneName: "Sales Department 1",
@@ -35,6 +39,7 @@ const DEFAULT_GOALS = {
   serviceAnswerRate: 85,
   collectionTotal: 65000,
   newTaxReturns: 20,
+  hrNewHires: 1,
 };
 
 function doPost(e) {
@@ -77,6 +82,10 @@ function doPost(e) {
     number_(values.newTaxReturns),
     number_(values.insuranceReferrals || values.referrals),
     number_(values.friendReferrals),
+    number_(values.newCandidates),
+    number_(values.firstInterview),
+    number_(values.secondInterview),
+    number_(values.newHires),
   ];
   const existingRow = findExistingRow_(sheet, date, payload.department || "", payload.name || "");
 
@@ -188,6 +197,7 @@ function saveGoals_(goals) {
     serviceAnswerRate: number_(goals.serviceAnswerRate) || DEFAULT_GOALS.serviceAnswerRate,
     collectionTotal: number_(goals.collectionTotal) || DEFAULT_GOALS.collectionTotal,
     newTaxReturns: number_(goals.newTaxReturns) || DEFAULT_GOALS.newTaxReturns,
+    hrNewHires: number_(goals.hrNewHires) || DEFAULT_GOALS.hrNewHires,
   };
 
   sheet.clearContents();
@@ -260,6 +270,10 @@ function rowToSubmission_(row) {
       referrals: number_(row.referrals),
       insuranceReferrals: number_(row.insuranceReferrals || row.referrals),
       friendReferrals: number_(row.friendReferrals),
+      newCandidates: number_(row.newCandidates),
+      firstInterview: number_(row.firstInterview),
+      secondInterview: number_(row.secondInterview),
+      newHires: number_(row.newHires),
       renewals: number_(row.renewals),
       callsReceived: number_(row.callsReceived || row.incoming),
       callsAnswered: number_(row.callsAnswered || row.answered),

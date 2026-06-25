@@ -4,6 +4,7 @@ const emptyData = {
   renewals: [],
   service: [],
   collection: [],
+  hr: [],
 };
 
 let dashboardData = structuredClone(emptyData);
@@ -18,6 +19,7 @@ const defaultTargets = {
   serviceAnswerRate: 85,
   collectionTotal: 65000,
   newTaxReturns: 20,
+  hrNewHires: 1,
 };
 
 let targets = { ...defaultTargets };
@@ -63,8 +65,14 @@ const translations = {
     "New Chat": "צ'אט חדש",
     "Chat Closed": "צ'אט נסגר",
     Collection: "גבייה",
+    HR: "משאבי אנוש",
     General: "כללי",
     "Total revenue": "סה\"כ הכנסה",
+    "New candidates": "מועמדים חדשים",
+    "First interview": "ראיון ראשון",
+    "Second interview": "ראיון שני",
+    "New hires": "עובדים חדשים",
+    "HR tracking": "מעקב משאבי אנוש",
     "Revenue by source": "הכנסה לפי מקור",
     "Service answer rate": "אחוז מענה שירות",
     "Daily Goals": "יעדים יומיים",
@@ -77,6 +85,7 @@ const translations = {
     "Service answer rate goal (%)": "יעד אחוז מענה שירות (%)",
     "Collection total goal": "יעד גבייה כללי",
     "New tax refund goal": "הודעות החזר",
+    "HR new hires goal": "יעד עובדים חדשים למשאבי אנוש",
     "Save goals": "שמור יעדים",
     "Fix Mistakes": "תיקון טעויות",
     "Delete selected department data": "מחיקת נתוני מחלקה נבחרת",
@@ -90,6 +99,7 @@ const translations = {
     "Renewal Sales form": "טופס מכירות חידושים",
     "Customer Service form": "טופס שירות לקוחות",
     "Collection form": "טופס גבייה",
+    "HR form": "טופס משאבי אנוש",
     "Collection - General": "גבייה - כללי",
     "Goals saved": "היעדים נשמרו",
     "Could not save goals": "לא ניתן לשמור יעדים",
@@ -121,12 +131,14 @@ const elements = {
   totalFriendReferrals: document.querySelector("#totalFriendReferrals"),
   totalAbandonCalls: document.querySelector("#totalAbandonCalls"),
   totalNewTaxReturns: document.querySelector("#totalNewTaxReturns"),
+  totalNewHires: document.querySelector("#totalNewHires"),
   languageSelect: document.querySelector("#languageSelect"),
   newSalesStatus: document.querySelector("#newSalesStatus"),
   newSales2Status: document.querySelector("#newSales2Status"),
   renewalsStatus: document.querySelector("#renewalsStatus"),
   serviceStatus: document.querySelector("#serviceStatus"),
   collectionStatus: document.querySelector("#collectionStatus"),
+  hrStatus: document.querySelector("#hrStatus"),
   newSalesCount: document.querySelector("#newSalesCount"),
   newSalesRevenue: document.querySelector("#newSalesRevenue"),
   newSalesLeads: document.querySelector("#newSalesLeads"),
@@ -158,6 +170,10 @@ const elements = {
   collectionNewTaxReturns: document.querySelector("#collectionNewTaxReturns"),
   collectionInsuranceReferrals: document.querySelector("#collectionInsuranceReferrals"),
   collectionFriendReferrals: document.querySelector("#collectionFriendReferrals"),
+  hrNewCandidates: document.querySelector("#hrNewCandidates"),
+  hrFirstInterview: document.querySelector("#hrFirstInterview"),
+  hrSecondInterview: document.querySelector("#hrSecondInterview"),
+  hrNewHires: document.querySelector("#hrNewHires"),
   revenueTotalLabel: document.querySelector("#revenueTotalLabel"),
   revenueBars: document.querySelector("#revenueBars"),
   answerRateLabel: document.querySelector("#answerRateLabel"),
@@ -173,6 +189,7 @@ const elements = {
   goalServiceAnswerRate: document.querySelector("#goalServiceAnswerRate"),
   goalCollectionTotal: document.querySelector("#goalCollectionTotal"),
   goalNewTaxReturns: document.querySelector("#goalNewTaxReturns"),
+  goalHrNewHires: document.querySelector("#goalHrNewHires"),
   saveGoals: document.querySelector("#saveGoals"),
   deleteStatus: document.querySelector("#deleteStatus"),
   deleteDepartment: document.querySelector("#deleteDepartment"),
@@ -306,6 +323,10 @@ function getMetrics(data) {
   const collectionInsuranceReferrals = sumAny(data.collection, "insuranceReferrals", "referrals");
   const collectionFriendReferrals = sumAny(data.collection, "friendReferrals");
   const collectionTotal = collectionGeneral;
+  const hrNewCandidates = sumAny(data.hr, "newCandidates");
+  const hrFirstInterview = sumAny(data.hr, "firstInterview");
+  const hrSecondInterview = sumAny(data.hr, "secondInterview");
+  const hrNewHires = sumAny(data.hr, "newHires");
 
   return {
     newSalesCount,
@@ -335,6 +356,10 @@ function getMetrics(data) {
     collectionInsuranceReferrals,
     collectionFriendReferrals,
     collectionTotal,
+    hrNewCandidates,
+    hrFirstInterview,
+    hrSecondInterview,
+    hrNewHires,
     totalRevenue: newSalesRevenue + newSales2Revenue + renewalRevenue + collectionTotal,
     totalSales: newSalesCount + newSales2Count + renewalSalesCount,
     totalLeads: newSalesLeads + renewalLeads,
@@ -371,6 +396,7 @@ function weightedDailyRatio(metrics) {
     Math.min(metrics.serviceAnswerRate / targets.serviceAnswerRate, 1.25),
     Math.min(metrics.collectionTotal / targets.collectionTotal, 1.25),
     Math.min(metrics.collectionNewTaxReturns / targets.newTaxReturns, 1.25),
+    Math.min(metrics.hrNewHires / targets.hrNewHires, 1.25),
   ];
   return ratios.reduce((total, ratio) => total + ratio, 0) / ratios.length;
 }
@@ -385,6 +411,7 @@ function normalizeGoals(goals = {}) {
     serviceAnswerRate: Number(goals.serviceAnswerRate) || defaultTargets.serviceAnswerRate,
     collectionTotal: Number(goals.collectionTotal) || defaultTargets.collectionTotal,
     newTaxReturns: Number(goals.newTaxReturns) || defaultTargets.newTaxReturns,
+    hrNewHires: Number(goals.hrNewHires) || defaultTargets.hrNewHires,
   };
 }
 
@@ -398,6 +425,7 @@ function readGoalsFromInputs() {
     serviceAnswerRate: elements.goalServiceAnswerRate.value,
     collectionTotal: elements.goalCollectionTotal.value,
     newTaxReturns: elements.goalNewTaxReturns.value,
+    hrNewHires: elements.goalHrNewHires.value,
   });
 }
 
@@ -410,6 +438,7 @@ function renderGoalInputs() {
   elements.goalServiceAnswerRate.value = targets.serviceAnswerRate;
   elements.goalCollectionTotal.value = targets.collectionTotal;
   elements.goalNewTaxReturns.value = targets.newTaxReturns;
+  elements.goalHrNewHires.value = targets.hrNewHires;
 }
 
 function renderSalesLabels() {
@@ -502,6 +531,7 @@ function renderDashboard() {
   elements.totalFriendReferrals.textContent = String(metrics.totalFriendReferrals);
   elements.totalAbandonCalls.textContent = String(metrics.serviceAbandonCalls);
   elements.totalNewTaxReturns.textContent = String(metrics.collectionNewTaxReturns);
+  elements.totalNewHires.textContent = String(metrics.hrNewHires);
 
   elements.newSalesCount.textContent = String(metrics.newSalesCount);
   elements.newSalesRevenue.textContent = money(metrics.newSalesRevenue);
@@ -535,11 +565,17 @@ function renderDashboard() {
   elements.collectionInsuranceReferrals.textContent = String(metrics.collectionInsuranceReferrals);
   elements.collectionFriendReferrals.textContent = String(metrics.collectionFriendReferrals);
 
+  elements.hrNewCandidates.textContent = String(metrics.hrNewCandidates);
+  elements.hrFirstInterview.textContent = String(metrics.hrFirstInterview);
+  elements.hrSecondInterview.textContent = String(metrics.hrSecondInterview);
+  elements.hrNewHires.textContent = String(metrics.hrNewHires);
+
   setStatus(elements.newSalesStatus, metrics.newSalesRevenue, targets.newSalesRevenue);
   setStatus(elements.newSales2Status, metrics.newSales2Revenue, targets.newSales2Revenue);
   setStatus(elements.renewalsStatus, metrics.renewalRevenue, targets.renewalRevenue);
   setStatus(elements.serviceStatus, metrics.serviceAnswerRate, targets.serviceAnswerRate, "percent");
   setStatus(elements.collectionStatus, metrics.collectionTotal, targets.collectionTotal);
+  setMarker(elements.hrStatus, targets.hrNewHires ? metrics.hrNewHires / targets.hrNewHires : 0, `${metrics.hrNewHires} / ${targets.hrNewHires}`);
 
   elements.revenueTotalLabel.textContent = money(metrics.totalRevenue);
   renderBars([
@@ -593,6 +629,19 @@ function normalizeSubmission(submission) {
 
   if (submission.department === "collection") {
     return { department: "collection", row: { name, general: Number(values.general) || 0, newTaxReturns: Number(values.newTaxReturns) || 0, insuranceReferrals: value(values, "insuranceReferrals", "referrals"), friendReferrals: value(values, "friendReferrals") } };
+  }
+
+  if (submission.department === "hr") {
+    return {
+      department: "hr",
+      row: {
+        name,
+        newCandidates: value(values, "newCandidates"),
+        firstInterview: value(values, "firstInterview"),
+        secondInterview: value(values, "secondInterview"),
+        newHires: value(values, "newHires"),
+      },
+    };
   }
 
   return null;

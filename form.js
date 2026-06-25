@@ -54,6 +54,16 @@ const departmentForms = {
       { key: "newTaxReturns", label: "New Tax Returns For Customer", type: "number" },
     ],
   },
+  hr: {
+    title: "HR Daily Form",
+    filePrefix: "hr",
+    fields: [
+      { key: "newCandidates", label: "New candidates", type: "number" },
+      { key: "firstInterview", label: "First interview", type: "number" },
+      { key: "secondInterview", label: "Second interview", type: "number" },
+      { key: "newHires", label: "New hires", type: "number" },
+    ],
+  },
 };
 
 const translations = {
@@ -85,6 +95,7 @@ const translations = {
     "Renewal Sales Daily Form": "טופס יומי מכירות חידושים",
     "Customer Service Daily Form": "טופס יומי שירות לקוחות",
     "Collection Daily Form": "טופס יומי גבייה",
+    "HR Daily Form": "טופס יומי משאבי אנוש",
     "Sales Department 1": "מחלקת מכירות 1",
     "Sales Department 2": "מחלקת מכירות 2",
     "Daily Form": "טופס יומי",
@@ -103,6 +114,10 @@ const translations = {
     "Chat Closed": "צ'אטים שנסגרו",
     "General Money Collected": "כסף כללי שנגבה",
     "New Tax Returns For Customer": "דוחות מס חדשים ללקוח",
+    "New candidates": "מועמדים חדשים",
+    "First interview": "ראיון ראשון",
+    "Second interview": "ראיון שני",
+    "New hires": "עובדים חדשים",
   },
 };
 

@@ -9,6 +9,7 @@ const portalTranslations = {
     "Renewal Sales": "מכירות חידושים",
     "Customer Service": "שירות לקוחות",
     Collection: "גבייה",
+    HR: "משאבי אנוש",
     "Daily Form": "טופס יומי",
   },
 };
