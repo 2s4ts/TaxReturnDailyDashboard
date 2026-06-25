@@ -5,6 +5,7 @@ const departmentForms = {
     fields: [
       { key: "sales", label: "Total Sales", type: "number" },
       { key: "revenue", label: "Total Revenue Collected", type: "money" },
+      { key: "leads", label: "New Leads Generated", type: "number" },
       { key: "referrals", label: "Insurance Referrals Created", type: "number" },
     ],
   },
@@ -14,7 +15,6 @@ const departmentForms = {
     fields: [
       { key: "sales", label: "Total Sales", type: "number" },
       { key: "revenue", label: "Total Revenue Collected", type: "money" },
-      { key: "leads", label: "New Leads Generated", type: "number" },
       { key: "referrals", label: "Insurance Referrals Created", type: "number" },
     ],
   },
