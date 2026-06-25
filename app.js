@@ -41,7 +41,7 @@ const translations = {
     "Total daily sales": "סה\"כ מכירות יומיות",
     "Sales departments + renewals": "מחלקות מכירות + חידושים",
     "Total leads": "סה\"כ לידים",
-    "New + renewal leads": "לידים חדשים + חידושים",
+    "Sales department 1 leads": "לידים מחלקת מכירות 1",
     "Insurance referrals": "הפניות ביטוח",
     "Friend referrals": "הפניות חברים",
     "All departments": "כל המחלקות",
@@ -64,8 +64,14 @@ const translations = {
     "Calls received": "שיחות שהתקבלו",
     "Calls answered": "שיחות שנענו",
     "Answer rate": "אחוז מענה",
-    "New Chat": "צ'אט חדש",
-    "Chat Closed": "צ'אט נסגר",
+    "Missions opened": "משימות שנפתחו",
+    "Missions closed": "משימות שנסגרו",
+    "Missions opened from chats": "משימות שנפתחו מצ'אטים",
+    "Missions closed from chats": "משימות שנסגרו מצ'אטים",
+    "New human chats": "צ'אטים חדשים מאדם",
+    "Closed human chats": "צ'אטים שנסגרו מאדם",
+    "New bot chats": "צ'אטים חדשים מבוט",
+    "Closed bot chats": "צ'אטים שנסגרו מבוט",
     Collection: "גבייה",
     HR: "משאבי אנוש",
     "Business Development": "פיתוח עסקי",
@@ -166,15 +172,20 @@ const elements = {
   newSales2FriendReferrals: document.querySelector("#newSales2FriendReferrals"),
   renewalSalesCount: document.querySelector("#renewalSalesCount"),
   renewalRevenue: document.querySelector("#renewalRevenue"),
-  renewalLeads: document.querySelector("#renewalLeads"),
   renewalInsuranceReferrals: document.querySelector("#renewalInsuranceReferrals"),
   renewalFriendReferrals: document.querySelector("#renewalFriendReferrals"),
   serviceIncoming: document.querySelector("#serviceIncoming"),
   serviceAnswered: document.querySelector("#serviceAnswered"),
   serviceAbandonCalls: document.querySelector("#serviceAbandonCalls"),
   serviceAnswerRate: document.querySelector("#serviceAnswerRate"),
-  serviceNewChat: document.querySelector("#serviceNewChat"),
-  serviceChatClosed: document.querySelector("#serviceChatClosed"),
+  serviceMissionsOpened: document.querySelector("#serviceMissionsOpened"),
+  serviceMissionsClosed: document.querySelector("#serviceMissionsClosed"),
+  serviceMissionsOpenedFromChats: document.querySelector("#serviceMissionsOpenedFromChats"),
+  serviceMissionsClosedFromChats: document.querySelector("#serviceMissionsClosedFromChats"),
+  serviceNewHumanChats: document.querySelector("#serviceNewHumanChats"),
+  serviceClosedHumanChats: document.querySelector("#serviceClosedHumanChats"),
+  serviceNewBotChats: document.querySelector("#serviceNewBotChats"),
+  serviceClosedBotChats: document.querySelector("#serviceClosedBotChats"),
   serviceInsuranceReferrals: document.querySelector("#serviceInsuranceReferrals"),
   serviceFriendReferrals: document.querySelector("#serviceFriendReferrals"),
   collectionGeneral: document.querySelector("#collectionGeneral"),
@@ -324,14 +335,19 @@ function getMetrics(data) {
   const newSales2FriendReferrals = sumAny(data.newSales2, "friendReferrals");
   const renewalSalesCount = sum(data.renewals, "renewals");
   const renewalRevenue = sum(data.renewals, "revenue");
-  const renewalLeads = sum(data.renewals, "leads");
   const renewalInsuranceReferrals = sumAny(data.renewals, "insuranceReferrals", "referrals");
   const renewalFriendReferrals = sumAny(data.renewals, "friendReferrals");
   const serviceIncoming = sumAny(data.service, "callsReceived", "incoming");
   const serviceAnswered = sumAny(data.service, "callsAnswered", "answered");
   const serviceAbandonCalls = sumAny(data.service, "abandonCalls");
-  const serviceNewChat = sumAny(data.service, "newChat");
-  const serviceChatClosed = sumAny(data.service, "chatClosed");
+  const serviceMissionsOpened = sumAny(data.service, "missionsOpened");
+  const serviceMissionsClosed = sumAny(data.service, "missionsClosed");
+  const serviceMissionsOpenedFromChats = sumAny(data.service, "missionsOpenedFromChats");
+  const serviceMissionsClosedFromChats = sumAny(data.service, "missionsClosedFromChats");
+  const serviceNewHumanChats = sumAny(data.service, "newHumanChats", "newChat");
+  const serviceClosedHumanChats = sumAny(data.service, "closedHumanChats", "chatClosed");
+  const serviceNewBotChats = sumAny(data.service, "newBotChats");
+  const serviceClosedBotChats = sumAny(data.service, "closedBotChats");
   const serviceInsuranceReferrals = sumAny(data.service, "insuranceReferrals", "referrals");
   const serviceFriendReferrals = sumAny(data.service, "friendReferrals");
   const serviceAnswerRate = serviceIncoming ? (serviceAnswered / serviceIncoming) * 100 : 0;
@@ -361,14 +377,19 @@ function getMetrics(data) {
     newSales2FriendReferrals,
     renewalSalesCount,
     renewalRevenue,
-    renewalLeads,
     renewalInsuranceReferrals,
     renewalFriendReferrals,
     serviceIncoming,
     serviceAnswered,
     serviceAbandonCalls,
-    serviceNewChat,
-    serviceChatClosed,
+    serviceMissionsOpened,
+    serviceMissionsClosed,
+    serviceMissionsOpenedFromChats,
+    serviceMissionsClosedFromChats,
+    serviceNewHumanChats,
+    serviceClosedHumanChats,
+    serviceNewBotChats,
+    serviceClosedBotChats,
     serviceInsuranceReferrals,
     serviceFriendReferrals,
     serviceAnswerRate,
@@ -387,7 +408,7 @@ function getMetrics(data) {
     businessSignedCompanyContracts,
     totalRevenue: newSalesRevenue + newSales2Revenue + renewalRevenue + collectionTotal,
     totalSales: newSalesCount + newSales2Count + renewalSalesCount,
-    totalLeads: newSalesLeads + renewalLeads,
+    totalLeads: newSalesLeads,
     totalInsuranceReferrals: newSalesInsuranceReferrals + newSales2InsuranceReferrals + renewalInsuranceReferrals + serviceInsuranceReferrals + collectionInsuranceReferrals,
     totalFriendReferrals: newSalesFriendReferrals + newSales2FriendReferrals + renewalFriendReferrals + serviceFriendReferrals + collectionFriendReferrals,
   };
@@ -536,8 +557,12 @@ function renderBars(rows) {
 function renderRiskList(metrics) {
   const risks = [
     [t("Abandon calls"), `${metrics.serviceAbandonCalls}`],
-    [t("New Chat"), `${metrics.serviceNewChat}`],
-    [t("Chat Closed"), `${metrics.serviceChatClosed}`],
+    [t("Missions opened"), `${metrics.serviceMissionsOpened}`],
+    [t("Missions closed"), `${metrics.serviceMissionsClosed}`],
+    [t("New human chats"), `${metrics.serviceNewHumanChats}`],
+    [t("Closed human chats"), `${metrics.serviceClosedHumanChats}`],
+    [t("New bot chats"), `${metrics.serviceNewBotChats}`],
+    [t("Closed bot chats"), `${metrics.serviceClosedBotChats}`],
   ];
 
   elements.serviceRiskList.innerHTML = "";
@@ -576,7 +601,6 @@ function renderDashboard() {
 
   elements.renewalSalesCount.textContent = String(metrics.renewalSalesCount);
   elements.renewalRevenue.textContent = money(metrics.renewalRevenue);
-  elements.renewalLeads.textContent = String(metrics.renewalLeads);
   elements.renewalInsuranceReferrals.textContent = String(metrics.renewalInsuranceReferrals);
   elements.renewalFriendReferrals.textContent = String(metrics.renewalFriendReferrals);
 
@@ -584,8 +608,14 @@ function renderDashboard() {
   elements.serviceAnswered.textContent = String(metrics.serviceAnswered);
   elements.serviceAbandonCalls.textContent = String(metrics.serviceAbandonCalls);
   elements.serviceAnswerRate.textContent = percent(metrics.serviceAnswerRate);
-  elements.serviceNewChat.textContent = String(metrics.serviceNewChat);
-  elements.serviceChatClosed.textContent = String(metrics.serviceChatClosed);
+  elements.serviceMissionsOpened.textContent = String(metrics.serviceMissionsOpened);
+  elements.serviceMissionsClosed.textContent = String(metrics.serviceMissionsClosed);
+  elements.serviceMissionsOpenedFromChats.textContent = String(metrics.serviceMissionsOpenedFromChats);
+  elements.serviceMissionsClosedFromChats.textContent = String(metrics.serviceMissionsClosedFromChats);
+  elements.serviceNewHumanChats.textContent = String(metrics.serviceNewHumanChats);
+  elements.serviceClosedHumanChats.textContent = String(metrics.serviceClosedHumanChats);
+  elements.serviceNewBotChats.textContent = String(metrics.serviceNewBotChats);
+  elements.serviceClosedBotChats.textContent = String(metrics.serviceClosedBotChats);
   elements.serviceInsuranceReferrals.textContent = String(metrics.serviceInsuranceReferrals);
   elements.serviceFriendReferrals.textContent = String(metrics.serviceFriendReferrals);
 
@@ -642,7 +672,7 @@ function normalizeSubmission(submission) {
   }
 
   if (submission.department === "renewals") {
-    return { department: "renewals", row: { name, renewals: Number(values.renewals) || 0, revenue: Number(values.revenue) || 0, leads: Number(values.leads) || 0, insuranceReferrals: value(values, "insuranceReferrals", "referrals"), friendReferrals: value(values, "friendReferrals") } };
+    return { department: "renewals", row: { name, renewals: Number(values.renewals) || 0, revenue: Number(values.revenue) || 0, insuranceReferrals: value(values, "insuranceReferrals", "referrals"), friendReferrals: value(values, "friendReferrals") } };
   }
 
   if (submission.department === "service") {
@@ -655,8 +685,14 @@ function normalizeSubmission(submission) {
         callsReceived,
         callsAnswered,
         abandonCalls: value(values, "abandonCalls"),
-        newChat: value(values, "newChat"),
-        chatClosed: value(values, "chatClosed"),
+        missionsOpened: value(values, "missionsOpened"),
+        missionsClosed: value(values, "missionsClosed"),
+        missionsOpenedFromChats: value(values, "missionsOpenedFromChats"),
+        missionsClosedFromChats: value(values, "missionsClosedFromChats"),
+        newHumanChats: value(values, "newHumanChats", "newChat"),
+        closedHumanChats: value(values, "closedHumanChats", "chatClosed"),
+        newBotChats: value(values, "newBotChats"),
+        closedBotChats: value(values, "closedBotChats"),
         insuranceReferrals: value(values, "insuranceReferrals", "referrals"),
         friendReferrals: value(values, "friendReferrals"),
       },
