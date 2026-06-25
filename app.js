@@ -76,7 +76,7 @@ const translations = {
     "Renewal revenue goal": "יעד הכנסה חידושים",
     "Service answer rate goal (%)": "יעד אחוז מענה שירות (%)",
     "Collection total goal": "יעד גבייה כללי",
-    "New tax returns goal": "יעד דוחות מס חדשים",
+    "New tax refund goal": "הודעות החזר",
     "Save goals": "שמור יעדים",
     "Fix Mistakes": "תיקון טעויות",
     "Delete selected department data": "מחיקת נתוני מחלקה נבחרת",
