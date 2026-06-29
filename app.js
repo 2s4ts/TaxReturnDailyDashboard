@@ -731,7 +731,7 @@ function normalizeSubmissionList(submissions, date) {
   return nextData;
 }
 
-function loadJsonp(url, params = {}) {
+function loadJsonpOnce(url, params = {}) {
   return new Promise((resolve, reject) => {
     const callbackName = `dailyDashboardCallback_${Date.now()}_${Math.random().toString(36).slice(2)}`;
     const script = document.createElement("script");
@@ -757,6 +757,15 @@ function loadJsonp(url, params = {}) {
     script.src = `${url}${separator}${query.toString()}`;
     document.body.append(script);
   });
+}
+
+async function loadJsonp(url, params = {}) {
+  try {
+    return await loadJsonpOnce(url, params);
+  } catch (error) {
+    await new Promise((resolve) => setTimeout(resolve, 700));
+    return loadJsonpOnce(url, params);
+  }
 }
 
 async function postBackend(payload) {
@@ -795,7 +804,7 @@ async function loadDashboardData() {
     let payload;
 
     if (backendUrl()) {
-      payload = await loadJsonp(backendUrl());
+      payload = await loadJsonp(backendUrl(), { date });
     } else if (canUseLocalApi()) {
       const response = await fetch(`/api/submissions?date=${encodeURIComponent(date)}`, { cache: "no-store" });
       if (!response.ok) throw new Error("Could not load dashboard data.");
