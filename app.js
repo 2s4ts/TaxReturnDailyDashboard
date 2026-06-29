@@ -238,12 +238,10 @@ function sumAny(rows, ...keys) {
 }
 
 function money(value) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "ILS",
-    currencyDisplay: "narrowSymbol",
+  const amount = new Intl.NumberFormat("en-US", {
     maximumFractionDigits: 0,
-  }).format(value);
+  }).format(Number(value) || 0);
+  return `₪${amount}`;
 }
 
 function percent(value) {
