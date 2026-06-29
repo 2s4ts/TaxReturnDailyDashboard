@@ -762,8 +762,52 @@ async function loadJsonp(url, params = {}) {
     return await loadJsonpOnce(url, params);
   } catch (error) {
     await new Promise((resolve) => setTimeout(resolve, 700));
-    return loadJsonpOnce(url, params);
+    try {
+      return await loadJsonpOnce(url, params);
+    } catch {
+      return loadIframeBackend(url, params);
+    }
   }
+}
+
+function loadIframeBackend(url, params = {}) {
+  return new Promise((resolve, reject) => {
+    const requestId = `dailyDashboardFrame_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    const iframe = document.createElement("iframe");
+    const query = new URLSearchParams({
+      ...params,
+      transport: "iframe",
+      requestId,
+      _: String(Date.now()),
+    });
+    const separator = url.includes("?") ? "&" : "?";
+    const timeout = window.setTimeout(() => {
+      cleanup();
+      reject(new Error("Could not load hosted dashboard data."));
+    }, 12000);
+
+    function cleanup() {
+      window.clearTimeout(timeout);
+      window.removeEventListener("message", handleMessage);
+      iframe.remove();
+    }
+
+    function handleMessage(event) {
+      if (event.source !== iframe.contentWindow) return;
+      if (!event.data || event.data.source !== "dailyDashboardBackend" || event.data.requestId !== requestId) return;
+      cleanup();
+      if (event.data.ok === false) {
+        reject(new Error(event.data.message || "Could not load hosted dashboard data."));
+        return;
+      }
+      resolve(event.data.payload);
+    }
+
+    window.addEventListener("message", handleMessage);
+    iframe.hidden = true;
+    iframe.src = `${url}${separator}${query.toString()}`;
+    document.body.append(iframe);
+  });
 }
 
 async function postBackend(payload) {

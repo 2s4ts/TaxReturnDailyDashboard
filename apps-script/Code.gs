@@ -126,6 +126,8 @@ function doPost(e) {
 function doGet(e) {
   const callback = e.parameter.callback || "";
   const action = e.parameter.action || "";
+  const transport = e.parameter.transport || "";
+  const requestId = e.parameter.requestId || "";
   let payload;
 
   if (action === "deleteDepartment") {
@@ -135,6 +137,10 @@ function doGet(e) {
     const date = e.parameter.date || "";
     const rows = getRows_(date);
     payload = { ok: true, submissions: rows, goals: getGoals_() };
+  }
+
+  if (transport === "iframe") {
+    return iframe_(requestId, payload);
   }
 
   if (callback) {
@@ -363,4 +369,24 @@ function dateKey_(value) {
 function json_(payload) {
   return ContentService.createTextOutput(JSON.stringify(payload))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+function iframe_(requestId, payload) {
+  const message = {
+    source: "dailyDashboardBackend",
+    requestId: requestId,
+    payload: payload,
+  };
+  const html = [
+    "<!doctype html><html><body>",
+    "<script>",
+    "window.parent.postMessage(",
+    JSON.stringify(message).replace(/</g, "\\u003c"),
+    ", '*');",
+    "</script>",
+    "</body></html>",
+  ].join("");
+
+  return HtmlService.createHtmlOutput(html)
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
