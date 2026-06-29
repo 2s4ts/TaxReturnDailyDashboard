@@ -810,6 +810,29 @@ function loadIframeBackend(url, params = {}) {
   });
 }
 
+function backendRequestUrl(url, params = {}) {
+  const requestUrl = new URL(url);
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") requestUrl.searchParams.set(key, value);
+  });
+  requestUrl.searchParams.set("_", String(Date.now()));
+  return requestUrl.toString();
+}
+
+async function loadHostedBackend(url, params = {}) {
+  try {
+    const response = await fetch(backendRequestUrl(url, params), {
+      cache: "no-store",
+      credentials: "omit",
+      mode: "cors",
+    });
+    if (!response.ok) throw new Error("Could not load hosted dashboard data.");
+    return await response.json();
+  } catch {
+    return loadJsonp(url, params);
+  }
+}
+
 async function postBackend(payload) {
   const endpoint = backendUrl();
 
@@ -846,7 +869,7 @@ async function loadDashboardData() {
     let payload;
 
     if (backendUrl()) {
-      payload = await loadJsonp(backendUrl(), { date });
+      payload = await loadHostedBackend(backendUrl(), { date });
     } else if (canUseLocalApi()) {
       const response = await fetch(`/api/submissions?date=${encodeURIComponent(date)}`, { cache: "no-store" });
       if (!response.ok) throw new Error("Could not load dashboard data.");
