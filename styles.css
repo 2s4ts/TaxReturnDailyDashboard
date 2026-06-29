@@ -637,19 +637,19 @@ tbody tr:last-child td {
 
 @media (max-width: 620px) {
   :root {
-    background: #ffffff;
+    background: #eef2f6;
   }
 
   .app-shell {
-    padding: 14px;
+    padding: 10px;
   }
 
   .topbar {
     position: sticky;
     top: 0;
     z-index: 10;
-    margin: -14px -14px 14px;
-    padding: 14px;
+    margin: -10px -10px 10px;
+    padding: 10px;
     border-bottom: 1px solid #e5eaf0;
     background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(8px);
@@ -664,31 +664,39 @@ tbody tr:last-child td {
 
   .date-panel {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     align-items: stretch;
-    gap: 8px;
+    gap: 6px;
   }
 
   h1 {
-    font-size: 28px;
+    font-size: 22px;
     line-height: 1.1;
   }
 
   h2 {
-    font-size: 17px;
+    font-size: 15px;
   }
 
   .eyebrow {
-    font-size: 12px;
+    font-size: 11px;
   }
 
   .date-panel input,
+  .date-panel select,
   .primary-button,
   .danger-button,
   .secondary-button,
   .secondary-link {
     width: 100%;
-    min-height: 48px;
+    min-height: 38px;
+  }
+
+  #exportHtml,
+  .link-grid,
+  .visual-grid,
+  .management-grid {
+    display: none;
   }
 
   .link-grid a {
@@ -699,39 +707,54 @@ tbody tr:last-child td {
 
   .summary-grid,
   .department-grid,
-  .link-grid,
   .portal-grid,
   .form-grid,
-  .settings-grid,
-  .mini-metrics {
+  .settings-grid {
     grid-template-columns: 1fr;
   }
 
+  .summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mini-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
   .summary-grid,
-  .department-grid,
-  .visual-grid,
-  .management-grid {
-    gap: 12px;
+  .department-grid {
+    gap: 8px;
+    margin-bottom: 8px;
   }
 
   .metric-card {
-    min-height: 104px;
-    padding: 14px;
+    min-height: 72px;
+    padding: 10px;
   }
 
   .metric-card strong {
-    font-size: 28px;
+    font-size: 23px;
+  }
+
+  .metric-card span,
+  .metric-card small,
+  .mini-metrics span,
+  .panel-header span,
+  .bar-meta,
+  .risk-list span {
+    font-size: 11px;
   }
 
   .department-card,
   .panel {
-    padding: 14px;
-    border-radius: 0;
-    margin-right: -14px;
-    margin-left: -14px;
-    border-right: 0;
-    border-left: 0;
-    box-shadow: none;
+    padding: 10px;
+    border-radius: 8px;
+    margin-right: 0;
+    margin-left: 0;
+    border-right: 1px solid #d8dee6;
+    border-left: 1px solid #d8dee6;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
   }
 
   .form-shell .panel {
@@ -773,7 +796,29 @@ tbody tr:last-child td {
   }
 
   .mini-metrics div {
-    min-height: 68px;
+    min-height: 52px;
+    gap: 4px;
+    padding: 7px;
+  }
+
+  .mini-metrics strong {
+    font-size: 17px;
+  }
+
+  .department-header,
+  .panel-header {
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .marker {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .marker-legend {
+    margin: -2px 0 8px;
+    gap: 5px;
   }
 
   .bar-row {
