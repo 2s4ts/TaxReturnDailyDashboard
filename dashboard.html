@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Manager Daily Tax Return Dashboard</title>
-    <link rel="stylesheet" href="styles.css?v=20260702-6" />
+    <link rel="stylesheet" href="styles.css?v=20260702-7" />
   </head>
   <body>
     <main class="app-shell">
@@ -72,10 +72,10 @@
           <strong id="totalFriendReferrals">0</strong>
           <small>All departments</small>
         </article>
-        <article class="metric-card metric-card-alert" data-summary-key="totalAbandonCalls">
-          <span>Abandon calls</span>
-          <strong id="totalAbandonCalls">0</strong>
-          <small>Customer service daily risk</small>
+        <article class="metric-card metric-card-service" data-summary-key="totalAbandonCalls">
+          <span>Answer rate</span>
+          <strong id="totalAbandonCalls">0%</strong>
+          <small>Customer service daily answer rate</small>
         </article>
         <article class="metric-card" data-summary-key="totalNewTaxReturns">
           <span>New tax returns</span>
@@ -92,6 +92,14 @@
           <strong id="totalSignedCompanyContracts">0</strong>
           <small>Business development</small>
         </article>
+      </section>
+
+      <section class="weekly-overview" aria-label="Weekly summary">
+        <div class="weekly-overview-header">
+          <strong>Weekly summary</strong>
+          <span id="weeklyOverviewRange"></span>
+        </div>
+        <div id="weeklyOverviewGrid" class="weekly-overview-grid"></div>
       </section>
 
       <section class="marker-legend" aria-label="Daily marker legend">
@@ -335,6 +343,6 @@
 
     <script src="config.js?v=20260630-5"></script>
     <script src="dashboard-access.js?v=20260630-5"></script>
-    <script src="app.js?v=20260702-6"></script>
+    <script src="app.js?v=20260702-7"></script>
   </body>
 </html>

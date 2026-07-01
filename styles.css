@@ -240,6 +240,7 @@ h2 {
 
 .department-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: start;
   margin-bottom: 16px;
 }
 
@@ -296,6 +297,11 @@ h2 {
   background: #fff9ed;
 }
 
+.metric-card-service {
+  border-color: #315a8a;
+  background: #f4f7fc;
+}
+
 .daily-mark-card {
   border-color: #9aa8b7;
   background: #f7f9fb;
@@ -319,6 +325,82 @@ h2 {
 .marker-card-great {
   border-color: #1f7a4d;
   background: #f1fbf5;
+}
+
+.weekly-overview {
+  display: grid;
+  gap: 10px;
+  margin: -2px 0 16px;
+  border: 1px solid #dce6f3;
+  border-radius: 8px;
+  padding: 12px;
+  background: #f6f9fd;
+}
+
+.weekly-overview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.weekly-overview-header strong {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  border-radius: 999px;
+  padding: 0 10px;
+  color: #ffffff;
+  background: #315a8a;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.weekly-overview-header span {
+  color: #4e6380;
+  font-size: 12px;
+  font-weight: 900;
+  direction: ltr;
+}
+
+.weekly-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.weekly-overview-item {
+  min-height: 58px;
+  display: grid;
+  align-content: space-between;
+  gap: 6px;
+  border: 1px solid #dce6f3;
+  border-radius: 6px;
+  padding: 8px;
+  background: #ffffff;
+}
+
+.weekly-overview-item span {
+  color: #607085;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.weekly-overview-item strong {
+  color: #111827;
+  font-size: 18px;
+  line-height: 1.05;
+}
+
+.weekly-overview-money {
+  border-color: #b9dfc7;
+  background: #f7fcf8;
+}
+
+.weekly-overview-service {
+  border-color: #bfd1e8;
+  background: #f5f8fd;
 }
 
 .marker-legend {
@@ -845,6 +927,10 @@ tbody tr:last-child td {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .weekly-overview-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
   .department-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -942,6 +1028,31 @@ tbody tr:last-child td {
 
   .summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .weekly-overview {
+    margin-bottom: 8px;
+    padding: 10px;
+  }
+
+  .weekly-overview-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .weekly-overview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .weekly-overview-item {
+    min-height: 50px;
+    padding: 7px;
+  }
+
+  .weekly-overview-item strong {
+    font-size: 16px;
   }
 
   .mini-metrics {

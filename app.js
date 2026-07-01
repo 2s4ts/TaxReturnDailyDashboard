@@ -80,6 +80,7 @@ const translations = {
     "Total daily revenue": "סה\"כ הכנסה יומית",
     "Sales, renewals, and collections": "מכירות, חידושים וגבייה",
     "Total daily sales": "סה\"כ מכירות יומיות",
+    "Total sales": "סה\"כ מכירות",
     "Sales departments + renewals": "מחלקות מכירות + חידושים",
     "Total leads": "סה\"כ לידים",
     "Sales department 1 leads": "לידים מחלקת מכירות 1",
@@ -88,6 +89,8 @@ const translations = {
     "All departments": "כל המחלקות",
     "Abandon calls": "שיחות נטושות",
     "Customer service daily risk": "מדד סיכון יומי שירות לקוחות",
+    "Customer service daily answer rate": "אחוז מענה יומי שירות לקוחות",
+    "Weekly summary": "סיכום שבועי",
     "New tax returns": "דוחות מס חדשים",
     "Collection tracking only": "מעקב גבייה בלבד",
     Bad: "לא טוב",
@@ -198,6 +201,8 @@ const elements = {
   totalNewTaxReturns: document.querySelector("#totalNewTaxReturns"),
   totalNewHires: document.querySelector("#totalNewHires"),
   totalSignedCompanyContracts: document.querySelector("#totalSignedCompanyContracts"),
+  weeklyOverviewRange: document.querySelector("#weeklyOverviewRange"),
+  weeklyOverviewGrid: document.querySelector("#weeklyOverviewGrid"),
   languageSelect: document.querySelector("#languageSelect"),
   newSalesStatus: document.querySelector("#newSalesStatus"),
   newSales2Status: document.querySelector("#newSales2Status"),
@@ -511,7 +516,7 @@ const summaryMetricLabels = {
   totalLeads: "Total leads",
   totalInsuranceReferrals: "Insurance referrals",
   totalFriendReferrals: "Friend referrals",
-  totalAbandonCalls: "Abandon calls",
+  totalAbandonCalls: "Answer rate",
   totalNewTaxReturns: "New tax returns",
   totalNewHires: "New hires",
   totalSignedCompanyContracts: "Signed company contracts",
@@ -783,6 +788,31 @@ function renderWeeklyMetrics() {
       </div>
       <div class="weekly-box-grid">${boxes}</div>
     `;
+  }
+}
+
+function renderWeeklyOverview() {
+  const metrics = getMetrics(weeklyDashboardData);
+  const range = israelWorkWeekRange(elements.dashboardDate.value || localDateKey());
+  const rows = [
+    { label: "Total revenue", value: money(metrics.totalRevenue), tone: "money" },
+    { label: "Total sales", value: String(metrics.totalSales) },
+    { label: "Answer rate", value: percent(metrics.serviceAnswerRate), tone: "service" },
+    { label: "Total leads", value: String(metrics.totalLeads) },
+    { label: "Insurance referrals", value: String(metrics.totalInsuranceReferrals) },
+    { label: "Friend referrals", value: String(metrics.totalFriendReferrals) },
+    { label: "New hires", value: String(metrics.hrNewHires) },
+    { label: "Signed company contracts", value: String(metrics.businessSignedCompanyContracts) },
+  ];
+
+  elements.weeklyOverviewRange.textContent = `${range.startDate} - ${range.endDate}`;
+  elements.weeklyOverviewGrid.innerHTML = "";
+
+  for (const row of rows) {
+    const item = document.createElement("div");
+    item.className = `weekly-overview-item${row.tone ? ` weekly-overview-${row.tone}` : ""}`;
+    item.innerHTML = `<span>${t(row.label)}</span><strong>${row.value}</strong>`;
+    elements.weeklyOverviewGrid.append(item);
   }
 }
 
@@ -1222,7 +1252,7 @@ function renderDashboard() {
   elements.totalLeads.textContent = String(metrics.totalLeads);
   elements.totalInsuranceReferrals.textContent = String(metrics.totalInsuranceReferrals);
   elements.totalFriendReferrals.textContent = String(metrics.totalFriendReferrals);
-  elements.totalAbandonCalls.textContent = String(metrics.serviceAbandonCalls);
+  elements.totalAbandonCalls.textContent = percent(metrics.serviceAnswerRate);
   elements.totalNewTaxReturns.textContent = money(metrics.collectionNewTaxReturns);
   elements.totalNewHires.textContent = String(metrics.hrNewHires);
   elements.totalSignedCompanyContracts.textContent = String(metrics.businessSignedCompanyContracts);
@@ -1294,6 +1324,7 @@ function renderDashboard() {
   elements.answerRateGaugeText.textContent = percent(answerRate);
   renderRiskList(metrics);
   applyDashboardLayout();
+  renderWeeklyOverview();
   renderWeeklyMetrics();
 }
 
