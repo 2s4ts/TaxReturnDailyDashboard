@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Manager Daily Tax Return Dashboard</title>
-    <link rel="stylesheet" href="styles.css?v=20260630-1" />
+    <link rel="stylesheet" href="styles.css?v=20260702-1" />
   </head>
   <body>
     <main class="app-shell">
@@ -41,52 +41,52 @@
       </section>
 
       <section class="summary-grid" aria-label="Executive summary">
-        <article class="metric-card daily-mark-card">
+        <article class="metric-card daily-mark-card" data-summary-key="dailyMark">
           <span>Daily mark</span>
           <strong id="dailyMark">0%</strong>
           <small id="dailyMarkLabel">Waiting for today's data</small>
         </article>
-        <article class="metric-card metric-card-money">
+        <article class="metric-card metric-card-money" data-summary-key="totalRevenue">
           <span>Total daily revenue</span>
           <strong id="totalRevenue">₪0</strong>
           <small>Sales, renewals, and collections</small>
         </article>
-        <article class="metric-card">
+        <article class="metric-card" data-summary-key="totalSales">
           <span>Total daily sales</span>
           <strong id="totalSales">0</strong>
           <small>Sales departments + renewals</small>
         </article>
-        <article class="metric-card">
+        <article class="metric-card" data-summary-key="totalLeads">
           <span>Total leads</span>
           <strong id="totalLeads">0</strong>
           <small>Sales department 1 leads</small>
         </article>
-        <article class="metric-card">
+        <article class="metric-card" data-summary-key="totalInsuranceReferrals">
           <span>Insurance referrals</span>
           <strong id="totalInsuranceReferrals">0</strong>
           <small>All departments</small>
         </article>
-        <article class="metric-card">
+        <article class="metric-card" data-summary-key="totalFriendReferrals">
           <span>Friend referrals</span>
           <strong id="totalFriendReferrals">0</strong>
           <small>All departments</small>
         </article>
-        <article class="metric-card metric-card-alert">
+        <article class="metric-card metric-card-alert" data-summary-key="totalAbandonCalls">
           <span>Abandon calls</span>
           <strong id="totalAbandonCalls">0</strong>
           <small>Customer service daily risk</small>
         </article>
-        <article class="metric-card">
+        <article class="metric-card" data-summary-key="totalNewTaxReturns">
           <span>New tax returns</span>
           <strong id="totalNewTaxReturns">₪0</strong>
           <small>Collection tracking only</small>
         </article>
-        <article class="metric-card">
+        <article class="metric-card" data-summary-key="totalNewHires">
           <span>New hires</span>
           <strong id="totalNewHires">0</strong>
           <small>HR tracking</small>
         </article>
-        <article class="metric-card">
+        <article class="metric-card" data-summary-key="totalSignedCompanyContracts">
           <span>Signed company contracts</span>
           <strong id="totalSignedCompanyContracts">0</strong>
           <small>Business development</small>
@@ -107,12 +107,13 @@
             <span id="newSalesStatus"></span>
           </div>
           <div class="mini-metrics">
-            <div><span>Sales</span><strong id="newSalesCount">0</strong></div>
-            <div><span>Revenue</span><strong id="newSalesRevenue">₪0</strong></div>
-            <div><span>Leads</span><strong id="newSalesLeads">0</strong></div>
-            <div><span>Insurance referrals</span><strong id="newSalesInsuranceReferrals">0</strong></div>
-            <div><span>Friend referrals</span><strong id="newSalesFriendReferrals">0</strong></div>
+            <div data-metric-key="sales"><span>Sales</span><strong id="newSalesCount">0</strong></div>
+            <div data-metric-key="revenue"><span>Revenue</span><strong id="newSalesRevenue">₪0</strong></div>
+            <div data-metric-key="leads"><span>Leads</span><strong id="newSalesLeads">0</strong></div>
+            <div data-metric-key="insuranceReferrals"><span>Insurance referrals</span><strong id="newSalesInsuranceReferrals">0</strong></div>
+            <div data-metric-key="friendReferrals"><span>Friend referrals</span><strong id="newSalesFriendReferrals">0</strong></div>
           </div>
+          <div class="weekly-metrics" data-weekly-department="newSales"></div>
         </article>
 
         <article class="department-card" data-department="newSales2">
@@ -121,11 +122,12 @@
             <span id="newSales2Status"></span>
           </div>
           <div class="mini-metrics">
-            <div><span>Sales</span><strong id="newSales2Count">0</strong></div>
-            <div><span>Revenue</span><strong id="newSales2Revenue">₪0</strong></div>
-            <div><span>Insurance referrals</span><strong id="newSales2InsuranceReferrals">0</strong></div>
-            <div><span>Friend referrals</span><strong id="newSales2FriendReferrals">0</strong></div>
+            <div data-metric-key="sales"><span>Sales</span><strong id="newSales2Count">0</strong></div>
+            <div data-metric-key="revenue"><span>Revenue</span><strong id="newSales2Revenue">₪0</strong></div>
+            <div data-metric-key="insuranceReferrals"><span>Insurance referrals</span><strong id="newSales2InsuranceReferrals">0</strong></div>
+            <div data-metric-key="friendReferrals"><span>Friend referrals</span><strong id="newSales2FriendReferrals">0</strong></div>
           </div>
+          <div class="weekly-metrics" data-weekly-department="newSales2"></div>
         </article>
 
         <article class="department-card" data-department="renewals">
@@ -134,11 +136,12 @@
             <span id="renewalsStatus"></span>
           </div>
           <div class="mini-metrics">
-            <div><span>Renewals</span><strong id="renewalSalesCount">0</strong></div>
-            <div><span>Revenue</span><strong id="renewalRevenue">₪0</strong></div>
-            <div><span>Insurance referrals</span><strong id="renewalInsuranceReferrals">0</strong></div>
-            <div><span>Friend referrals</span><strong id="renewalFriendReferrals">0</strong></div>
+            <div data-metric-key="renewals"><span>Renewals</span><strong id="renewalSalesCount">0</strong></div>
+            <div data-metric-key="revenue"><span>Revenue</span><strong id="renewalRevenue">₪0</strong></div>
+            <div data-metric-key="insuranceReferrals"><span>Insurance referrals</span><strong id="renewalInsuranceReferrals">0</strong></div>
+            <div data-metric-key="friendReferrals"><span>Friend referrals</span><strong id="renewalFriendReferrals">0</strong></div>
           </div>
+          <div class="weekly-metrics" data-weekly-department="renewals"></div>
         </article>
 
         <article class="department-card" data-department="service">
@@ -147,19 +150,20 @@
             <span id="serviceStatus"></span>
           </div>
           <div class="mini-metrics">
-            <div><span>Calls received</span><strong id="serviceIncoming">0</strong></div>
-            <div><span>Calls answered</span><strong id="serviceAnswered">0</strong></div>
-            <div><span>Abandon calls</span><strong id="serviceAbandonCalls">0</strong></div>
-            <div><span>Answer rate</span><strong id="serviceAnswerRate">0%</strong></div>
-            <div><span>Missions opened</span><strong id="serviceMissionsOpened">0</strong></div>
-            <div><span>Missions closed</span><strong id="serviceMissionsClosed">0</strong></div>
-            <div><span>New human chats</span><strong id="serviceNewHumanChats">0</strong></div>
-            <div><span>Closed human chats</span><strong id="serviceClosedHumanChats">0</strong></div>
-            <div><span>New bot chats</span><strong id="serviceNewBotChats">0</strong></div>
-            <div><span>Closed bot chats</span><strong id="serviceClosedBotChats">0</strong></div>
-            <div><span>Insurance referrals</span><strong id="serviceInsuranceReferrals">0</strong></div>
-            <div><span>Friend referrals</span><strong id="serviceFriendReferrals">0</strong></div>
+            <div data-metric-key="callsReceived"><span>Calls received</span><strong id="serviceIncoming">0</strong></div>
+            <div data-metric-key="callsAnswered"><span>Calls answered</span><strong id="serviceAnswered">0</strong></div>
+            <div data-metric-key="abandonCalls"><span>Abandon calls</span><strong id="serviceAbandonCalls">0</strong></div>
+            <div data-metric-key="answerRate"><span>Answer rate</span><strong id="serviceAnswerRate">0%</strong></div>
+            <div data-metric-key="missionsOpened"><span>Missions opened</span><strong id="serviceMissionsOpened">0</strong></div>
+            <div data-metric-key="missionsClosed"><span>Missions closed</span><strong id="serviceMissionsClosed">0</strong></div>
+            <div data-metric-key="newHumanChats"><span>New human chats</span><strong id="serviceNewHumanChats">0</strong></div>
+            <div data-metric-key="closedHumanChats"><span>Closed human chats</span><strong id="serviceClosedHumanChats">0</strong></div>
+            <div data-metric-key="newBotChats"><span>New bot chats</span><strong id="serviceNewBotChats">0</strong></div>
+            <div data-metric-key="closedBotChats"><span>Closed bot chats</span><strong id="serviceClosedBotChats">0</strong></div>
+            <div data-metric-key="insuranceReferrals"><span>Insurance referrals</span><strong id="serviceInsuranceReferrals">0</strong></div>
+            <div data-metric-key="friendReferrals"><span>Friend referrals</span><strong id="serviceFriendReferrals">0</strong></div>
           </div>
+          <div class="weekly-metrics" data-weekly-department="service"></div>
         </article>
 
         <article class="department-card" data-department="collection">
@@ -168,12 +172,13 @@
             <span id="collectionStatus"></span>
           </div>
           <div class="mini-metrics">
-            <div><span>General</span><strong id="collectionGeneral">₪0</strong></div>
-            <div><span>Total revenue</span><strong id="collectionTotal">₪0</strong></div>
-            <div><span>New tax returns</span><strong id="collectionNewTaxReturns">₪0</strong></div>
-            <div><span>Insurance referrals</span><strong id="collectionInsuranceReferrals">0</strong></div>
-            <div><span>Friend referrals</span><strong id="collectionFriendReferrals">0</strong></div>
+            <div data-metric-key="general"><span>General</span><strong id="collectionGeneral">₪0</strong></div>
+            <div data-metric-key="totalRevenue"><span>Total revenue</span><strong id="collectionTotal">₪0</strong></div>
+            <div data-metric-key="newTaxReturns"><span>New tax returns</span><strong id="collectionNewTaxReturns">₪0</strong></div>
+            <div data-metric-key="insuranceReferrals"><span>Insurance referrals</span><strong id="collectionInsuranceReferrals">0</strong></div>
+            <div data-metric-key="friendReferrals"><span>Friend referrals</span><strong id="collectionFriendReferrals">0</strong></div>
           </div>
+          <div class="weekly-metrics" data-weekly-department="collection"></div>
         </article>
 
         <article class="department-card" data-department="hr">
@@ -182,11 +187,12 @@
             <span id="hrStatus"></span>
           </div>
           <div class="mini-metrics">
-            <div><span>New candidates</span><strong id="hrNewCandidates">0</strong></div>
-            <div><span>First interview</span><strong id="hrFirstInterview">0</strong></div>
-            <div><span>Second interview</span><strong id="hrSecondInterview">0</strong></div>
-            <div><span>New hires</span><strong id="hrNewHires">0</strong></div>
+            <div data-metric-key="newCandidates"><span>New candidates</span><strong id="hrNewCandidates">0</strong></div>
+            <div data-metric-key="firstInterview"><span>First interview</span><strong id="hrFirstInterview">0</strong></div>
+            <div data-metric-key="secondInterview"><span>Second interview</span><strong id="hrSecondInterview">0</strong></div>
+            <div data-metric-key="newHires"><span>New hires</span><strong id="hrNewHires">0</strong></div>
           </div>
+          <div class="weekly-metrics" data-weekly-department="hr"></div>
         </article>
 
         <article class="department-card" data-department="businessDevelopment">
@@ -195,11 +201,12 @@
             <span id="businessDevelopmentStatus"></span>
           </div>
           <div class="mini-metrics">
-            <div><span>Initial contact</span><strong id="businessInitialContact">0</strong></div>
-            <div><span>Follow-ups</span><strong id="businessFollowUps">0</strong></div>
-            <div><span>Set up meetings</span><strong id="businessSetUpMeetings">0</strong></div>
-            <div><span>Signed company contracts</span><strong id="businessSignedCompanyContracts">0</strong></div>
+            <div data-metric-key="initialContact"><span>Initial contact</span><strong id="businessInitialContact">0</strong></div>
+            <div data-metric-key="followUps"><span>Follow-ups</span><strong id="businessFollowUps">0</strong></div>
+            <div data-metric-key="setUpMeetings"><span>Set up meetings</span><strong id="businessSetUpMeetings">0</strong></div>
+            <div data-metric-key="signedCompanyContracts"><span>Signed company contracts</span><strong id="businessSignedCompanyContracts">0</strong></div>
           </div>
+          <div class="weekly-metrics" data-weekly-department="businessDevelopment"></div>
         </article>
       </section>
 
@@ -222,6 +229,26 @@
             <strong id="answerRateGaugeText">0%</strong>
           </div>
           <div id="serviceRiskList" class="risk-list"></div>
+        </article>
+
+        <article class="panel layout-panel">
+          <div class="panel-header">
+            <h2>Dashboard Layout</h2>
+            <span id="layoutStatus">Drag to customize desktop view</span>
+          </div>
+          <div class="layout-settings">
+            <div>
+              <h3>Top section</h3>
+              <div id="topMetricControls" class="layout-list"></div>
+            </div>
+            <div>
+              <h3>Department order</h3>
+              <div id="departmentLayoutControls" class="department-layout-list"></div>
+            </div>
+          </div>
+          <div class="panel-actions">
+            <button id="saveLayout" class="primary-button" type="button">Save layout</button>
+          </div>
         </article>
       </section>
 
@@ -307,6 +334,6 @@
 
     <script src="config.js?v=20260630-5"></script>
     <script src="dashboard-access.js?v=20260630-5"></script>
-    <script src="app.js?v=20260630-5"></script>
+    <script src="app.js?v=20260702-1"></script>
   </body>
 </html>

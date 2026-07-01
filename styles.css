@@ -504,6 +504,131 @@ h2 {
   line-height: 1.1;
 }
 
+.weekly-metrics {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  border-top: 1px solid #edf1f5;
+  padding-top: 12px;
+}
+
+.weekly-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.weekly-title strong {
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.weekly-title small {
+  color: #607085;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.weekly-chip-grid {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.weekly-chip-grid span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid #d8e7dd;
+  border-radius: 999px;
+  padding: 6px 8px;
+  color: #31523d;
+  background: #f4fbf6;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.weekly-chip-grid b {
+  color: #607085;
+  font-weight: 800;
+}
+
+.weekly-chip-grid strong {
+  font-size: 13px;
+}
+
+.layout-panel {
+  grid-column: 1 / -1;
+}
+
+.layout-settings {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.6fr) minmax(0, 1.4fr);
+  gap: 16px;
+}
+
+.layout-settings h3,
+.layout-department h4 {
+  margin: 0 0 8px;
+  color: #344154;
+  font-size: 14px;
+}
+
+.department-layout-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.layout-list {
+  display: grid;
+  gap: 8px;
+}
+
+.layout-item {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid #d8dee6;
+  border-radius: 6px;
+  padding: 8px 10px;
+  background: #fbfcfd;
+  cursor: grab;
+  user-select: none;
+}
+
+.layout-item:active {
+  cursor: grabbing;
+}
+
+.layout-item.is-dragging {
+  opacity: 0.55;
+}
+
+.layout-item input {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+.layout-item span {
+  flex: 1 1 auto;
+  color: #16202a;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.layout-item em {
+  color: #7c8b9a;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
 .bar-list {
   display: grid;
   gap: 14px;
@@ -740,6 +865,7 @@ tbody tr:last-child td {
   .metric-card span,
   .metric-card small,
   .mini-metrics span,
+  .weekly-title small,
   .panel-header span,
   .bar-meta,
   .risk-list span {

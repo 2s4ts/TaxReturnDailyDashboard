@@ -54,6 +54,42 @@ const DEFAULT_GOALS = {
   hrNewHires: 1,
   businessSignedContracts: 1,
 };
+const DEFAULT_LAYOUT = {
+  topMetrics: [
+    "dailyMark",
+    "totalRevenue",
+    "totalSales",
+    "totalLeads",
+    "totalInsuranceReferrals",
+    "totalFriendReferrals",
+    "totalAbandonCalls",
+    "totalNewTaxReturns",
+    "totalNewHires",
+    "totalSignedCompanyContracts",
+  ],
+  departmentMetricOrder: {
+    newSales: ["sales", "revenue", "leads", "insuranceReferrals", "friendReferrals"],
+    newSales2: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
+    renewals: ["renewals", "revenue", "insuranceReferrals", "friendReferrals"],
+    service: [
+      "callsReceived",
+      "callsAnswered",
+      "abandonCalls",
+      "answerRate",
+      "missionsOpened",
+      "missionsClosed",
+      "newHumanChats",
+      "closedHumanChats",
+      "newBotChats",
+      "closedBotChats",
+      "insuranceReferrals",
+      "friendReferrals",
+    ],
+    collection: ["general", "totalRevenue", "newTaxReturns", "insuranceReferrals", "friendReferrals"],
+    hr: ["newCandidates", "firstInterview", "secondInterview", "newHires"],
+    businessDevelopment: ["initialContact", "followUps", "setUpMeetings", "signedCompanyContracts"],
+  },
+};
 
 function doPost(e) {
   const payload = JSON.parse(e.postData.contents || "{}");
@@ -61,6 +97,11 @@ function doPost(e) {
   if (payload.action === "saveGoals") {
     saveGoals_(payload.goals || {});
     return json_({ ok: true, mode: "goalsSaved", goals: getGoals_() });
+  }
+
+  if (payload.action === "saveLayout") {
+    saveLayout_(payload.layout || {});
+    return json_({ ok: true, mode: "layoutSaved", layout: getLayout_() });
   }
 
   if (payload.action === "deleteDepartment") {
@@ -135,8 +176,10 @@ function doGet(e) {
     payload = { ok: true, mode: "deleted", deleted: deleted };
   } else {
     const date = e.parameter.date || "";
-    const rows = getRows_(date);
-    payload = { ok: true, submissions: rows, goals: getGoals_() };
+    const startDate = e.parameter.startDate || "";
+    const endDate = e.parameter.endDate || "";
+    const rows = getRows_(date, startDate, endDate);
+    payload = { ok: true, submissions: rows, goals: getGoals_(), layout: getLayout_() };
   }
 
   if (transport === "iframe") {
@@ -191,15 +234,23 @@ function getSpreadsheet_() {
   return spreadsheet;
 }
 
-function getRows_(date) {
+function getRows_(date, startDate, endDate) {
   const sheet = getSheet_();
   const values = sheet.getDataRange().getValues();
   const headers = values.shift();
   const requestedDate = date ? dateKey_(date) : "";
+  const requestedStart = startDate ? dateKey_(startDate) : "";
+  const requestedEnd = endDate ? dateKey_(endDate) : "";
 
   return values
     .map((row) => Object.fromEntries(headers.map((header, index) => [header, row[index]])))
-    .filter((row) => !requestedDate || dateKey_(row.date) === requestedDate)
+    .filter((row) => {
+      const rowDate = dateKey_(row.date);
+      if (requestedDate) return rowDate === requestedDate;
+      if (requestedStart && rowDate < requestedStart) return false;
+      if (requestedEnd && rowDate > requestedEnd) return false;
+      return true;
+    })
     .map(rowToSubmission_);
 }
 
@@ -211,6 +262,7 @@ function getGoals_() {
   for (let index = 1; index < values.length; index++) {
     const key = String(values[index][0] || "");
     if (!key) continue;
+    if (!Object.prototype.hasOwnProperty.call(DEFAULT_GOALS, key)) continue;
     goals[key] = stringGoalKey_(key) ? String(values[index][1] || DEFAULT_GOALS[key]) : number_(values[index][1]);
   }
 
@@ -218,7 +270,6 @@ function getGoals_() {
 }
 
 function saveGoals_(goals) {
-  const sheet = getSettingsSheet_();
   const nextGoals = {
     salesDepartmentOneName: string_(goals.salesDepartmentOneName) || DEFAULT_GOALS.salesDepartmentOneName,
     salesDepartmentTwoName: string_(goals.salesDepartmentTwoName) || DEFAULT_GOALS.salesDepartmentTwoName,
@@ -232,11 +283,90 @@ function saveGoals_(goals) {
     businessSignedContracts: number_(goals.businessSignedContracts) || DEFAULT_GOALS.businessSignedContracts,
   };
 
-  sheet.clearContents();
-  sheet.appendRow(["key", "value"]);
   Object.keys(nextGoals).forEach(function(key) {
-    sheet.appendRow([key, nextGoals[key]]);
+    setSetting_(key, nextGoals[key]);
   });
+}
+
+function getLayout_() {
+  const raw = getSetting_("dashboardLayout");
+  if (!raw) return DEFAULT_LAYOUT;
+
+  try {
+    return normalizeLayout_(JSON.parse(raw));
+  } catch (error) {
+    return DEFAULT_LAYOUT;
+  }
+}
+
+function saveLayout_(layout) {
+  setSetting_("dashboardLayout", JSON.stringify(normalizeLayout_(layout)));
+}
+
+function normalizeLayout_(layout) {
+  const next = JSON.parse(JSON.stringify(DEFAULT_LAYOUT));
+  const summaryKeys = {};
+  DEFAULT_LAYOUT.topMetrics.forEach(function(key) {
+    summaryKeys[key] = true;
+  });
+
+  if (layout && Array.isArray(layout.topMetrics)) {
+    const topMetrics = layout.topMetrics.filter(function(key) {
+      return summaryKeys[key];
+    });
+    if (topMetrics.length) next.topMetrics = topMetrics;
+  }
+
+  const incomingDepartments = (layout && layout.departmentMetricOrder) || {};
+  Object.keys(DEFAULT_LAYOUT.departmentMetricOrder).forEach(function(department) {
+    const defaults = DEFAULT_LAYOUT.departmentMetricOrder[department];
+    const valid = {};
+    defaults.forEach(function(key) {
+      valid[key] = true;
+    });
+    const incoming = Array.isArray(incomingDepartments[department])
+      ? incomingDepartments[department].filter(function(key) {
+        return valid[key];
+      })
+      : [];
+    const seen = {};
+    const combined = [];
+    incoming.concat(defaults).forEach(function(key) {
+      if (seen[key]) return;
+      seen[key] = true;
+      combined.push(key);
+    });
+    next.departmentMetricOrder[department] = combined;
+  });
+
+  return next;
+}
+
+function getSetting_(key) {
+  const sheet = getSettingsSheet_();
+  const values = sheet.getDataRange().getValues();
+
+  for (let index = 1; index < values.length; index++) {
+    if (String(values[index][0] || "") === key) {
+      return String(values[index][1] || "");
+    }
+  }
+
+  return "";
+}
+
+function setSetting_(key, value) {
+  const sheet = getSettingsSheet_();
+  const values = sheet.getDataRange().getValues();
+
+  for (let index = 1; index < values.length; index++) {
+    if (String(values[index][0] || "") === key) {
+      sheet.getRange(index + 1, 2).setValue(value);
+      return;
+    }
+  }
+
+  sheet.appendRow([key, value]);
 }
 
 function deleteDepartmentRows_(date, department) {

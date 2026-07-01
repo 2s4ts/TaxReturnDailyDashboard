@@ -9,6 +9,7 @@ const emptyData = {
 };
 
 let dashboardData = structuredClone(emptyData);
+let weeklyDashboardData = structuredClone(emptyData);
 let backendWarningShown = false;
 
 const defaultTargets = {
@@ -25,6 +26,45 @@ const defaultTargets = {
 };
 
 let targets = { ...defaultTargets };
+
+const defaultLayout = {
+  topMetrics: [
+    "dailyMark",
+    "totalRevenue",
+    "totalSales",
+    "totalLeads",
+    "totalInsuranceReferrals",
+    "totalFriendReferrals",
+    "totalAbandonCalls",
+    "totalNewTaxReturns",
+    "totalNewHires",
+    "totalSignedCompanyContracts",
+  ],
+  departmentMetricOrder: {
+    newSales: ["sales", "revenue", "leads", "insuranceReferrals", "friendReferrals"],
+    newSales2: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
+    renewals: ["renewals", "revenue", "insuranceReferrals", "friendReferrals"],
+    service: [
+      "callsReceived",
+      "callsAnswered",
+      "abandonCalls",
+      "answerRate",
+      "missionsOpened",
+      "missionsClosed",
+      "newHumanChats",
+      "closedHumanChats",
+      "newBotChats",
+      "closedBotChats",
+      "insuranceReferrals",
+      "friendReferrals",
+    ],
+    collection: ["general", "totalRevenue", "newTaxReturns", "insuranceReferrals", "friendReferrals"],
+    hr: ["newCandidates", "firstInterview", "secondInterview", "newHires"],
+    businessDevelopment: ["initialContact", "followUps", "setUpMeetings", "signedCompanyContracts"],
+  },
+};
+
+let dashboardLayout = structuredClone(defaultLayout);
 
 const translations = {
   he: {
@@ -121,6 +161,16 @@ const translations = {
     Refreshing: "מרענן...",
     Deleting: "מוחק...",
     "Delete failed": "המחיקה נכשלה",
+    "Dashboard Layout": "פריסת לוח בקרה",
+    "Drag to customize desktop view": "גרור כדי להתאים את תצוגת המחשב",
+    "Top section": "אזור עליון",
+    "Department order": "סדר מחלקות",
+    "Save layout": "שמור פריסה",
+    "Layout saved": "הפריסה נשמרה",
+    "Could not save layout": "לא ניתן לשמור פריסה",
+    Daily: "יומי",
+    Weekly: "שבועי",
+    "Work week": "שבוע עבודה",
   },
 };
 
@@ -218,6 +268,11 @@ const elements = {
   deleteStatus: document.querySelector("#deleteStatus"),
   deleteDepartment: document.querySelector("#deleteDepartment"),
   deleteDepartmentData: document.querySelector("#deleteDepartmentData"),
+  summaryGrid: document.querySelector(".summary-grid"),
+  topMetricControls: document.querySelector("#topMetricControls"),
+  departmentLayoutControls: document.querySelector("#departmentLayoutControls"),
+  layoutStatus: document.querySelector("#layoutStatus"),
+  saveLayout: document.querySelector("#saveLayout"),
 };
 
 function sum(rows, key) {
@@ -300,6 +355,22 @@ function saveLocalGoals(goals) {
   localStorage.setItem(localGoalsKey(), JSON.stringify(goals));
 }
 
+function localLayoutKey() {
+  return "dailyDashboardLayout";
+}
+
+function getLocalLayout() {
+  try {
+    return JSON.parse(localStorage.getItem(localLayoutKey()) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function saveLocalLayout(layout) {
+  localStorage.setItem(localLayoutKey(), JSON.stringify(layout));
+}
+
 function canUseLocalApi() {
   return ["localhost", "127.0.0.1"].includes(window.location.hostname);
 }
@@ -315,6 +386,33 @@ async function currentServerDate() {
   } catch {
     return localDateKey();
   }
+}
+
+function dateFromKey(key) {
+  const [year, month, day] = String(key || "").split("-").map(Number);
+  if (!year || !month || !day) return null;
+  return new Date(Date.UTC(year, month - 1, day, 12));
+}
+
+function keyFromUtcDate(date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function addDays(date, days) {
+  const next = new Date(date.getTime());
+  next.setUTCDate(next.getUTCDate() + days);
+  return next;
+}
+
+function israelWorkWeekRange(dateKey) {
+  const date = dateFromKey(dateKey) || dateFromKey(localDateKey());
+  const day = date.getUTCDay();
+  const start = addDays(date, -day);
+  const end = addDays(start, 4);
+  return {
+    startDate: keyFromUtcDate(start),
+    endDate: keyFromUtcDate(end),
+  };
 }
 
 function getMetrics(data) {
@@ -402,6 +500,317 @@ function getMetrics(data) {
     totalInsuranceReferrals: newSalesInsuranceReferrals + newSales2InsuranceReferrals + renewalInsuranceReferrals + serviceInsuranceReferrals + collectionInsuranceReferrals,
     totalFriendReferrals: newSalesFriendReferrals + newSales2FriendReferrals + renewalFriendReferrals + serviceFriendReferrals + collectionFriendReferrals,
   };
+}
+
+const summaryMetricLabels = {
+  dailyMark: "Daily mark",
+  totalRevenue: "Total daily revenue",
+  totalSales: "Total daily sales",
+  totalLeads: "Total leads",
+  totalInsuranceReferrals: "Insurance referrals",
+  totalFriendReferrals: "Friend referrals",
+  totalAbandonCalls: "Abandon calls",
+  totalNewTaxReturns: "New tax returns",
+  totalNewHires: "New hires",
+  totalSignedCompanyContracts: "Signed company contracts",
+};
+
+const departmentMetricLabels = {
+  newSales: {
+    sales: "Sales",
+    revenue: "Revenue",
+    leads: "Leads",
+    insuranceReferrals: "Insurance referrals",
+    friendReferrals: "Friend referrals",
+  },
+  newSales2: {
+    sales: "Sales",
+    revenue: "Revenue",
+    insuranceReferrals: "Insurance referrals",
+    friendReferrals: "Friend referrals",
+  },
+  renewals: {
+    renewals: "Renewals",
+    revenue: "Revenue",
+    insuranceReferrals: "Insurance referrals",
+    friendReferrals: "Friend referrals",
+  },
+  service: {
+    callsReceived: "Calls received",
+    callsAnswered: "Calls answered",
+    abandonCalls: "Abandon calls",
+    answerRate: "Answer rate",
+    missionsOpened: "Missions opened",
+    missionsClosed: "Missions closed",
+    newHumanChats: "New human chats",
+    closedHumanChats: "Closed human chats",
+    newBotChats: "New bot chats",
+    closedBotChats: "Closed bot chats",
+    insuranceReferrals: "Insurance referrals",
+    friendReferrals: "Friend referrals",
+  },
+  collection: {
+    general: "General",
+    totalRevenue: "Total revenue",
+    newTaxReturns: "New tax returns",
+    insuranceReferrals: "Insurance referrals",
+    friendReferrals: "Friend referrals",
+  },
+  hr: {
+    newCandidates: "New candidates",
+    firstInterview: "First interview",
+    secondInterview: "Second interview",
+    newHires: "New hires",
+  },
+  businessDevelopment: {
+    initialContact: "Initial contact",
+    followUps: "Follow-ups",
+    setUpMeetings: "Set up meetings",
+    signedCompanyContracts: "Signed company contracts",
+  },
+};
+
+const departmentMetricBindings = {
+  newSales: {
+    sales: ["newSalesCount", "number"],
+    revenue: ["newSalesRevenue", "money"],
+    leads: ["newSalesLeads", "number"],
+    insuranceReferrals: ["newSalesInsuranceReferrals", "number"],
+    friendReferrals: ["newSalesFriendReferrals", "number"],
+  },
+  newSales2: {
+    sales: ["newSales2Count", "number"],
+    revenue: ["newSales2Revenue", "money"],
+    insuranceReferrals: ["newSales2InsuranceReferrals", "number"],
+    friendReferrals: ["newSales2FriendReferrals", "number"],
+  },
+  renewals: {
+    renewals: ["renewalSalesCount", "number"],
+    revenue: ["renewalRevenue", "money"],
+    insuranceReferrals: ["renewalInsuranceReferrals", "number"],
+    friendReferrals: ["renewalFriendReferrals", "number"],
+  },
+  service: {
+    callsReceived: ["serviceIncoming", "number"],
+    callsAnswered: ["serviceAnswered", "number"],
+    abandonCalls: ["serviceAbandonCalls", "number"],
+    answerRate: ["serviceAnswerRate", "percent"],
+    missionsOpened: ["serviceMissionsOpened", "number"],
+    missionsClosed: ["serviceMissionsClosed", "number"],
+    newHumanChats: ["serviceNewHumanChats", "number"],
+    closedHumanChats: ["serviceClosedHumanChats", "number"],
+    newBotChats: ["serviceNewBotChats", "number"],
+    closedBotChats: ["serviceClosedBotChats", "number"],
+    insuranceReferrals: ["serviceInsuranceReferrals", "number"],
+    friendReferrals: ["serviceFriendReferrals", "number"],
+  },
+  collection: {
+    general: ["collectionGeneral", "money"],
+    totalRevenue: ["collectionTotal", "money"],
+    newTaxReturns: ["collectionNewTaxReturns", "money"],
+    insuranceReferrals: ["collectionInsuranceReferrals", "number"],
+    friendReferrals: ["collectionFriendReferrals", "number"],
+  },
+  hr: {
+    newCandidates: ["hrNewCandidates", "number"],
+    firstInterview: ["hrFirstInterview", "number"],
+    secondInterview: ["hrSecondInterview", "number"],
+    newHires: ["hrNewHires", "number"],
+  },
+  businessDevelopment: {
+    initialContact: ["businessInitialContact", "number"],
+    followUps: ["businessFollowUps", "number"],
+    setUpMeetings: ["businessSetUpMeetings", "number"],
+    signedCompanyContracts: ["businessSignedCompanyContracts", "number"],
+  },
+};
+
+function formatMetricValue(value, type) {
+  if (type === "money") return money(value);
+  if (type === "percent") return percent(value);
+  return String(Number(value) || 0);
+}
+
+function normalizeLayout(layout = {}) {
+  const next = structuredClone(defaultLayout);
+  const summaryKeys = new Set(defaultLayout.topMetrics);
+  const topMetrics = Array.isArray(layout.topMetrics)
+    ? layout.topMetrics.filter((key) => summaryKeys.has(key))
+    : [];
+  next.topMetrics = topMetrics.length ? topMetrics : [...defaultLayout.topMetrics];
+
+  const incomingDepartments = layout.departmentMetricOrder || {};
+  for (const [department, defaultOrder] of Object.entries(defaultLayout.departmentMetricOrder)) {
+    const valid = new Set(defaultOrder);
+    const incoming = Array.isArray(incomingDepartments[department])
+      ? incomingDepartments[department].filter((key) => valid.has(key))
+      : [];
+    next.departmentMetricOrder[department] = [
+      ...incoming,
+      ...defaultOrder.filter((key) => !incoming.includes(key)),
+    ];
+  }
+
+  return next;
+}
+
+function applyDashboardLayout() {
+  const selectedSummaryKeys = new Set(dashboardLayout.topMetrics);
+  const summaryCards = Array.from(document.querySelectorAll("[data-summary-key]"));
+  const cardsByKey = Object.fromEntries(summaryCards.map((card) => [card.dataset.summaryKey, card]));
+
+  for (const card of summaryCards) {
+    card.hidden = !selectedSummaryKeys.has(card.dataset.summaryKey);
+  }
+
+  for (const key of dashboardLayout.topMetrics) {
+    if (cardsByKey[key]) elements.summaryGrid.append(cardsByKey[key]);
+  }
+
+  for (const [department, order] of Object.entries(dashboardLayout.departmentMetricOrder)) {
+    const card = document.querySelector(`[data-department="${department}"]`);
+    const container = card?.querySelector(".mini-metrics");
+    if (!container) continue;
+    const items = Array.from(container.querySelectorAll("[data-metric-key]"));
+    const byKey = Object.fromEntries(items.map((item) => [item.dataset.metricKey, item]));
+    for (const key of order) {
+      if (byKey[key]) container.append(byKey[key]);
+    }
+  }
+}
+
+function renderWeeklyMetrics() {
+  const weeklyMetrics = getMetrics(weeklyDashboardData);
+  const range = israelWorkWeekRange(elements.dashboardDate.value || localDateKey());
+
+  for (const [department, order] of Object.entries(dashboardLayout.departmentMetricOrder)) {
+    const container = document.querySelector(`[data-weekly-department="${department}"]`);
+    if (!container) continue;
+    const bindings = departmentMetricBindings[department] || {};
+    const labels = departmentMetricLabels[department] || {};
+    const chips = order
+      .filter((key) => bindings[key])
+      .map((key) => {
+        const [metricKey, type] = bindings[key];
+        return `<span><b>${t(labels[key] || key)}</b><strong>${formatMetricValue(weeklyMetrics[metricKey], type)}</strong></span>`;
+      })
+      .join("");
+
+    container.innerHTML = `
+      <div class="weekly-title">
+        <strong>${t("Weekly")}</strong>
+        <small>${range.startDate} - ${range.endDate}</small>
+      </div>
+      <div class="weekly-chip-grid">${chips}</div>
+    `;
+  }
+}
+
+function canEditLayout() {
+  return window.matchMedia("(min-width: 621px)").matches;
+}
+
+function departmentDisplayName(department) {
+  if (department === "newSales") return targets.salesDepartmentOneName;
+  if (department === "newSales2") return targets.salesDepartmentTwoName;
+  if (department === "renewals") return "Renewal Sales";
+  if (department === "service") return "Customer Service";
+  if (department === "collection") return "Collection";
+  if (department === "hr") return "HR";
+  if (department === "businessDevelopment") return "Business Development";
+  return department;
+}
+
+function makeSortable(list, onChange) {
+  let dragged = null;
+
+  list.addEventListener("dragstart", (event) => {
+    dragged = event.target.closest("[draggable='true']");
+    if (!dragged) return;
+    event.dataTransfer.effectAllowed = "move";
+    dragged.classList.add("is-dragging");
+  });
+
+  list.addEventListener("dragend", () => {
+    dragged?.classList.remove("is-dragging");
+    dragged = null;
+    onChange();
+  });
+
+  list.addEventListener("dragover", (event) => {
+    event.preventDefault();
+    const target = event.target.closest("[draggable='true']");
+    if (!dragged || !target || target === dragged || target.parentElement !== list) return;
+    const rect = target.getBoundingClientRect();
+    const after = event.clientY > rect.top + rect.height / 2;
+    list.insertBefore(dragged, after ? target.nextSibling : target);
+  });
+}
+
+function syncTopLayoutFromControls() {
+  dashboardLayout.topMetrics = Array.from(elements.topMetricControls.querySelectorAll("[data-layout-key]"))
+    .filter((item) => item.querySelector("input")?.checked)
+    .map((item) => item.dataset.layoutKey);
+  if (!dashboardLayout.topMetrics.length) dashboardLayout.topMetrics = ["dailyMark"];
+  applyDashboardLayout();
+}
+
+function syncDepartmentLayoutFromControls(department, list) {
+  dashboardLayout.departmentMetricOrder[department] = Array.from(list.querySelectorAll("[data-layout-key]"))
+    .map((item) => item.dataset.layoutKey);
+  applyDashboardLayout();
+  renderWeeklyMetrics();
+}
+
+function renderLayoutControls() {
+  if (!elements.topMetricControls || !canEditLayout()) return;
+
+  elements.topMetricControls.innerHTML = "";
+  const selected = new Set(dashboardLayout.topMetrics);
+  const orderedTopKeys = [
+    ...dashboardLayout.topMetrics,
+    ...defaultLayout.topMetrics.filter((key) => !dashboardLayout.topMetrics.includes(key)),
+  ];
+
+  for (const key of orderedTopKeys) {
+    const item = document.createElement("label");
+    item.className = "layout-item";
+    item.draggable = true;
+    item.dataset.layoutKey = key;
+    item.innerHTML = `
+      <input type="checkbox" ${selected.has(key) ? "checked" : ""} />
+      <span>${t(summaryMetricLabels[key] || key)}</span>
+      <em>drag</em>
+    `;
+    item.querySelector("input").addEventListener("change", syncTopLayoutFromControls);
+    elements.topMetricControls.append(item);
+  }
+  makeSortable(elements.topMetricControls, syncTopLayoutFromControls);
+
+  elements.departmentLayoutControls.innerHTML = "";
+  for (const [department, order] of Object.entries(dashboardLayout.departmentMetricOrder)) {
+    const group = document.createElement("section");
+    group.className = "layout-department";
+    const title = document.createElement("h4");
+    title.textContent = t(departmentDisplayName(department));
+    const list = document.createElement("div");
+    list.className = "layout-list";
+    list.dataset.departmentLayout = department;
+
+    const labels = departmentMetricLabels[department] || {};
+    for (const key of order) {
+      const item = document.createElement("div");
+      item.className = "layout-item";
+      item.draggable = true;
+      item.dataset.layoutKey = key;
+      item.innerHTML = `<span>${t(labels[key] || key)}</span><em>drag</em>`;
+      list.append(item);
+    }
+
+    makeSortable(list, () => syncDepartmentLayoutFromControls(department, list));
+    group.append(title, list);
+    elements.departmentLayoutControls.append(group);
+  }
 }
 
 function markerForRatio(ratio) {
@@ -644,6 +1053,8 @@ function renderDashboard() {
   elements.answerRateGauge.style.width = `${answerRate}%`;
   elements.answerRateGaugeText.textContent = percent(answerRate);
   renderRiskList(metrics);
+  applyDashboardLayout();
+  renderWeeklyMetrics();
 }
 
 function normalizeSubmission(submission) {
@@ -722,6 +1133,19 @@ function normalizeSubmissionList(submissions, date) {
   const nextData = structuredClone(emptyData);
   for (const submission of submissions || []) {
     if (date && dateKeyFromValue(submission.date) !== date) continue;
+    const normalized = normalizeSubmission(submission);
+    if (!normalized) continue;
+    nextData[normalized.department].push(normalized.row);
+  }
+  return nextData;
+}
+
+function normalizeSubmissionListInRange(submissions, startDate, endDate) {
+  const nextData = structuredClone(emptyData);
+  for (const submission of submissions || []) {
+    const submissionDate = dateKeyFromValue(submission.date);
+    if (startDate && submissionDate < startDate) continue;
+    if (endDate && submissionDate > endDate) continue;
     const normalized = normalizeSubmission(submission);
     if (!normalized) continue;
     nextData[normalized.department].push(normalized.row);
@@ -866,26 +1290,38 @@ async function loadDashboardData() {
 
   try {
     const date = elements.dashboardDate.value || await currentServerDate();
+    const weekRange = israelWorkWeekRange(date);
     let payload;
+    let weeklyPayload;
 
     if (backendUrl()) {
-      payload = await loadHostedBackend(backendUrl(), { date });
+      [payload, weeklyPayload] = await Promise.all([
+        loadHostedBackend(backendUrl(), { date }),
+        loadHostedBackend(backendUrl(), weekRange),
+      ]);
     } else if (canUseLocalApi()) {
       const response = await fetch(`/api/submissions?date=${encodeURIComponent(date)}`, { cache: "no-store" });
       if (!response.ok) throw new Error("Could not load dashboard data.");
       payload = await response.json();
+      const weeklyResponse = await fetch(`/api/submissions?startDate=${encodeURIComponent(weekRange.startDate)}&endDate=${encodeURIComponent(weekRange.endDate)}`, { cache: "no-store" });
+      weeklyPayload = weeklyResponse.ok ? await weeklyResponse.json() : payload;
     } else {
       if (!backendWarningShown) {
         backendWarningShown = true;
         window.alert("Online backend is not configured. Add the Apps Script web app URL in config.js.");
       }
       payload = { date, submissions: [] };
+      weeklyPayload = { submissions: [] };
     }
 
     targets = normalizeGoals(payload.goals || getLocalGoals());
+    dashboardLayout = normalizeLayout(payload.layout || getLocalLayout());
+    saveLocalLayout(dashboardLayout);
     renderGoalInputs();
     renderSalesLabels();
+    renderLayoutControls();
     dashboardData = normalizeSubmissionList(payload.submissions || [], date);
+    weeklyDashboardData = normalizeSubmissionListInRange(weeklyPayload?.submissions || payload.submissions || [], weekRange.startDate, weekRange.endDate);
     elements.dashboardDate.value = dateKeyFromValue(payload.date) || date;
     renderDashboard();
   } catch (error) {
@@ -913,6 +1349,30 @@ async function saveGoals() {
     window.alert(error instanceof Error ? error.message : "Could not save goals.");
   } finally {
     elements.saveGoals.disabled = false;
+  }
+}
+
+async function saveLayout() {
+  if (!canEditLayout()) {
+    window.alert("Layout can only be edited from the desktop dashboard.");
+    return;
+  }
+
+  dashboardLayout = normalizeLayout(dashboardLayout);
+  saveLocalLayout(dashboardLayout);
+  elements.saveLayout.disabled = true;
+  elements.layoutStatus.textContent = t("Saving");
+
+  try {
+    await postBackend({ action: "saveLayout", layout: dashboardLayout });
+    elements.layoutStatus.textContent = t("Layout saved");
+    applyDashboardLayout();
+    renderWeeklyMetrics();
+  } catch (error) {
+    elements.layoutStatus.textContent = t("Could not save layout");
+    window.alert(error instanceof Error ? error.message : "Could not save layout.");
+  } finally {
+    elements.saveLayout.disabled = false;
   }
 }
 
@@ -982,6 +1442,7 @@ async function init() {
   elements.refreshData.addEventListener("click", loadDashboardData);
   elements.dashboardDate.addEventListener("change", loadDashboardData);
   elements.saveGoals.addEventListener("click", saveGoals);
+  elements.saveLayout.addEventListener("click", saveLayout);
   elements.deleteDepartmentData.addEventListener("click", deleteDepartmentData);
   elements.languageSelect.addEventListener("change", () => {
     localStorage.setItem("dashboardLanguage", elements.languageSelect.value);
