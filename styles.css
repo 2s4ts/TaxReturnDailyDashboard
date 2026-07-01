@@ -523,8 +523,9 @@ h2 {
 
 .mini-metrics div {
   min-height: 76px;
-  display: grid;
-  align-content: space-between;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   gap: 8px;
   border: 1px solid #edf1f5;
   border-radius: 6px;
@@ -533,8 +534,12 @@ h2 {
 }
 
 .mini-metrics strong {
+  display: block;
+  width: 100%;
+  min-height: 24px;
   font-size: 20px;
   line-height: 1.1;
+  text-align: inherit;
 }
 
 .metric-editable {
@@ -542,11 +547,11 @@ h2 {
 }
 
 .metric-editable strong {
-  width: fit-content;
-  min-width: 42px;
+  width: 100%;
+  min-width: 0;
   border-radius: 5px;
-  padding: 2px 4px;
-  margin: -2px -4px;
+  padding: 4px 6px;
+  margin: 0;
   cursor: text;
   outline: 0;
 }
@@ -564,9 +569,11 @@ h2 {
 .weekly-metrics {
   display: grid;
   gap: 10px;
-  margin-top: 12px;
-  border-top: 1px solid #edf1f5;
-  padding-top: 12px;
+  margin-top: 14px;
+  border: 1px solid #dce6f3;
+  border-radius: 8px;
+  padding: 10px;
+  background: #f6f9fd;
 }
 
 .weekly-title {
@@ -577,7 +584,14 @@ h2 {
 }
 
 .weekly-title strong {
-  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  border-radius: 999px;
+  padding: 0 10px;
+  color: #ffffff;
+  background: #315a8a;
+  font-size: 12px;
   text-transform: uppercase;
 }
 
@@ -587,32 +601,34 @@ h2 {
   font-weight: 800;
 }
 
-.weekly-chip-grid {
+.weekly-box-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.weekly-box {
+  min-height: 54px;
   display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   gap: 6px;
-  flex-wrap: wrap;
+  border: 1px solid #dce6f3;
+  border-radius: 6px;
+  padding: 8px;
+  background: #ffffff;
 }
 
-.weekly-chip-grid span {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  border: 1px solid #d8e7dd;
-  border-radius: 999px;
-  padding: 6px 8px;
-  color: #31523d;
-  background: #f4fbf6;
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.weekly-chip-grid b {
+.weekly-box span {
   color: #607085;
+  font-size: 11px;
   font-weight: 800;
 }
 
-.weekly-chip-grid strong {
-  font-size: 13px;
+.weekly-box strong {
+  color: #16324f;
+  font-size: 16px;
+  line-height: 1.1;
 }
 
 .layout-panel {

@@ -763,20 +763,25 @@ function renderWeeklyMetrics() {
     if (!container) continue;
     const bindings = departmentMetricBindings[department] || {};
     const labels = departmentMetricLabels[department] || {};
-    const chips = order
+    const boxes = order
       .filter((key) => bindings[key])
       .map((key) => {
         const [metricKey, type] = bindings[key];
-        return `<span><b>${t(labels[key] || key)}</b><strong>${formatMetricValue(weeklyMetrics[metricKey], type)}</strong></span>`;
+        return `
+          <div class="weekly-box">
+            <span>${t(labels[key] || key)}</span>
+            <strong>${formatMetricValue(weeklyMetrics[metricKey], type)}</strong>
+          </div>
+        `;
       })
       .join("");
 
     container.innerHTML = `
       <div class="weekly-title">
         <strong>${t("Weekly")}</strong>
-        <small>${range.startDate} - ${range.endDate}</small>
+        <small dir="ltr">${range.startDate} - ${range.endDate}</small>
       </div>
-      <div class="weekly-chip-grid">${chips}</div>
+      <div class="weekly-box-grid">${boxes}</div>
     `;
   }
 }
