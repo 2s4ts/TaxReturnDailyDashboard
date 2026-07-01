@@ -911,7 +911,7 @@ function setupInlineEditors() {
     }
 
     cell.classList.add("metric-editable");
-    valueElement.contentEditable = "true";
+    valueElement.setAttribute("contenteditable", "plaintext-only");
     valueElement.tabIndex = 0;
     valueElement.inputMode = "decimal";
     valueElement.spellcheck = false;
@@ -970,7 +970,7 @@ async function saveInlineMetric(element, editedText = element.textContent) {
 }
 
 function handleInlineFocus(event) {
-  const element = event.target.closest("[contenteditable='true']");
+  const element = event.target.closest("[contenteditable]");
   if (!element) return;
   activeInlineEdit = true;
   element.dataset.beforeEdit = rawEditableValueFor(element);
@@ -980,14 +980,14 @@ function handleInlineFocus(event) {
 }
 
 function handleInlineBlur(event) {
-  const element = event.target.closest("[contenteditable='true']");
+  const element = event.target.closest("[contenteditable]");
   if (!element) return;
   activeInlineEdit = false;
   restoreInlineValue(element);
 }
 
 function handleInlineKeydown(event) {
-  const element = event.target.closest("[contenteditable='true']");
+  const element = event.target.closest("[contenteditable]");
   if (!element) return;
 
   if (event.key === "Enter") {

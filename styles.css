@@ -521,11 +521,11 @@ h2 {
   gap: 10px;
 }
 
-.mini-metrics div {
+.mini-metrics > div {
   min-height: 76px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  align-items: stretch;
   gap: 8px;
   border: 1px solid #edf1f5;
   border-radius: 6px;
@@ -533,8 +533,9 @@ h2 {
   background: #fbfcfd;
 }
 
-.mini-metrics strong {
-  display: block;
+.mini-metrics > div > strong {
+  display: flex;
+  align-items: end;
   width: 100%;
   min-height: 24px;
   font-size: 20px;
@@ -542,11 +543,15 @@ h2 {
   text-align: inherit;
 }
 
+.mini-metrics > div > span {
+  min-width: 0;
+}
+
 .metric-editable {
   border-color: #d6eadb;
 }
 
-.metric-editable strong {
+.metric-editable > strong {
   width: 100%;
   min-width: 0;
   border-radius: 5px;
@@ -554,15 +559,17 @@ h2 {
   margin: 0;
   cursor: text;
   outline: 0;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
-.metric-editable strong:hover,
-.metric-editable strong:focus {
+.metric-editable > strong:hover,
+.metric-editable > strong:focus {
   background: #e9f8ee;
   box-shadow: 0 0 0 2px #9ac7b0;
 }
 
-.metric-readonly strong {
+.metric-readonly > strong {
   cursor: default;
 }
 
@@ -995,13 +1002,13 @@ tbody tr:last-child td {
     font-size: 18px;
   }
 
-  .mini-metrics div {
+  .mini-metrics > div {
     min-height: 52px;
     gap: 4px;
     padding: 7px;
   }
 
-  .mini-metrics strong {
+  .mini-metrics > div > strong {
     font-size: 17px;
   }
 
