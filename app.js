@@ -203,6 +203,7 @@ const elements = {
   totalSignedCompanyContracts: document.querySelector("#totalSignedCompanyContracts"),
   weeklyOverviewRange: document.querySelector("#weeklyOverviewRange"),
   weeklyOverviewGrid: document.querySelector("#weeklyOverviewGrid"),
+  departmentGrid: document.querySelector(".department-grid"),
   languageSelect: document.querySelector("#languageSelect"),
   newSalesStatus: document.querySelector("#newSalesStatus"),
   newSales2Status: document.querySelector("#newSales2Status"),
@@ -816,6 +817,38 @@ function renderWeeklyOverview() {
   }
 }
 
+function departmentMasonryColumnCount() {
+  const width = elements.departmentGrid?.clientWidth || window.innerWidth;
+  if (width <= 620) return 1;
+  if (width <= 1240) return 2;
+  return 4;
+}
+
+function layoutDepartmentCards() {
+  if (!elements.departmentGrid) return;
+
+  const cards = Object.keys(defaultLayout.departmentMetricOrder)
+    .map((department) => document.querySelector(`[data-department="${department}"]`))
+    .filter(Boolean);
+  if (!cards.length) return;
+
+  const columnCount = departmentMasonryColumnCount();
+  const columns = Array.from({ length: columnCount }, () => {
+    const column = document.createElement("div");
+    column.className = "department-column";
+    return column;
+  });
+
+  elements.departmentGrid.replaceChildren(...columns);
+
+  for (const card of cards) {
+    const shortestColumn = columns.reduce((shortest, column) => (
+      column.getBoundingClientRect().height < shortest.getBoundingClientRect().height ? column : shortest
+    ), columns[0]);
+    shortestColumn.append(card);
+  }
+}
+
 function canEditLayout() {
   return window.matchMedia("(min-width: 621px)").matches;
 }
@@ -1326,6 +1359,7 @@ function renderDashboard() {
   applyDashboardLayout();
   renderWeeklyOverview();
   renderWeeklyMetrics();
+  layoutDepartmentCards();
 }
 
 function normalizeSubmission(submission) {
@@ -1720,6 +1754,7 @@ async function init() {
     localStorage.setItem("dashboardLanguage", elements.languageSelect.value);
     window.location.reload();
   });
+  window.addEventListener("resize", layoutDepartmentCards);
   await loadDashboardData();
   setInterval(() => {
     if (!activeInlineEdit) loadDashboardData();

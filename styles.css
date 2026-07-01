@@ -244,6 +244,13 @@ h2 {
   margin-bottom: 16px;
 }
 
+.department-column {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 16px;
+}
+
 .visual-grid,
 .management-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
