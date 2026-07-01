@@ -11,6 +11,7 @@ const emptyData = {
 let dashboardData = structuredClone(emptyData);
 let weeklyDashboardData = structuredClone(emptyData);
 let backendWarningShown = false;
+let activeInlineEdit = false;
 
 const defaultTargets = {
   salesDepartmentOneName: "Sales Department 1",
@@ -273,6 +274,7 @@ const elements = {
   departmentLayoutControls: document.querySelector("#departmentLayoutControls"),
   layoutStatus: document.querySelector("#layoutStatus"),
   saveLayout: document.querySelector("#saveLayout"),
+  inlineEditStatus: document.querySelector("#inlineEditStatus"),
 };
 
 function sum(rows, key) {
@@ -625,6 +627,79 @@ const departmentMetricBindings = {
   },
 };
 
+const editableDepartmentFields = {
+  newSales: ["sales", "revenue", "leads", "insuranceReferrals", "friendReferrals"],
+  newSales2: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
+  renewals: ["renewals", "revenue", "insuranceReferrals", "friendReferrals"],
+  service: [
+    "callsReceived",
+    "callsAnswered",
+    "abandonCalls",
+    "missionsOpened",
+    "missionsClosed",
+    "newHumanChats",
+    "closedHumanChats",
+    "newBotChats",
+    "closedBotChats",
+    "insuranceReferrals",
+    "friendReferrals",
+  ],
+  collection: ["general", "newTaxReturns", "insuranceReferrals", "friendReferrals"],
+  hr: ["newCandidates", "firstInterview", "secondInterview", "newHires"],
+  businessDevelopment: ["initialContact", "followUps", "setUpMeetings", "signedCompanyContracts"],
+};
+
+const submissionValueFields = {
+  newSales: ["sales", "revenue", "leads", "insuranceReferrals", "friendReferrals"],
+  newSales2: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
+  renewals: ["renewals", "revenue", "insuranceReferrals", "friendReferrals"],
+  service: [
+    "callsReceived",
+    "callsAnswered",
+    "abandonCalls",
+    "missionsOpened",
+    "missionsClosed",
+    "newHumanChats",
+    "closedHumanChats",
+    "newBotChats",
+    "closedBotChats",
+    "insuranceReferrals",
+    "friendReferrals",
+  ],
+  collection: ["general", "newTaxReturns", "insuranceReferrals", "friendReferrals"],
+  hr: ["newCandidates", "firstInterview", "secondInterview", "newHires"],
+  businessDevelopment: ["initialContact", "followUps", "setUpMeetings", "signedCompanyContracts"],
+};
+
+function canEditMetric(department, metricKey) {
+  return canEditLayout() && editableDepartmentFields[department]?.includes(metricKey);
+}
+
+function metricsKeyForEditableField(department, field) {
+  return departmentMetricBindings[department]?.[field]?.[0] || "";
+}
+
+function readDepartmentValuesFromMetrics(department, metrics) {
+  const values = {};
+  for (const field of submissionValueFields[department] || []) {
+    const metricKey = metricsKeyForEditableField(department, field);
+    values[field] = metricKey ? Number(metrics[metricKey]) || 0 : 0;
+  }
+  return values;
+}
+
+function parseEditableNumber(text) {
+  const cleaned = String(text || "").replace(/[^\d.-]/g, "");
+  const parsed = Number(cleaned);
+  return Number.isFinite(parsed) ? Math.max(0, parsed) : 0;
+}
+
+function setInlineEditStatus(message, mode = "") {
+  if (!elements.inlineEditStatus) return;
+  elements.inlineEditStatus.textContent = message;
+  elements.inlineEditStatus.dataset.mode = mode;
+}
+
 function formatMetricValue(value, type) {
   if (type === "money") return money(value);
   if (type === "percent") return percent(value);
@@ -811,6 +886,126 @@ function renderLayoutControls() {
     group.append(title, list);
     elements.departmentLayoutControls.append(group);
   }
+}
+
+function setupInlineEditors() {
+  document.querySelectorAll(".department-card [data-metric-key]").forEach((cell) => {
+    const department = cell.closest("[data-department]")?.dataset.department;
+    const metricKey = cell.dataset.metricKey;
+    const valueElement = cell.querySelector("strong");
+    if (!department || !metricKey || !valueElement) return;
+
+    valueElement.dataset.department = department;
+    valueElement.dataset.metricKey = metricKey;
+
+    if (!canEditMetric(department, metricKey)) {
+      cell.classList.add("metric-readonly");
+      valueElement.removeAttribute("contenteditable");
+      valueElement.removeAttribute("tabindex");
+      return;
+    }
+
+    cell.classList.add("metric-editable");
+    valueElement.contentEditable = "true";
+    valueElement.tabIndex = 0;
+    valueElement.inputMode = "decimal";
+    valueElement.spellcheck = false;
+    valueElement.title = "Click, type a new number, and press Enter";
+  });
+}
+
+function rawEditableValueFor(element) {
+  const department = element.dataset.department;
+  const metricKey = element.dataset.metricKey;
+  const binding = departmentMetricBindings[department]?.[metricKey];
+  if (!binding) return "0";
+  const metrics = getMetrics(dashboardData);
+  return String(Math.round(Number(metrics[binding[0]]) || 0));
+}
+
+function restoreInlineValue(element) {
+  const department = element.dataset.department;
+  const metricKey = element.dataset.metricKey;
+  const binding = departmentMetricBindings[department]?.[metricKey];
+  if (!binding) return;
+  const metrics = getMetrics(dashboardData);
+  element.textContent = formatMetricValue(metrics[binding[0]], binding[1]);
+}
+
+async function saveInlineMetric(element, editedText = element.textContent) {
+  const department = element.dataset.department;
+  const metricKey = element.dataset.metricKey;
+  if (!canEditMetric(department, metricKey)) return;
+
+  const metrics = getMetrics(dashboardData);
+  const values = readDepartmentValuesFromMetrics(department, metrics);
+  values[metricKey] = parseEditableNumber(editedText);
+
+  const date = elements.dashboardDate.value || localDateKey();
+  const departmentName = departmentDisplayName(department);
+  setInlineEditStatus(`Saving ${t(departmentName)}...`, "saving");
+
+  try {
+    await postBackend({
+      date,
+      department,
+      name: "Manager dashboard edit",
+      values,
+      submittedAt: new Date().toISOString(),
+    });
+    setInlineEditStatus("Saved. Refreshing...", "saved");
+    await new Promise((resolve) => setTimeout(resolve, 700));
+    await loadDashboardData();
+    setInlineEditStatus("Saved", "saved");
+  } catch (error) {
+    restoreInlineValue(element);
+    setInlineEditStatus("Could not save edit", "error");
+    window.alert(error instanceof Error ? error.message : "Could not save edit.");
+  }
+}
+
+function handleInlineFocus(event) {
+  const element = event.target.closest("[contenteditable='true']");
+  if (!element) return;
+  activeInlineEdit = true;
+  element.dataset.beforeEdit = rawEditableValueFor(element);
+  element.textContent = element.dataset.beforeEdit;
+  window.getSelection()?.selectAllChildren(element);
+  setInlineEditStatus("Press Enter to update, Esc to cancel", "editing");
+}
+
+function handleInlineBlur(event) {
+  const element = event.target.closest("[contenteditable='true']");
+  if (!element) return;
+  activeInlineEdit = false;
+  restoreInlineValue(element);
+}
+
+function handleInlineKeydown(event) {
+  const element = event.target.closest("[contenteditable='true']");
+  if (!element) return;
+
+  if (event.key === "Enter") {
+    event.preventDefault();
+    const editedText = element.textContent;
+    element.blur();
+    saveInlineMetric(element, editedText);
+    return;
+  }
+
+  if (event.key === "Escape") {
+    event.preventDefault();
+    restoreInlineValue(element);
+    element.blur();
+    setInlineEditStatus("Edit cancelled", "");
+  }
+}
+
+function initInlineEditing() {
+  setupInlineEditors();
+  document.addEventListener("focusin", handleInlineFocus);
+  document.addEventListener("focusout", handleInlineBlur);
+  document.addEventListener("keydown", handleInlineKeydown);
 }
 
 function markerForRatio(ratio) {
@@ -1437,6 +1632,7 @@ async function init() {
   targets = normalizeGoals(getLocalGoals());
   renderGoalInputs();
   renderSalesLabels();
+  initInlineEditing();
   elements.dashboardDate.value = await currentServerDate();
   elements.exportHtml.addEventListener("click", exportHtml);
   elements.refreshData.addEventListener("click", loadDashboardData);
@@ -1449,7 +1645,9 @@ async function init() {
     window.location.reload();
   });
   await loadDashboardData();
-  setInterval(loadDashboardData, 60000);
+  setInterval(() => {
+    if (!activeInlineEdit) loadDashboardData();
+  }, 60000);
 }
 
 init();

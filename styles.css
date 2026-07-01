@@ -92,6 +92,39 @@ h2 {
   background: #ffffff;
 }
 
+.inline-edit-status {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  align-self: end;
+  border: 1px solid #d8dee6;
+  border-radius: 6px;
+  padding: 0 12px;
+  color: #4d5e72;
+  background: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.inline-edit-status[data-mode="saving"] {
+  border-color: #d6b21e;
+  color: #4f3f00;
+  background: #fffbe8;
+}
+
+.inline-edit-status[data-mode="saved"] {
+  border-color: #1f7a4d;
+  color: #0f5f41;
+  background: #f1fbf5;
+}
+
+.inline-edit-status[data-mode="error"] {
+  border-color: #c83b3b;
+  color: #9b1c1c;
+  background: #fff1f1;
+}
+
 [dir="rtl"] {
   text-align: right;
 }
@@ -504,6 +537,30 @@ h2 {
   line-height: 1.1;
 }
 
+.metric-editable {
+  border-color: #d6eadb;
+}
+
+.metric-editable strong {
+  width: fit-content;
+  min-width: 42px;
+  border-radius: 5px;
+  padding: 2px 4px;
+  margin: -2px -4px;
+  cursor: text;
+  outline: 0;
+}
+
+.metric-editable strong:hover,
+.metric-editable strong:focus {
+  background: #e9f8ee;
+  box-shadow: 0 0 0 2px #9ac7b0;
+}
+
+.metric-readonly strong {
+  cursor: default;
+}
+
 .weekly-metrics {
   display: grid;
   gap: 10px;
@@ -818,6 +875,7 @@ tbody tr:last-child td {
   }
 
   #exportHtml,
+  #inlineEditStatus,
   .link-grid,
   .visual-grid,
   .management-grid {

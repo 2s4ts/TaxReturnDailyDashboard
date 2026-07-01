@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Manager Daily Tax Return Dashboard</title>
-    <link rel="stylesheet" href="styles.css?v=20260702-1" />
+    <link rel="stylesheet" href="styles.css?v=20260702-2" />
   </head>
   <body>
     <main class="app-shell">
@@ -25,6 +25,7 @@
             <span>Dashboard date</span>
             <input id="dashboardDate" type="date" />
           </label>
+          <span id="inlineEditStatus" class="inline-edit-status">Click a department number and press Enter to update</span>
           <button id="refreshData" class="secondary-button" type="button">Refresh</button>
           <button id="exportHtml" class="primary-button" type="button">Export HTML</button>
         </div>
@@ -334,6 +335,6 @@
 
     <script src="config.js?v=20260630-5"></script>
     <script src="dashboard-access.js?v=20260630-5"></script>
-    <script src="app.js?v=20260702-1"></script>
+    <script src="app.js?v=20260702-2"></script>
   </body>
 </html>
