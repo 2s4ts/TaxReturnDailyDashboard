@@ -746,7 +746,7 @@ function applyDashboardLayout() {
     const card = document.querySelector(`[data-department="${department}"]`);
     const container = card?.querySelector(".mini-metrics");
     if (!container) continue;
-    const items = Array.from(container.querySelectorAll("[data-metric-key]"));
+    const items = Array.from(container.children).filter((item) => item.matches("[data-metric-key]"));
     const byKey = Object.fromEntries(items.map((item) => [item.dataset.metricKey, item]));
     for (const key of order) {
       if (byKey[key]) container.append(byKey[key]);
@@ -894,7 +894,7 @@ function renderLayoutControls() {
 }
 
 function setupInlineEditors() {
-  document.querySelectorAll(".department-card [data-metric-key]").forEach((cell) => {
+  document.querySelectorAll(".department-card .mini-metrics > [data-metric-key]").forEach((cell) => {
     const department = cell.closest("[data-department]")?.dataset.department;
     const metricKey = cell.dataset.metricKey;
     const valueElement = cell.querySelector("strong");
