@@ -911,10 +911,7 @@ function setupInlineEditors() {
     }
 
     cell.classList.add("metric-editable");
-    valueElement.setAttribute("contenteditable", "plaintext-only");
     valueElement.tabIndex = 0;
-    valueElement.inputMode = "decimal";
-    valueElement.spellcheck = false;
     valueElement.title = "Click, type a new number, and press Enter";
   });
 }
@@ -969,48 +966,91 @@ async function saveInlineMetric(element, editedText = element.textContent) {
   }
 }
 
-function handleInlineFocus(event) {
-  const element = event.target.closest("[contenteditable]");
-  if (!element) return;
+function startInlineEdit(element) {
+  if (!element || element.closest(".metric-is-editing")) return;
+  const cell = element.closest("[data-metric-key]");
+  if (!cell) return;
+
   activeInlineEdit = true;
   element.dataset.beforeEdit = rawEditableValueFor(element);
-  element.textContent = element.dataset.beforeEdit;
-  window.getSelection()?.selectAllChildren(element);
+  const input = document.createElement("input");
+  input.className = "metric-edit-input";
+  input.type = "text";
+  input.inputMode = "decimal";
+  input.value = element.dataset.beforeEdit;
+  input.dataset.department = element.dataset.department;
+  input.dataset.metricKey = element.dataset.metricKey;
+  cell.classList.add("metric-is-editing");
+  element.hidden = true;
+  cell.append(input);
+  input.focus();
+  input.select();
   setInlineEditStatus("Press Enter to update, Esc to cancel", "editing");
 }
 
-function handleInlineBlur(event) {
-  const element = event.target.closest("[contenteditable]");
-  if (!element) return;
+function stopInlineEdit(input, restore = true) {
+  const cell = input.closest("[data-metric-key]");
+  const element = cell?.querySelector("strong");
+  if (element) {
+    element.hidden = false;
+    if (restore) restoreInlineValue(element);
+  }
+  input.remove();
+  cell?.classList.remove("metric-is-editing");
   activeInlineEdit = false;
-  restoreInlineValue(element);
+}
+
+function handleInlineClick(event) {
+  const element = event.target.closest(".metric-editable > strong");
+  if (!element) return;
+  startInlineEdit(element);
 }
 
 function handleInlineKeydown(event) {
-  const element = event.target.closest("[contenteditable]");
+  const displayElement = event.target.closest(".metric-editable > strong");
+  if (displayElement && (event.key === "Enter" || event.key === " ")) {
+    event.preventDefault();
+    startInlineEdit(displayElement);
+    return;
+  }
+
+  const input = event.target.closest(".metric-edit-input");
+  if (!input) return;
+  const cell = input.closest("[data-metric-key]");
+  const element = cell?.querySelector("strong");
   if (!element) return;
 
   if (event.key === "Enter") {
     event.preventDefault();
-    const editedText = element.textContent;
-    element.blur();
+    const editedText = input.value;
+    stopInlineEdit(input, false);
     saveInlineMetric(element, editedText);
     return;
   }
 
   if (event.key === "Escape") {
     event.preventDefault();
-    restoreInlineValue(element);
-    element.blur();
+    stopInlineEdit(input);
     setInlineEditStatus("Edit cancelled", "");
   }
 }
 
+function handleInlineFocusOut(event) {
+  const input = event.target.closest(".metric-edit-input");
+  if (!input) return;
+  window.setTimeout(() => {
+    if (document.body.contains(input)) {
+      stopInlineEdit(input);
+      setInlineEditStatus("Edit cancelled", "");
+    }
+  }, 0);
+}
+
 function initInlineEditing() {
   setupInlineEditors();
-  document.addEventListener("focusin", handleInlineFocus);
-  document.addEventListener("focusout", handleInlineBlur);
+  document.addEventListener("click", handleInlineClick);
   document.addEventListener("keydown", handleInlineKeydown);
+  document.addEventListener("focusout", handleInlineFocusOut);
 }
 
 function markerForRatio(ratio) {

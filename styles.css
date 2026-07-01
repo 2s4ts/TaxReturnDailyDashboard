@@ -524,7 +524,7 @@ h2 {
 .mini-metrics > div {
   min-height: 76px;
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto auto;
   align-items: stretch;
   gap: 8px;
   border: 1px solid #edf1f5;
@@ -557,7 +557,7 @@ h2 {
   border-radius: 5px;
   padding: 4px 6px;
   margin: 0;
-  cursor: text;
+  cursor: pointer;
   outline: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -571,6 +571,27 @@ h2 {
 
 .metric-readonly > strong {
   cursor: default;
+}
+
+.metric-edit-input {
+  width: 100%;
+  min-width: 0;
+  min-height: 31px;
+  border: 2px solid #111827;
+  border-radius: 5px;
+  padding: 3px 6px;
+  color: #111827;
+  background: #ffffff;
+  font: inherit;
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1.1;
+  text-align: inherit;
+}
+
+.metric-is-editing {
+  border-color: #111827;
+  background: #ffffff;
 }
 
 .weekly-metrics {
@@ -1009,6 +1030,11 @@ tbody tr:last-child td {
   }
 
   .mini-metrics > div > strong {
+    font-size: 17px;
+  }
+
+  .metric-edit-input {
+    min-height: 28px;
     font-size: 17px;
   }
 
