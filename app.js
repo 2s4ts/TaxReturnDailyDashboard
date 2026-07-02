@@ -48,7 +48,7 @@ const defaultLayout = {
     newSales: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
     newSales2: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
     renewals: ["renewals", "revenue", "insuranceReferrals", "friendReferrals"],
-    marketing: ["facebookLeads", "websiteLeads", "radioAnsweredCalls", "radioUnansweredCalls", "totalLeads"],
+    marketing: ["facebookLeads", "websiteLeads", "whatsappLeads", "radioAnsweredCalls", "radioUnansweredCalls", "totalLeads"],
     service: [
       "callsReceived",
       "callsAnswered",
@@ -131,6 +131,7 @@ const translations = {
     "Marketing Daily Form": "טופס יומי שיווק",
     "Facebook leads": "לידים מפייסבוק",
     "Website leads": "לידים מהאתר",
+    "WhatsApp leads": "לידים מוואטסאפ",
     "Radio answered calls": "שיחות רדיו שנענו",
     "Radio unanswered calls": "שיחות רדיו שלא נענו",
     "Total marketing leads": "סה\"כ לידים",
@@ -275,6 +276,7 @@ const elements = {
   businessSignedCompanyContracts: document.querySelector("#businessSignedCompanyContracts"),
   marketingFacebookLeads: document.querySelector("#marketingFacebookLeads"),
   marketingWebsiteLeads: document.querySelector("#marketingWebsiteLeads"),
+  marketingWhatsappLeads: document.querySelector("#marketingWhatsappLeads"),
   marketingRadioAnsweredCalls: document.querySelector("#marketingRadioAnsweredCalls"),
   marketingRadioUnansweredCalls: document.querySelector("#marketingRadioUnansweredCalls"),
   marketingTotalLeads: document.querySelector("#marketingTotalLeads"),
@@ -487,9 +489,10 @@ function getMetrics(data) {
   const businessSignedCompanyContracts = sumAny(data.businessDevelopment, "signedCompanyContracts");
   const marketingFacebookLeads = sumAny(data.marketing, "facebookLeads");
   const marketingWebsiteLeads = sumAny(data.marketing, "websiteLeads");
+  const marketingWhatsappLeads = sumAny(data.marketing, "whatsappLeads", "marketingWhatsappLeads");
   const marketingRadioAnsweredCalls = sumAny(data.marketing, "radioAnsweredCalls", "marketingRadioAnsweredCalls");
   const marketingRadioUnansweredCalls = sumAny(data.marketing, "radioUnansweredCalls", "marketingRadioUnansweredCalls");
-  const marketingTotalLeads = marketingFacebookLeads + marketingWebsiteLeads + marketingRadioAnsweredCalls + marketingRadioUnansweredCalls;
+  const marketingTotalLeads = marketingFacebookLeads + marketingWebsiteLeads + marketingWhatsappLeads + marketingRadioAnsweredCalls + marketingRadioUnansweredCalls;
 
   return {
     newSalesCount,
@@ -531,6 +534,7 @@ function getMetrics(data) {
     businessSignedCompanyContracts,
     marketingFacebookLeads,
     marketingWebsiteLeads,
+    marketingWhatsappLeads,
     marketingRadioAnsweredCalls,
     marketingRadioUnansweredCalls,
     marketingTotalLeads,
@@ -579,6 +583,7 @@ const departmentMetricLabels = {
   marketing: {
     facebookLeads: "Facebook leads",
     websiteLeads: "Website leads",
+    whatsappLeads: "WhatsApp leads",
     radioAnsweredCalls: "Radio answered calls",
     radioUnansweredCalls: "Radio unanswered calls",
     totalLeads: "Total leads",
@@ -640,6 +645,7 @@ const departmentMetricBindings = {
   marketing: {
     facebookLeads: ["marketingFacebookLeads", "number"],
     websiteLeads: ["marketingWebsiteLeads", "number"],
+    whatsappLeads: ["marketingWhatsappLeads", "number"],
     radioAnsweredCalls: ["marketingRadioAnsweredCalls", "number"],
     radioUnansweredCalls: ["marketingRadioUnansweredCalls", "number"],
     totalLeads: ["marketingTotalLeads", "number"],
@@ -683,7 +689,7 @@ const editableDepartmentFields = {
   newSales: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
   newSales2: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
   renewals: ["renewals", "revenue", "insuranceReferrals", "friendReferrals"],
-  marketing: ["facebookLeads", "websiteLeads", "radioAnsweredCalls", "radioUnansweredCalls"],
+  marketing: ["facebookLeads", "websiteLeads", "whatsappLeads", "radioAnsweredCalls", "radioUnansweredCalls"],
   service: [
     "callsReceived",
     "callsAnswered",
@@ -706,7 +712,7 @@ const submissionValueFields = {
   newSales: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
   newSales2: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
   renewals: ["renewals", "revenue", "insuranceReferrals", "friendReferrals"],
-  marketing: ["facebookLeads", "websiteLeads", "radioAnsweredCalls", "radioUnansweredCalls"],
+  marketing: ["facebookLeads", "websiteLeads", "whatsappLeads", "radioAnsweredCalls", "radioUnansweredCalls"],
   service: [
     "callsReceived",
     "callsAnswered",
@@ -1392,6 +1398,7 @@ function renderDashboard() {
 
   elements.marketingFacebookLeads.textContent = String(metrics.marketingFacebookLeads);
   elements.marketingWebsiteLeads.textContent = String(metrics.marketingWebsiteLeads);
+  elements.marketingWhatsappLeads.textContent = String(metrics.marketingWhatsappLeads);
   elements.marketingRadioAnsweredCalls.textContent = String(metrics.marketingRadioAnsweredCalls);
   elements.marketingRadioUnansweredCalls.textContent = String(metrics.marketingRadioUnansweredCalls);
   elements.marketingTotalLeads.textContent = String(metrics.marketingTotalLeads);
@@ -1448,6 +1455,7 @@ function normalizeSubmission(submission) {
         name,
         facebookLeads: value(values, "facebookLeads", "marketingFacebookLeads"),
         websiteLeads: value(values, "websiteLeads", "marketingWebsiteLeads"),
+        whatsappLeads: value(values, "whatsappLeads", "marketingWhatsappLeads"),
         radioAnsweredCalls: value(values, "radioAnsweredCalls", "marketingRadioAnsweredCalls"),
         radioUnansweredCalls: value(values, "radioUnansweredCalls", "marketingRadioUnansweredCalls"),
       },

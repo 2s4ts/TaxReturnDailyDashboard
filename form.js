@@ -82,6 +82,7 @@ const departmentForms = {
     fields: [
       { key: "facebookLeads", label: "Facebook leads", type: "number" },
       { key: "websiteLeads", label: "Website leads", type: "number" },
+      { key: "whatsappLeads", label: "WhatsApp leads", type: "number" },
       { key: "radioAnsweredCalls", label: "Radio answered calls", type: "number" },
       { key: "radioUnansweredCalls", label: "Radio unanswered calls", type: "number" },
     ],
@@ -151,6 +152,7 @@ const translations = {
     "Sign contracts between companies": "חתימת חוזים בין חברות",
     "Facebook leads": "לידים מפייסבוק",
     "Website leads": "לידים מהאתר",
+    "WhatsApp leads": "לידים מוואטסאפ",
     "Radio answered calls": "שיחות רדיו שנענו",
     "Radio unanswered calls": "שיחות רדיו שלא נענו",
   },

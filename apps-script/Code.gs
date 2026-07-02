@@ -47,6 +47,7 @@ const HEADERS = [
   "marketingTiktokLeads",
   "marketingWebsiteLeads",
   "marketingOtherLeads",
+  "marketingWhatsappLeads",
   "marketingRadioAnsweredCalls",
   "marketingRadioUnansweredCalls",
 ];
@@ -81,7 +82,7 @@ const DEFAULT_LAYOUT = {
     newSales: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
     newSales2: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
     renewals: ["renewals", "revenue", "insuranceReferrals", "friendReferrals"],
-    marketing: ["facebookLeads", "websiteLeads", "radioAnsweredCalls", "radioUnansweredCalls", "totalLeads"],
+    marketing: ["facebookLeads", "websiteLeads", "whatsappLeads", "radioAnsweredCalls", "radioUnansweredCalls", "totalLeads"],
     service: [
       "callsReceived",
       "callsAnswered",
@@ -169,6 +170,7 @@ function doPost(e) {
     number_(values.tiktokLeads || values.marketingTiktokLeads),
     number_(values.websiteLeads || values.marketingWebsiteLeads),
     number_(values.otherLeads || values.marketingOtherLeads),
+    number_(values.whatsappLeads || values.marketingWhatsappLeads),
     number_(values.radioAnsweredCalls || values.marketingRadioAnsweredCalls),
     number_(values.radioUnansweredCalls || values.marketingRadioUnansweredCalls),
   ];
@@ -478,6 +480,7 @@ function rowToSubmission_(row) {
       tiktokLeads: number_(row.marketingTiktokLeads || row.tiktokLeads),
       websiteLeads: number_(row.marketingWebsiteLeads || row.websiteLeads),
       otherLeads: number_(row.marketingOtherLeads || row.otherLeads),
+      whatsappLeads: number_(row.marketingWhatsappLeads || row.whatsappLeads),
       radioAnsweredCalls: number_(row.marketingRadioAnsweredCalls || row.radioAnsweredCalls),
       radioUnansweredCalls: number_(row.marketingRadioUnansweredCalls || row.radioUnansweredCalls),
       renewals: number_(row.renewals),
