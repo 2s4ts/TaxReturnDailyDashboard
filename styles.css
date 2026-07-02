@@ -119,6 +119,13 @@ h2 {
   background: #f1fbf5;
 }
 
+.inline-edit-status[data-mode="dirty"],
+.inline-edit-status[data-mode="editing"] {
+  border-color: #315a8a;
+  color: #24476f;
+  background: #f4f7fc;
+}
+
 .inline-edit-status[data-mode="error"] {
   border-color: #c83b3b;
   color: #9b1c1c;
@@ -604,6 +611,30 @@ h2 {
   flex: 0 0 auto;
 }
 
+.department-save-button {
+  min-height: 30px;
+  flex: 0 0 auto;
+  border: 1px solid #cbd6e2;
+  border-radius: 6px;
+  padding: 0 10px;
+  color: #2f4766;
+  background: #f7f9fc;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.department-save-button:not(:disabled) {
+  border-color: #1f7a4d;
+  color: #ffffff;
+  background: #1f7a4d;
+}
+
+.department-save-button:disabled {
+  cursor: default;
+  opacity: 0.72;
+}
+
 .mini-metrics {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -638,6 +669,11 @@ h2 {
 
 .metric-editable {
   border-color: #d6eadb;
+}
+
+.metric-dirty {
+  border-color: #b9dfc7;
+  background: #f1fbf5;
 }
 
 .metric-editable > strong {
@@ -1013,6 +1049,7 @@ tbody tr:last-child td {
 
   #exportHtml,
   #inlineEditStatus,
+  .department-save-button,
   .link-grid,
   .visual-grid,
   .management-grid {

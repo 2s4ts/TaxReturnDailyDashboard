@@ -13,6 +13,7 @@ let dashboardData = structuredClone(emptyData);
 let weeklyDashboardData = structuredClone(emptyData);
 let backendWarningShown = false;
 let activeInlineEdit = false;
+let pendingDepartmentEdits = {};
 
 const defaultTargets = {
   salesDepartmentOneName: "Sales Department 1",
@@ -181,6 +182,11 @@ const translations = {
     "Goals saved": "היעדים נשמרו",
     "Could not save goals": "לא ניתן לשמור יעדים",
     Saving: "שומר...",
+    Saved: "נשמר",
+    "Save changes": "שמור שינויים",
+    "Unsaved changes": "שינויים לא שמורים",
+    "Changes ready. Press Save changes.": "השינויים מוכנים. לחץ על שמור שינויים.",
+    "Click a department number, edit, then press Save changes": "לחץ על מספר במחלקה, ערוך, ואז לחץ על שמור שינויים",
     Refreshing: "מרענן...",
     Deleting: "מוחק...",
     "Delete failed": "המחיקה נכשלה",
@@ -1036,8 +1042,58 @@ function setupInlineEditors() {
 
     cell.classList.add("metric-editable");
     valueElement.tabIndex = 0;
-    valueElement.title = "Click, type a new number, and press Enter";
+    valueElement.title = "Click and type a new number";
   });
+}
+
+function setupDepartmentSaveButtons() {
+  if (!canEditLayout()) return;
+  document.querySelectorAll(".department-card[data-department]").forEach((card) => {
+    const department = card.dataset.department;
+    if (!editableDepartmentFields[department]?.length) return;
+    const header = card.querySelector(".department-header");
+    if (!header || header.querySelector("[data-save-department]")) return;
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "department-save-button";
+    button.dataset.saveDepartment = department;
+    button.disabled = true;
+    button.textContent = t("Save changes");
+    header.append(button);
+  });
+  updateAllDepartmentSaveStates();
+}
+
+function pendingValueFor(department, metricKey) {
+  return pendingDepartmentEdits[department]?.[metricKey];
+}
+
+function hasPendingDepartmentEdits(department) {
+  return Boolean(Object.keys(pendingDepartmentEdits[department] || {}).length);
+}
+
+function hasAnyPendingEdits() {
+  return Object.keys(pendingDepartmentEdits).some((department) => hasPendingDepartmentEdits(department));
+}
+
+function departmentSaveButton(department) {
+  return document.querySelector(`[data-save-department="${department}"]`);
+}
+
+function updateDepartmentSaveState(department) {
+  const button = departmentSaveButton(department);
+  if (!button) return;
+  const isDirty = hasPendingDepartmentEdits(department);
+  const isEditing = Boolean(document.querySelector(`.department-card[data-department="${department}"] .metric-edit-input`));
+  button.disabled = !isDirty && !isEditing;
+  button.textContent = t("Save changes");
+  button.title = isDirty ? t("Unsaved changes") : t("Save changes");
+  button.dataset.dirty = isDirty ? "true" : "false";
+}
+
+function updateAllDepartmentSaveStates() {
+  Object.keys(editableDepartmentFields).forEach(updateDepartmentSaveState);
 }
 
 function rawEditableValueFor(element) {
@@ -1045,6 +1101,8 @@ function rawEditableValueFor(element) {
   const metricKey = element.dataset.metricKey;
   const binding = departmentMetricBindings[department]?.[metricKey];
   if (!binding) return "0";
+  const pendingValue = pendingValueFor(department, metricKey);
+  if (pendingValue !== undefined) return String(pendingValue);
   const metrics = getMetrics(dashboardData);
   return String(Math.round(Number(metrics[binding[0]]) || 0));
 }
@@ -1054,22 +1112,83 @@ function restoreInlineValue(element) {
   const metricKey = element.dataset.metricKey;
   const binding = departmentMetricBindings[department]?.[metricKey];
   if (!binding) return;
+  const pendingValue = pendingValueFor(department, metricKey);
+  if (pendingValue !== undefined) {
+    element.textContent = formatMetricValue(pendingValue, binding[1]);
+    return;
+  }
   const metrics = getMetrics(dashboardData);
   element.textContent = formatMetricValue(metrics[binding[0]], binding[1]);
 }
 
-async function saveInlineMetric(element, editedText = element.textContent) {
+function stageInlineMetric(element, editedText = element.textContent) {
   const department = element.dataset.department;
   const metricKey = element.dataset.metricKey;
   if (!canEditMetric(department, metricKey)) return;
+  const binding = departmentMetricBindings[department]?.[metricKey];
+  if (!binding) return;
 
+  const value = parseEditableNumber(editedText);
+  pendingDepartmentEdits[department] ||= {};
+  pendingDepartmentEdits[department][metricKey] = value;
+  element.textContent = formatMetricValue(value, binding[1]);
+  element.closest("[data-metric-key]")?.classList.add("metric-dirty");
+  updateDepartmentSaveState(department);
+  setInlineEditStatus(t("Changes ready. Press Save changes."), "dirty");
+}
+
+function commitInlineInput(input) {
+  const cell = input.closest("[data-metric-key]");
+  const element = cell?.querySelector("strong");
+  if (!element) return;
+  const editedText = input.value;
+  stageInlineMetric(element, editedText);
+  stopInlineEdit(input, false);
+}
+
+function applyPendingEditsToDisplay() {
+  for (const [department, edits] of Object.entries(pendingDepartmentEdits)) {
+    for (const [metricKey, value] of Object.entries(edits)) {
+      const binding = departmentMetricBindings[department]?.[metricKey];
+      const cell = document.querySelector(`.department-card[data-department="${department}"] [data-metric-key="${metricKey}"]`);
+      const element = cell?.querySelector("strong");
+      if (!binding || !cell || !element) continue;
+      element.textContent = formatMetricValue(value, binding[1]);
+      cell.classList.add("metric-dirty");
+    }
+    updateDepartmentSaveState(department);
+  }
+}
+
+function clearPendingDepartmentEdits(department) {
+  delete pendingDepartmentEdits[department];
+  document
+    .querySelectorAll(`.department-card[data-department="${department}"] .metric-dirty`)
+    .forEach((cell) => cell.classList.remove("metric-dirty"));
+  updateDepartmentSaveState(department);
+}
+
+function commitOpenEditorForDepartment(department) {
+  const input = document.querySelector(`.department-card[data-department="${department}"] .metric-edit-input`);
+  if (input) commitInlineInput(input);
+}
+
+async function saveDepartmentEdits(department) {
+  commitOpenEditorForDepartment(department);
+  if (!hasPendingDepartmentEdits(department)) return;
   const metrics = getMetrics(dashboardData);
   const values = readDepartmentValuesFromMetrics(department, metrics);
-  values[metricKey] = parseEditableNumber(editedText);
+  Object.assign(values, pendingDepartmentEdits[department]);
 
   const date = elements.dashboardDate.value || localDateKey();
   const departmentName = departmentDisplayName(department);
+  const button = departmentSaveButton(department);
+  if (button?.dataset.saving === "true") return;
   setInlineEditStatus(`Saving ${t(departmentName)}...`, "saving");
+  if (button) {
+    button.disabled = true;
+    button.dataset.saving = "true";
+  }
 
   try {
     await postBackend({
@@ -1079,14 +1198,18 @@ async function saveInlineMetric(element, editedText = element.textContent) {
       values,
       submittedAt: new Date().toISOString(),
     });
+    clearPendingDepartmentEdits(department);
     setInlineEditStatus("Saved. Refreshing...", "saved");
     await new Promise((resolve) => setTimeout(resolve, 700));
     await loadDashboardData();
-    setInlineEditStatus("Saved", "saved");
+    setInlineEditStatus(t("Saved"), "saved");
   } catch (error) {
-    restoreInlineValue(element);
+    updateDepartmentSaveState(department);
     setInlineEditStatus("Could not save edit", "error");
     window.alert(error instanceof Error ? error.message : "Could not save edit.");
+  } finally {
+    if (button) delete button.dataset.saving;
+    updateDepartmentSaveState(department);
   }
 }
 
@@ -1104,17 +1227,22 @@ function startInlineEdit(element) {
   input.value = element.dataset.beforeEdit;
   input.dataset.department = element.dataset.department;
   input.dataset.metricKey = element.dataset.metricKey;
+  input.addEventListener("input", () => {
+    stageInlineMetric(element, input.value);
+  });
   cell.classList.add("metric-is-editing");
   element.hidden = true;
   cell.append(input);
   input.focus();
   input.select();
-  setInlineEditStatus("Press Enter to update, Esc to cancel", "editing");
+  updateDepartmentSaveState(element.dataset.department);
+  setInlineEditStatus(t("Click a department number, edit, then press Save changes"), "editing");
 }
 
 function stopInlineEdit(input, restore = true) {
   const cell = input.closest("[data-metric-key]");
   const element = cell?.querySelector("strong");
+  const department = input.dataset.department;
   if (element) {
     element.hidden = false;
     if (restore) restoreInlineValue(element);
@@ -1122,6 +1250,7 @@ function stopInlineEdit(input, restore = true) {
   input.remove();
   cell?.classList.remove("metric-is-editing");
   activeInlineEdit = false;
+  if (department) updateDepartmentSaveState(department);
 }
 
 function handleInlineClick(event) {
@@ -1146,9 +1275,7 @@ function handleInlineKeydown(event) {
 
   if (event.key === "Enter") {
     event.preventDefault();
-    const editedText = input.value;
-    stopInlineEdit(input, false);
-    saveInlineMetric(element, editedText);
+    commitInlineInput(input);
     return;
   }
 
@@ -1164,17 +1291,25 @@ function handleInlineFocusOut(event) {
   if (!input) return;
   window.setTimeout(() => {
     if (document.body.contains(input)) {
-      stopInlineEdit(input);
-      setInlineEditStatus("Edit cancelled", "");
+      commitInlineInput(input);
     }
   }, 0);
 }
 
+function handleDepartmentSavePointer(event) {
+  const button = event.target.closest(".department-save-button");
+  if (!button || button.disabled) return;
+  event.preventDefault();
+  saveDepartmentEdits(button.dataset.saveDepartment);
+}
+
 function initInlineEditing() {
   setupInlineEditors();
+  setupDepartmentSaveButtons();
   document.addEventListener("click", handleInlineClick);
   document.addEventListener("keydown", handleInlineKeydown);
   document.addEventListener("focusout", handleInlineFocusOut);
+  document.addEventListener("pointerdown", handleDepartmentSavePointer);
 }
 
 function markerForRatio(ratio) {
@@ -1429,6 +1564,7 @@ function renderDashboard() {
   renderWeeklyOverview();
   renderWeeklyMetrics();
   layoutDepartmentCards();
+  applyPendingEditsToDisplay();
 }
 
 function normalizeSubmission(submission) {
@@ -1840,7 +1976,7 @@ async function init() {
   window.addEventListener("resize", layoutDepartmentCards);
   await loadDashboardData();
   setInterval(() => {
-    if (!activeInlineEdit) loadDashboardData();
+    if (!activeInlineEdit && !hasAnyPendingEdits()) loadDashboardData();
   }, 60000);
 }
 
