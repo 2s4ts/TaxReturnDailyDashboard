@@ -1060,6 +1060,9 @@ function setupDepartmentSaveButtons() {
     button.dataset.saveDepartment = department;
     button.disabled = true;
     button.textContent = t("Save changes");
+    button.addEventListener("click", () => {
+      saveDepartmentEdits(department);
+    });
     header.append(button);
   });
   updateAllDepartmentSaveStates();
@@ -1227,9 +1230,6 @@ function startInlineEdit(element) {
   input.value = element.dataset.beforeEdit;
   input.dataset.department = element.dataset.department;
   input.dataset.metricKey = element.dataset.metricKey;
-  input.addEventListener("input", () => {
-    stageInlineMetric(element, input.value);
-  });
   cell.classList.add("metric-is-editing");
   element.hidden = true;
   cell.append(input);
@@ -1296,10 +1296,9 @@ function handleInlineFocusOut(event) {
   }, 0);
 }
 
-function handleDepartmentSavePointer(event) {
+function handleDepartmentSaveMouseDown(event) {
   const button = event.target.closest(".department-save-button");
   if (!button || button.disabled) return;
-  event.preventDefault();
   saveDepartmentEdits(button.dataset.saveDepartment);
 }
 
@@ -1309,7 +1308,7 @@ function initInlineEditing() {
   document.addEventListener("click", handleInlineClick);
   document.addEventListener("keydown", handleInlineKeydown);
   document.addEventListener("focusout", handleInlineFocusOut);
-  document.addEventListener("pointerdown", handleDepartmentSavePointer);
+  document.addEventListener("mousedown", handleDepartmentSaveMouseDown, true);
 }
 
 function markerForRatio(ratio) {
