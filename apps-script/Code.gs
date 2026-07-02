@@ -41,6 +41,12 @@ const HEADERS = [
   "closedHumanChats",
   "newBotChats",
   "closedBotChats",
+  "marketingGoogleLeads",
+  "marketingFacebookLeads",
+  "marketingInstagramLeads",
+  "marketingTiktokLeads",
+  "marketingWebsiteLeads",
+  "marketingOtherLeads",
 ];
 const DEFAULT_GOALS = {
   salesDepartmentOneName: "Sales Department 1",
@@ -55,10 +61,12 @@ const DEFAULT_GOALS = {
   businessSignedContracts: 1,
 };
 const DEFAULT_LAYOUT = {
+  version: 2,
   topMetrics: [
     "dailyMark",
     "totalRevenue",
     "totalSales",
+    "totalRenewalSales",
     "totalLeads",
     "totalInsuranceReferrals",
     "totalFriendReferrals",
@@ -68,9 +76,10 @@ const DEFAULT_LAYOUT = {
     "totalSignedCompanyContracts",
   ],
   departmentMetricOrder: {
-    newSales: ["sales", "revenue", "leads", "insuranceReferrals", "friendReferrals"],
+    newSales: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
     newSales2: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
     renewals: ["renewals", "revenue", "insuranceReferrals", "friendReferrals"],
+    marketing: ["googleLeads", "facebookLeads", "instagramLeads", "tiktokLeads", "websiteLeads", "otherLeads", "totalLeads"],
     service: [
       "callsReceived",
       "callsAnswered",
@@ -152,6 +161,12 @@ function doPost(e) {
     number_(values.closedHumanChats || values.chatClosed),
     number_(values.newBotChats),
     number_(values.closedBotChats),
+    number_(values.googleLeads || values.marketingGoogleLeads),
+    number_(values.facebookLeads || values.marketingFacebookLeads),
+    number_(values.instagramLeads || values.marketingInstagramLeads),
+    number_(values.tiktokLeads || values.marketingTiktokLeads),
+    number_(values.websiteLeads || values.marketingWebsiteLeads),
+    number_(values.otherLeads || values.marketingOtherLeads),
   ];
   const existingRow = findExistingRow_(sheet, date, payload.department || "", payload.name || "");
 
@@ -305,6 +320,7 @@ function saveLayout_(layout) {
 
 function normalizeLayout_(layout) {
   const next = JSON.parse(JSON.stringify(DEFAULT_LAYOUT));
+  const layoutVersion = Number(layout && layout.version) || 1;
   const summaryKeys = {};
   DEFAULT_LAYOUT.topMetrics.forEach(function(key) {
     summaryKeys[key] = true;
@@ -315,6 +331,10 @@ function normalizeLayout_(layout) {
       return summaryKeys[key];
     });
     if (topMetrics.length) next.topMetrics = topMetrics;
+  }
+  if (layoutVersion < DEFAULT_LAYOUT.version && next.topMetrics.indexOf("totalRenewalSales") === -1) {
+    const salesIndex = next.topMetrics.indexOf("totalSales");
+    next.topMetrics.splice(salesIndex >= 0 ? salesIndex + 1 : next.topMetrics.length, 0, "totalRenewalSales");
   }
 
   const incomingDepartments = (layout && layout.departmentMetricOrder) || {};
@@ -448,6 +468,12 @@ function rowToSubmission_(row) {
       closedHumanChats: number_(row.closedHumanChats || row.chatClosed),
       newBotChats: number_(row.newBotChats),
       closedBotChats: number_(row.closedBotChats),
+      googleLeads: number_(row.marketingGoogleLeads || row.googleLeads),
+      facebookLeads: number_(row.marketingFacebookLeads || row.facebookLeads),
+      instagramLeads: number_(row.marketingInstagramLeads || row.instagramLeads),
+      tiktokLeads: number_(row.marketingTiktokLeads || row.tiktokLeads),
+      websiteLeads: number_(row.marketingWebsiteLeads || row.websiteLeads),
+      otherLeads: number_(row.marketingOtherLeads || row.otherLeads),
       renewals: number_(row.renewals),
       callsReceived: number_(row.callsReceived || row.incoming),
       callsAnswered: number_(row.callsAnswered || row.answered),

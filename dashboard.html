@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Manager Daily Tax Return Dashboard</title>
-    <link rel="stylesheet" href="styles.css?v=20260702-8" />
+    <link rel="stylesheet" href="styles.css?v=20260702-9" />
   </head>
   <body>
     <main class="app-shell">
@@ -35,6 +35,7 @@
         <a id="newSalesFormLink" href="form.html?department=newSales">Sales Department 1 form</a>
         <a id="newSales2FormLink" href="form.html?department=newSales2">Sales Department 2 form</a>
         <a href="form.html?department=renewals">Renewal Sales form</a>
+        <a href="form.html?department=marketing">Marketing form</a>
         <a href="form.html?department=service">Customer Service form</a>
         <a href="form.html?department=collection">Collection form</a>
         <a href="form.html?department=hr">HR form</a>
@@ -53,14 +54,19 @@
           <small>Sales, renewals, and collections</small>
         </article>
         <article class="metric-card" data-summary-key="totalSales">
-          <span>Total daily sales</span>
+          <span>Sales department sales</span>
           <strong id="totalSales">0</strong>
-          <small>Sales departments + renewals</small>
+          <small>Sales departments only</small>
+        </article>
+        <article class="metric-card" data-summary-key="totalRenewalSales">
+          <span>Renewal sales</span>
+          <strong id="totalRenewalSales">0</strong>
+          <small>Renewals only</small>
         </article>
         <article class="metric-card" data-summary-key="totalLeads">
-          <span>Total leads</span>
+          <span>Marketing leads</span>
           <strong id="totalLeads">0</strong>
-          <small>Sales department 1 leads</small>
+          <small>Marketing sources</small>
         </article>
         <article class="metric-card" data-summary-key="totalInsuranceReferrals">
           <span>Insurance referrals</span>
@@ -118,7 +124,6 @@
           <div class="mini-metrics">
             <div data-metric-key="sales"><span>Sales</span><strong id="newSalesCount">0</strong></div>
             <div data-metric-key="revenue"><span>Revenue</span><strong id="newSalesRevenue">₪0</strong></div>
-            <div data-metric-key="leads"><span>Leads</span><strong id="newSalesLeads">0</strong></div>
             <div data-metric-key="insuranceReferrals"><span>Insurance referrals</span><strong id="newSalesInsuranceReferrals">0</strong></div>
             <div data-metric-key="friendReferrals"><span>Friend referrals</span><strong id="newSalesFriendReferrals">0</strong></div>
           </div>
@@ -151,6 +156,23 @@
             <div data-metric-key="friendReferrals"><span>Friend referrals</span><strong id="renewalFriendReferrals">0</strong></div>
           </div>
           <div class="weekly-metrics" data-weekly-department="renewals"></div>
+        </article>
+
+        <article class="department-card" data-department="marketing">
+          <div class="department-header">
+            <h2>Marketing</h2>
+            <span id="marketingStatus"></span>
+          </div>
+          <div class="mini-metrics">
+            <div data-metric-key="googleLeads"><span>Google leads</span><strong id="marketingGoogleLeads">0</strong></div>
+            <div data-metric-key="facebookLeads"><span>Facebook leads</span><strong id="marketingFacebookLeads">0</strong></div>
+            <div data-metric-key="instagramLeads"><span>Instagram leads</span><strong id="marketingInstagramLeads">0</strong></div>
+            <div data-metric-key="tiktokLeads"><span>TikTok leads</span><strong id="marketingTiktokLeads">0</strong></div>
+            <div data-metric-key="websiteLeads"><span>Website leads</span><strong id="marketingWebsiteLeads">0</strong></div>
+            <div data-metric-key="otherLeads"><span>Other leads</span><strong id="marketingOtherLeads">0</strong></div>
+            <div data-metric-key="totalLeads"><span>Total marketing leads</span><strong id="marketingTotalLeads">0</strong></div>
+          </div>
+          <div class="weekly-metrics" data-weekly-department="marketing"></div>
         </article>
 
         <article class="department-card" data-department="service">
@@ -326,6 +348,7 @@
                 <option value="newSales">Sales Department 1</option>
                 <option value="newSales2">Sales Department 2</option>
                 <option value="renewals">Renewal Sales</option>
+                <option value="marketing">Marketing</option>
                 <option value="service">Customer Service</option>
                 <option value="collection">Collection</option>
                 <option value="hr">HR</option>
@@ -343,6 +366,6 @@
 
     <script src="config.js?v=20260630-5"></script>
     <script src="dashboard-access.js?v=20260630-5"></script>
-    <script src="app.js?v=20260702-8"></script>
+    <script src="app.js?v=20260702-9"></script>
   </body>
 </html>

@@ -6,6 +6,7 @@ const emptyData = {
   collection: [],
   hr: [],
   businessDevelopment: [],
+  marketing: [],
 };
 
 let dashboardData = structuredClone(emptyData);
@@ -29,10 +30,12 @@ const defaultTargets = {
 let targets = { ...defaultTargets };
 
 const defaultLayout = {
+  version: 2,
   topMetrics: [
     "dailyMark",
     "totalRevenue",
     "totalSales",
+    "totalRenewalSales",
     "totalLeads",
     "totalInsuranceReferrals",
     "totalFriendReferrals",
@@ -42,9 +45,10 @@ const defaultLayout = {
     "totalSignedCompanyContracts",
   ],
   departmentMetricOrder: {
-    newSales: ["sales", "revenue", "leads", "insuranceReferrals", "friendReferrals"],
+    newSales: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
     newSales2: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
     renewals: ["renewals", "revenue", "insuranceReferrals", "friendReferrals"],
+    marketing: ["googleLeads", "facebookLeads", "instagramLeads", "tiktokLeads", "websiteLeads", "otherLeads", "totalLeads"],
     service: [
       "callsReceived",
       "callsAnswered",
@@ -81,9 +85,15 @@ const translations = {
     "Sales, renewals, and collections": "מכירות, חידושים וגבייה",
     "Total daily sales": "סה\"כ מכירות יומיות",
     "Total sales": "סה\"כ מכירות",
+    "Sales department sales": "מכירות מחלקות המכירה",
+    "Sales departments only": "מחלקות המכירה בלבד",
+    "Renewal sales": "מכירות חידושים",
+    "Renewals only": "חידושים בלבד",
     "Sales departments + renewals": "מחלקות מכירות + חידושים",
     "Total leads": "סה\"כ לידים",
     "Sales department 1 leads": "לידים מחלקת מכירות 1",
+    "Marketing leads": "לידים משיווק",
+    "Marketing sources": "מקורות השיווק",
     "Insurance referrals": "הפניות ביטוח",
     "Friend referrals": "הפניות חברים",
     "All departments": "כל המחלקות",
@@ -117,6 +127,15 @@ const translations = {
     Collection: "גבייה",
     HR: "משאבי אנוש",
     "Business Development": "פיתוח עסקי",
+    Marketing: "שיווק",
+    "Marketing Daily Form": "טופס יומי שיווק",
+    "Google leads": "לידים מגוגל",
+    "Facebook leads": "לידים מפייסבוק",
+    "Instagram leads": "לידים מאינסטגרם",
+    "TikTok leads": "לידים מטיקטוק",
+    "Website leads": "לידים מהאתר",
+    "Other leads": "לידים אחרים",
+    "Total marketing leads": "סה\"כ לידים משיווק",
     General: "כללי",
     "Total revenue": "סה\"כ הכנסה",
     "New candidates": "מועמדים חדשים",
@@ -158,6 +177,7 @@ const translations = {
     "Collection form": "טופס גבייה",
     "HR form": "טופס משאבי אנוש",
     "Business Development form": "טופס פיתוח עסקי",
+    "Marketing form": "טופס שיווק",
     "Collection - General": "גבייה - כללי",
     "Goals saved": "היעדים נשמרו",
     "Could not save goals": "לא ניתן לשמור יעדים",
@@ -194,6 +214,7 @@ const elements = {
   dailyMarkLabel: document.querySelector("#dailyMarkLabel"),
   totalRevenue: document.querySelector("#totalRevenue"),
   totalSales: document.querySelector("#totalSales"),
+  totalRenewalSales: document.querySelector("#totalRenewalSales"),
   totalLeads: document.querySelector("#totalLeads"),
   totalInsuranceReferrals: document.querySelector("#totalInsuranceReferrals"),
   totalFriendReferrals: document.querySelector("#totalFriendReferrals"),
@@ -212,9 +233,9 @@ const elements = {
   collectionStatus: document.querySelector("#collectionStatus"),
   hrStatus: document.querySelector("#hrStatus"),
   businessDevelopmentStatus: document.querySelector("#businessDevelopmentStatus"),
+  marketingStatus: document.querySelector("#marketingStatus"),
   newSalesCount: document.querySelector("#newSalesCount"),
   newSalesRevenue: document.querySelector("#newSalesRevenue"),
-  newSalesLeads: document.querySelector("#newSalesLeads"),
   newSalesInsuranceReferrals: document.querySelector("#newSalesInsuranceReferrals"),
   newSalesFriendReferrals: document.querySelector("#newSalesFriendReferrals"),
   newSales2Title: document.querySelector("#newSales2Title"),
@@ -254,6 +275,13 @@ const elements = {
   businessFollowUps: document.querySelector("#businessFollowUps"),
   businessSetUpMeetings: document.querySelector("#businessSetUpMeetings"),
   businessSignedCompanyContracts: document.querySelector("#businessSignedCompanyContracts"),
+  marketingGoogleLeads: document.querySelector("#marketingGoogleLeads"),
+  marketingFacebookLeads: document.querySelector("#marketingFacebookLeads"),
+  marketingInstagramLeads: document.querySelector("#marketingInstagramLeads"),
+  marketingTiktokLeads: document.querySelector("#marketingTiktokLeads"),
+  marketingWebsiteLeads: document.querySelector("#marketingWebsiteLeads"),
+  marketingOtherLeads: document.querySelector("#marketingOtherLeads"),
+  marketingTotalLeads: document.querySelector("#marketingTotalLeads"),
   revenueTotalLabel: document.querySelector("#revenueTotalLabel"),
   revenueBars: document.querySelector("#revenueBars"),
   answerRateLabel: document.querySelector("#answerRateLabel"),
@@ -426,7 +454,6 @@ function israelWorkWeekRange(dateKey) {
 function getMetrics(data) {
   const newSalesCount = sum(data.newSales, "sales");
   const newSalesRevenue = sum(data.newSales, "revenue");
-  const newSalesLeads = sum(data.newSales, "leads");
   const newSalesInsuranceReferrals = sumAny(data.newSales, "insuranceReferrals", "referrals");
   const newSalesFriendReferrals = sumAny(data.newSales, "friendReferrals");
   const newSales2Count = sum(data.newSales2, "sales");
@@ -462,11 +489,17 @@ function getMetrics(data) {
   const businessFollowUps = sumAny(data.businessDevelopment, "followUps");
   const businessSetUpMeetings = sumAny(data.businessDevelopment, "setUpMeetings");
   const businessSignedCompanyContracts = sumAny(data.businessDevelopment, "signedCompanyContracts");
+  const marketingGoogleLeads = sumAny(data.marketing, "googleLeads");
+  const marketingFacebookLeads = sumAny(data.marketing, "facebookLeads");
+  const marketingInstagramLeads = sumAny(data.marketing, "instagramLeads");
+  const marketingTiktokLeads = sumAny(data.marketing, "tiktokLeads");
+  const marketingWebsiteLeads = sumAny(data.marketing, "websiteLeads");
+  const marketingOtherLeads = sumAny(data.marketing, "otherLeads");
+  const marketingTotalLeads = marketingGoogleLeads + marketingFacebookLeads + marketingInstagramLeads + marketingTiktokLeads + marketingWebsiteLeads + marketingOtherLeads;
 
   return {
     newSalesCount,
     newSalesRevenue,
-    newSalesLeads,
     newSalesInsuranceReferrals,
     newSalesFriendReferrals,
     newSales2Count,
@@ -502,9 +535,17 @@ function getMetrics(data) {
     businessFollowUps,
     businessSetUpMeetings,
     businessSignedCompanyContracts,
+    marketingGoogleLeads,
+    marketingFacebookLeads,
+    marketingInstagramLeads,
+    marketingTiktokLeads,
+    marketingWebsiteLeads,
+    marketingOtherLeads,
+    marketingTotalLeads,
     totalRevenue: newSalesRevenue + newSales2Revenue + renewalRevenue + collectionTotal,
-    totalSales: newSalesCount + newSales2Count + renewalSalesCount,
-    totalLeads: newSalesLeads,
+    totalSales: newSalesCount + newSales2Count,
+    totalRenewalSales: renewalSalesCount,
+    totalLeads: marketingTotalLeads,
     totalInsuranceReferrals: newSalesInsuranceReferrals + newSales2InsuranceReferrals + renewalInsuranceReferrals + serviceInsuranceReferrals + collectionInsuranceReferrals,
     totalFriendReferrals: newSalesFriendReferrals + newSales2FriendReferrals + renewalFriendReferrals + serviceFriendReferrals + collectionFriendReferrals,
   };
@@ -513,8 +554,9 @@ function getMetrics(data) {
 const summaryMetricLabels = {
   dailyMark: "Daily mark",
   totalRevenue: "Total daily revenue",
-  totalSales: "Total daily sales",
-  totalLeads: "Total leads",
+  totalSales: "Sales department sales",
+  totalRenewalSales: "Renewal sales",
+  totalLeads: "Marketing leads",
   totalInsuranceReferrals: "Insurance referrals",
   totalFriendReferrals: "Friend referrals",
   totalAbandonCalls: "Answer rate",
@@ -527,7 +569,6 @@ const departmentMetricLabels = {
   newSales: {
     sales: "Sales",
     revenue: "Revenue",
-    leads: "Leads",
     insuranceReferrals: "Insurance referrals",
     friendReferrals: "Friend referrals",
   },
@@ -542,6 +583,15 @@ const departmentMetricLabels = {
     revenue: "Revenue",
     insuranceReferrals: "Insurance referrals",
     friendReferrals: "Friend referrals",
+  },
+  marketing: {
+    googleLeads: "Google leads",
+    facebookLeads: "Facebook leads",
+    instagramLeads: "Instagram leads",
+    tiktokLeads: "TikTok leads",
+    websiteLeads: "Website leads",
+    otherLeads: "Other leads",
+    totalLeads: "Total marketing leads",
   },
   service: {
     callsReceived: "Calls received",
@@ -582,7 +632,6 @@ const departmentMetricBindings = {
   newSales: {
     sales: ["newSalesCount", "number"],
     revenue: ["newSalesRevenue", "money"],
-    leads: ["newSalesLeads", "number"],
     insuranceReferrals: ["newSalesInsuranceReferrals", "number"],
     friendReferrals: ["newSalesFriendReferrals", "number"],
   },
@@ -597,6 +646,15 @@ const departmentMetricBindings = {
     revenue: ["renewalRevenue", "money"],
     insuranceReferrals: ["renewalInsuranceReferrals", "number"],
     friendReferrals: ["renewalFriendReferrals", "number"],
+  },
+  marketing: {
+    googleLeads: ["marketingGoogleLeads", "number"],
+    facebookLeads: ["marketingFacebookLeads", "number"],
+    instagramLeads: ["marketingInstagramLeads", "number"],
+    tiktokLeads: ["marketingTiktokLeads", "number"],
+    websiteLeads: ["marketingWebsiteLeads", "number"],
+    otherLeads: ["marketingOtherLeads", "number"],
+    totalLeads: ["marketingTotalLeads", "number"],
   },
   service: {
     callsReceived: ["serviceIncoming", "number"],
@@ -634,9 +692,10 @@ const departmentMetricBindings = {
 };
 
 const editableDepartmentFields = {
-  newSales: ["sales", "revenue", "leads", "insuranceReferrals", "friendReferrals"],
+  newSales: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
   newSales2: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
   renewals: ["renewals", "revenue", "insuranceReferrals", "friendReferrals"],
+  marketing: ["googleLeads", "facebookLeads", "instagramLeads", "tiktokLeads", "websiteLeads", "otherLeads"],
   service: [
     "callsReceived",
     "callsAnswered",
@@ -656,9 +715,10 @@ const editableDepartmentFields = {
 };
 
 const submissionValueFields = {
-  newSales: ["sales", "revenue", "leads", "insuranceReferrals", "friendReferrals"],
+  newSales: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
   newSales2: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
   renewals: ["renewals", "revenue", "insuranceReferrals", "friendReferrals"],
+  marketing: ["googleLeads", "facebookLeads", "instagramLeads", "tiktokLeads", "websiteLeads", "otherLeads"],
   service: [
     "callsReceived",
     "callsAnswered",
@@ -715,10 +775,15 @@ function formatMetricValue(value, type) {
 function normalizeLayout(layout = {}) {
   const next = structuredClone(defaultLayout);
   const summaryKeys = new Set(defaultLayout.topMetrics);
+  const layoutVersion = Number(layout.version) || 1;
   const topMetrics = Array.isArray(layout.topMetrics)
     ? layout.topMetrics.filter((key) => summaryKeys.has(key))
     : [];
-  next.topMetrics = topMetrics.length ? topMetrics : [...defaultLayout.topMetrics];
+  next.topMetrics = topMetrics.length ? [...topMetrics] : [...defaultLayout.topMetrics];
+  if (layoutVersion < defaultLayout.version && !next.topMetrics.includes("totalRenewalSales")) {
+    const salesIndex = next.topMetrics.indexOf("totalSales");
+    next.topMetrics.splice(salesIndex >= 0 ? salesIndex + 1 : next.topMetrics.length, 0, "totalRenewalSales");
+  }
 
   const incomingDepartments = layout.departmentMetricOrder || {};
   for (const [department, defaultOrder] of Object.entries(defaultLayout.departmentMetricOrder)) {
@@ -797,9 +862,10 @@ function renderWeeklyOverview() {
   const range = israelWorkWeekRange(elements.dashboardDate.value || localDateKey());
   const rows = [
     { label: "Total revenue", value: money(metrics.totalRevenue), tone: "money" },
-    { label: "Total sales", value: String(metrics.totalSales) },
+    { label: "Sales department sales", value: String(metrics.totalSales) },
+    { label: "Renewal sales", value: String(metrics.totalRenewalSales) },
     { label: "Answer rate", value: percent(metrics.serviceAnswerRate), tone: "service" },
-    { label: "Total leads", value: String(metrics.totalLeads) },
+    { label: "Marketing leads", value: String(metrics.totalLeads) },
     { label: "Insurance referrals", value: String(metrics.totalInsuranceReferrals) },
     { label: "Friend referrals", value: String(metrics.totalFriendReferrals) },
     { label: "New hires", value: String(metrics.hrNewHires) },
@@ -857,6 +923,7 @@ function departmentDisplayName(department) {
   if (department === "newSales") return targets.salesDepartmentOneName;
   if (department === "newSales2") return targets.salesDepartmentTwoName;
   if (department === "renewals") return "Renewal Sales";
+  if (department === "marketing") return "Marketing";
   if (department === "service") return "Customer Service";
   if (department === "collection") return "Collection";
   if (department === "hr") return "HR";
@@ -1282,6 +1349,7 @@ function renderDashboard() {
   renderDailyMark(metrics);
   elements.totalRevenue.textContent = money(metrics.totalRevenue);
   elements.totalSales.textContent = String(metrics.totalSales);
+  elements.totalRenewalSales.textContent = String(metrics.totalRenewalSales);
   elements.totalLeads.textContent = String(metrics.totalLeads);
   elements.totalInsuranceReferrals.textContent = String(metrics.totalInsuranceReferrals);
   elements.totalFriendReferrals.textContent = String(metrics.totalFriendReferrals);
@@ -1292,7 +1360,6 @@ function renderDashboard() {
 
   elements.newSalesCount.textContent = String(metrics.newSalesCount);
   elements.newSalesRevenue.textContent = money(metrics.newSalesRevenue);
-  elements.newSalesLeads.textContent = String(metrics.newSalesLeads);
   elements.newSalesInsuranceReferrals.textContent = String(metrics.newSalesInsuranceReferrals);
   elements.newSalesFriendReferrals.textContent = String(metrics.newSalesFriendReferrals);
 
@@ -1335,6 +1402,14 @@ function renderDashboard() {
   elements.businessSetUpMeetings.textContent = String(metrics.businessSetUpMeetings);
   elements.businessSignedCompanyContracts.textContent = String(metrics.businessSignedCompanyContracts);
 
+  elements.marketingGoogleLeads.textContent = String(metrics.marketingGoogleLeads);
+  elements.marketingFacebookLeads.textContent = String(metrics.marketingFacebookLeads);
+  elements.marketingInstagramLeads.textContent = String(metrics.marketingInstagramLeads);
+  elements.marketingTiktokLeads.textContent = String(metrics.marketingTiktokLeads);
+  elements.marketingWebsiteLeads.textContent = String(metrics.marketingWebsiteLeads);
+  elements.marketingOtherLeads.textContent = String(metrics.marketingOtherLeads);
+  elements.marketingTotalLeads.textContent = String(metrics.marketingTotalLeads);
+
   setStatus(elements.newSalesStatus, metrics.newSalesRevenue, targets.newSalesRevenue);
   setStatus(elements.newSales2Status, metrics.newSales2Revenue, targets.newSales2Revenue);
   setStatus(elements.renewalsStatus, metrics.renewalRevenue, targets.renewalRevenue);
@@ -1342,6 +1417,7 @@ function renderDashboard() {
   setStatus(elements.collectionStatus, metrics.collectionTotal, targets.collectionTotal);
   setMarker(elements.hrStatus, targets.hrNewHires ? metrics.hrNewHires / targets.hrNewHires : 0, `${metrics.hrNewHires} / ${targets.hrNewHires}`);
   setMarker(elements.businessDevelopmentStatus, targets.businessSignedContracts ? metrics.businessSignedCompanyContracts / targets.businessSignedContracts : 0, `${metrics.businessSignedCompanyContracts} / ${targets.businessSignedContracts}`);
+  setMarker(elements.marketingStatus, metrics.marketingTotalLeads ? 1 : 0, `${metrics.marketingTotalLeads} ${t("Leads")}`);
 
   elements.revenueTotalLabel.textContent = money(metrics.totalRevenue);
   renderBars([
@@ -1368,7 +1444,7 @@ function normalizeSubmission(submission) {
   const name = submission.name || "Submitted total";
 
   if (submission.department === "newSales") {
-    return { department: submission.department, row: { name, sales: Number(values.sales) || 0, revenue: Number(values.revenue) || 0, leads: Number(values.leads) || 0, insuranceReferrals: value(values, "insuranceReferrals", "referrals"), friendReferrals: value(values, "friendReferrals") } };
+    return { department: submission.department, row: { name, sales: Number(values.sales) || 0, revenue: Number(values.revenue) || 0, insuranceReferrals: value(values, "insuranceReferrals", "referrals"), friendReferrals: value(values, "friendReferrals") } };
   }
 
   if (submission.department === "newSales2") {
@@ -1377,6 +1453,21 @@ function normalizeSubmission(submission) {
 
   if (submission.department === "renewals") {
     return { department: "renewals", row: { name, renewals: Number(values.renewals) || 0, revenue: Number(values.revenue) || 0, insuranceReferrals: value(values, "insuranceReferrals", "referrals"), friendReferrals: value(values, "friendReferrals") } };
+  }
+
+  if (submission.department === "marketing") {
+    return {
+      department: "marketing",
+      row: {
+        name,
+        googleLeads: value(values, "googleLeads", "marketingGoogleLeads"),
+        facebookLeads: value(values, "facebookLeads", "marketingFacebookLeads"),
+        instagramLeads: value(values, "instagramLeads", "marketingInstagramLeads"),
+        tiktokLeads: value(values, "tiktokLeads", "marketingTiktokLeads"),
+        websiteLeads: value(values, "websiteLeads", "marketingWebsiteLeads"),
+        otherLeads: value(values, "otherLeads", "marketingOtherLeads"),
+      },
+    };
   }
 
   if (submission.department === "service") {

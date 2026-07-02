@@ -7,6 +7,7 @@ const portalTranslations = {
     "Sales Department 1": "מחלקת מכירות 1",
     "Sales Department 2": "מחלקת מכירות 2",
     "Renewal Sales": "מכירות חידושים",
+    Marketing: "שיווק",
     "Customer Service": "שירות לקוחות",
     Collection: "גבייה",
     HR: "משאבי אנוש",

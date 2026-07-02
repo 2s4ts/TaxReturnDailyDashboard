@@ -5,7 +5,6 @@ const departmentForms = {
     fields: [
       { key: "sales", label: "Total Sales", type: "number" },
       { key: "revenue", label: "Total Revenue Collected", type: "money" },
-      { key: "leads", label: "New Leads Generated", type: "number" },
       { key: "insuranceReferrals", label: "Insurance Referrals Created", type: "number" },
       { key: "friendReferrals", label: "Friend Referrals Created", type: "number" },
     ],
@@ -77,6 +76,18 @@ const departmentForms = {
       { key: "signedCompanyContracts", label: "Sign contracts between companies", type: "number" },
     ],
   },
+  marketing: {
+    title: "Marketing Daily Form",
+    filePrefix: "marketing",
+    fields: [
+      { key: "googleLeads", label: "Google leads", type: "number" },
+      { key: "facebookLeads", label: "Facebook leads", type: "number" },
+      { key: "instagramLeads", label: "Instagram leads", type: "number" },
+      { key: "tiktokLeads", label: "TikTok leads", type: "number" },
+      { key: "websiteLeads", label: "Website leads", type: "number" },
+      { key: "otherLeads", label: "Other leads", type: "number" },
+    ],
+  },
 };
 
 const translations = {
@@ -110,6 +121,7 @@ const translations = {
     "Collection Daily Form": "טופס יומי גבייה",
     "HR Daily Form": "טופס יומי משאבי אנוש",
     "Business Development Daily Form": "טופס יומי פיתוח עסקי",
+    "Marketing Daily Form": "טופס יומי שיווק",
     "Sales Department 1": "מחלקת מכירות 1",
     "Sales Department 2": "מחלקת מכירות 2",
     "Daily Form": "טופס יומי",
@@ -139,6 +151,12 @@ const translations = {
     "Follow-ups": "מעקבים",
     "Set up meetings": "קביעת פגישות",
     "Sign contracts between companies": "חתימת חוזים בין חברות",
+    "Google leads": "לידים מגוגל",
+    "Facebook leads": "לידים מפייסבוק",
+    "Instagram leads": "לידים מאינסטגרם",
+    "TikTok leads": "לידים מטיקטוק",
+    "Website leads": "לידים מהאתר",
+    "Other leads": "לידים אחרים",
   },
 };
 
