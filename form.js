@@ -80,12 +80,10 @@ const departmentForms = {
     title: "Marketing Daily Form",
     filePrefix: "marketing",
     fields: [
-      { key: "googleLeads", label: "Google leads", type: "number" },
       { key: "facebookLeads", label: "Facebook leads", type: "number" },
-      { key: "instagramLeads", label: "Instagram leads", type: "number" },
-      { key: "tiktokLeads", label: "TikTok leads", type: "number" },
       { key: "websiteLeads", label: "Website leads", type: "number" },
-      { key: "otherLeads", label: "Other leads", type: "number" },
+      { key: "radioAnsweredCalls", label: "Radio answered calls", type: "number" },
+      { key: "radioUnansweredCalls", label: "Radio unanswered calls", type: "number" },
     ],
   },
 };
@@ -151,12 +149,10 @@ const translations = {
     "Follow-ups": "מעקבים",
     "Set up meetings": "קביעת פגישות",
     "Sign contracts between companies": "חתימת חוזים בין חברות",
-    "Google leads": "לידים מגוגל",
     "Facebook leads": "לידים מפייסבוק",
-    "Instagram leads": "לידים מאינסטגרם",
-    "TikTok leads": "לידים מטיקטוק",
     "Website leads": "לידים מהאתר",
-    "Other leads": "לידים אחרים",
+    "Radio answered calls": "שיחות רדיו שנענו",
+    "Radio unanswered calls": "שיחות רדיו שלא נענו",
   },
 };
 

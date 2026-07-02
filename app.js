@@ -48,7 +48,7 @@ const defaultLayout = {
     newSales: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
     newSales2: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
     renewals: ["renewals", "revenue", "insuranceReferrals", "friendReferrals"],
-    marketing: ["googleLeads", "facebookLeads", "instagramLeads", "tiktokLeads", "websiteLeads", "otherLeads", "totalLeads"],
+    marketing: ["facebookLeads", "websiteLeads", "radioAnsweredCalls", "radioUnansweredCalls", "totalLeads"],
     service: [
       "callsReceived",
       "callsAnswered",
@@ -129,13 +129,11 @@ const translations = {
     "Business Development": "פיתוח עסקי",
     Marketing: "שיווק",
     "Marketing Daily Form": "טופס יומי שיווק",
-    "Google leads": "לידים מגוגל",
     "Facebook leads": "לידים מפייסבוק",
-    "Instagram leads": "לידים מאינסטגרם",
-    "TikTok leads": "לידים מטיקטוק",
     "Website leads": "לידים מהאתר",
-    "Other leads": "לידים אחרים",
-    "Total marketing leads": "סה\"כ לידים משיווק",
+    "Radio answered calls": "שיחות רדיו שנענו",
+    "Radio unanswered calls": "שיחות רדיו שלא נענו",
+    "Total marketing leads": "סה\"כ לידים",
     General: "כללי",
     "Total revenue": "סה\"כ הכנסה",
     "New candidates": "מועמדים חדשים",
@@ -275,12 +273,10 @@ const elements = {
   businessFollowUps: document.querySelector("#businessFollowUps"),
   businessSetUpMeetings: document.querySelector("#businessSetUpMeetings"),
   businessSignedCompanyContracts: document.querySelector("#businessSignedCompanyContracts"),
-  marketingGoogleLeads: document.querySelector("#marketingGoogleLeads"),
   marketingFacebookLeads: document.querySelector("#marketingFacebookLeads"),
-  marketingInstagramLeads: document.querySelector("#marketingInstagramLeads"),
-  marketingTiktokLeads: document.querySelector("#marketingTiktokLeads"),
   marketingWebsiteLeads: document.querySelector("#marketingWebsiteLeads"),
-  marketingOtherLeads: document.querySelector("#marketingOtherLeads"),
+  marketingRadioAnsweredCalls: document.querySelector("#marketingRadioAnsweredCalls"),
+  marketingRadioUnansweredCalls: document.querySelector("#marketingRadioUnansweredCalls"),
   marketingTotalLeads: document.querySelector("#marketingTotalLeads"),
   revenueTotalLabel: document.querySelector("#revenueTotalLabel"),
   revenueBars: document.querySelector("#revenueBars"),
@@ -489,13 +485,11 @@ function getMetrics(data) {
   const businessFollowUps = sumAny(data.businessDevelopment, "followUps");
   const businessSetUpMeetings = sumAny(data.businessDevelopment, "setUpMeetings");
   const businessSignedCompanyContracts = sumAny(data.businessDevelopment, "signedCompanyContracts");
-  const marketingGoogleLeads = sumAny(data.marketing, "googleLeads");
   const marketingFacebookLeads = sumAny(data.marketing, "facebookLeads");
-  const marketingInstagramLeads = sumAny(data.marketing, "instagramLeads");
-  const marketingTiktokLeads = sumAny(data.marketing, "tiktokLeads");
   const marketingWebsiteLeads = sumAny(data.marketing, "websiteLeads");
-  const marketingOtherLeads = sumAny(data.marketing, "otherLeads");
-  const marketingTotalLeads = marketingGoogleLeads + marketingFacebookLeads + marketingInstagramLeads + marketingTiktokLeads + marketingWebsiteLeads + marketingOtherLeads;
+  const marketingRadioAnsweredCalls = sumAny(data.marketing, "radioAnsweredCalls", "marketingRadioAnsweredCalls");
+  const marketingRadioUnansweredCalls = sumAny(data.marketing, "radioUnansweredCalls", "marketingRadioUnansweredCalls");
+  const marketingTotalLeads = marketingFacebookLeads + marketingWebsiteLeads + marketingRadioAnsweredCalls + marketingRadioUnansweredCalls;
 
   return {
     newSalesCount,
@@ -535,12 +529,10 @@ function getMetrics(data) {
     businessFollowUps,
     businessSetUpMeetings,
     businessSignedCompanyContracts,
-    marketingGoogleLeads,
     marketingFacebookLeads,
-    marketingInstagramLeads,
-    marketingTiktokLeads,
     marketingWebsiteLeads,
-    marketingOtherLeads,
+    marketingRadioAnsweredCalls,
+    marketingRadioUnansweredCalls,
     marketingTotalLeads,
     totalRevenue: newSalesRevenue + newSales2Revenue + renewalRevenue + collectionTotal,
     totalSales: newSalesCount + newSales2Count,
@@ -585,13 +577,11 @@ const departmentMetricLabels = {
     friendReferrals: "Friend referrals",
   },
   marketing: {
-    googleLeads: "Google leads",
     facebookLeads: "Facebook leads",
-    instagramLeads: "Instagram leads",
-    tiktokLeads: "TikTok leads",
     websiteLeads: "Website leads",
-    otherLeads: "Other leads",
-    totalLeads: "Total marketing leads",
+    radioAnsweredCalls: "Radio answered calls",
+    radioUnansweredCalls: "Radio unanswered calls",
+    totalLeads: "Total leads",
   },
   service: {
     callsReceived: "Calls received",
@@ -648,12 +638,10 @@ const departmentMetricBindings = {
     friendReferrals: ["renewalFriendReferrals", "number"],
   },
   marketing: {
-    googleLeads: ["marketingGoogleLeads", "number"],
     facebookLeads: ["marketingFacebookLeads", "number"],
-    instagramLeads: ["marketingInstagramLeads", "number"],
-    tiktokLeads: ["marketingTiktokLeads", "number"],
     websiteLeads: ["marketingWebsiteLeads", "number"],
-    otherLeads: ["marketingOtherLeads", "number"],
+    radioAnsweredCalls: ["marketingRadioAnsweredCalls", "number"],
+    radioUnansweredCalls: ["marketingRadioUnansweredCalls", "number"],
     totalLeads: ["marketingTotalLeads", "number"],
   },
   service: {
@@ -695,7 +683,7 @@ const editableDepartmentFields = {
   newSales: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
   newSales2: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
   renewals: ["renewals", "revenue", "insuranceReferrals", "friendReferrals"],
-  marketing: ["googleLeads", "facebookLeads", "instagramLeads", "tiktokLeads", "websiteLeads", "otherLeads"],
+  marketing: ["facebookLeads", "websiteLeads", "radioAnsweredCalls", "radioUnansweredCalls"],
   service: [
     "callsReceived",
     "callsAnswered",
@@ -718,7 +706,7 @@ const submissionValueFields = {
   newSales: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
   newSales2: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
   renewals: ["renewals", "revenue", "insuranceReferrals", "friendReferrals"],
-  marketing: ["googleLeads", "facebookLeads", "instagramLeads", "tiktokLeads", "websiteLeads", "otherLeads"],
+  marketing: ["facebookLeads", "websiteLeads", "radioAnsweredCalls", "radioUnansweredCalls"],
   service: [
     "callsReceived",
     "callsAnswered",
@@ -1402,12 +1390,10 @@ function renderDashboard() {
   elements.businessSetUpMeetings.textContent = String(metrics.businessSetUpMeetings);
   elements.businessSignedCompanyContracts.textContent = String(metrics.businessSignedCompanyContracts);
 
-  elements.marketingGoogleLeads.textContent = String(metrics.marketingGoogleLeads);
   elements.marketingFacebookLeads.textContent = String(metrics.marketingFacebookLeads);
-  elements.marketingInstagramLeads.textContent = String(metrics.marketingInstagramLeads);
-  elements.marketingTiktokLeads.textContent = String(metrics.marketingTiktokLeads);
   elements.marketingWebsiteLeads.textContent = String(metrics.marketingWebsiteLeads);
-  elements.marketingOtherLeads.textContent = String(metrics.marketingOtherLeads);
+  elements.marketingRadioAnsweredCalls.textContent = String(metrics.marketingRadioAnsweredCalls);
+  elements.marketingRadioUnansweredCalls.textContent = String(metrics.marketingRadioUnansweredCalls);
   elements.marketingTotalLeads.textContent = String(metrics.marketingTotalLeads);
 
   setStatus(elements.newSalesStatus, metrics.newSalesRevenue, targets.newSalesRevenue);
@@ -1460,12 +1446,10 @@ function normalizeSubmission(submission) {
       department: "marketing",
       row: {
         name,
-        googleLeads: value(values, "googleLeads", "marketingGoogleLeads"),
         facebookLeads: value(values, "facebookLeads", "marketingFacebookLeads"),
-        instagramLeads: value(values, "instagramLeads", "marketingInstagramLeads"),
-        tiktokLeads: value(values, "tiktokLeads", "marketingTiktokLeads"),
         websiteLeads: value(values, "websiteLeads", "marketingWebsiteLeads"),
-        otherLeads: value(values, "otherLeads", "marketingOtherLeads"),
+        radioAnsweredCalls: value(values, "radioAnsweredCalls", "marketingRadioAnsweredCalls"),
+        radioUnansweredCalls: value(values, "radioUnansweredCalls", "marketingRadioUnansweredCalls"),
       },
     };
   }

@@ -47,6 +47,8 @@ const HEADERS = [
   "marketingTiktokLeads",
   "marketingWebsiteLeads",
   "marketingOtherLeads",
+  "marketingRadioAnsweredCalls",
+  "marketingRadioUnansweredCalls",
 ];
 const DEFAULT_GOALS = {
   salesDepartmentOneName: "Sales Department 1",
@@ -79,7 +81,7 @@ const DEFAULT_LAYOUT = {
     newSales: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
     newSales2: ["sales", "revenue", "insuranceReferrals", "friendReferrals"],
     renewals: ["renewals", "revenue", "insuranceReferrals", "friendReferrals"],
-    marketing: ["googleLeads", "facebookLeads", "instagramLeads", "tiktokLeads", "websiteLeads", "otherLeads", "totalLeads"],
+    marketing: ["facebookLeads", "websiteLeads", "radioAnsweredCalls", "radioUnansweredCalls", "totalLeads"],
     service: [
       "callsReceived",
       "callsAnswered",
@@ -167,6 +169,8 @@ function doPost(e) {
     number_(values.tiktokLeads || values.marketingTiktokLeads),
     number_(values.websiteLeads || values.marketingWebsiteLeads),
     number_(values.otherLeads || values.marketingOtherLeads),
+    number_(values.radioAnsweredCalls || values.marketingRadioAnsweredCalls),
+    number_(values.radioUnansweredCalls || values.marketingRadioUnansweredCalls),
   ];
   const existingRow = findExistingRow_(sheet, date, payload.department || "", payload.name || "");
 
@@ -474,6 +478,8 @@ function rowToSubmission_(row) {
       tiktokLeads: number_(row.marketingTiktokLeads || row.tiktokLeads),
       websiteLeads: number_(row.marketingWebsiteLeads || row.websiteLeads),
       otherLeads: number_(row.marketingOtherLeads || row.otherLeads),
+      radioAnsweredCalls: number_(row.marketingRadioAnsweredCalls || row.radioAnsweredCalls),
+      radioUnansweredCalls: number_(row.marketingRadioUnansweredCalls || row.radioUnansweredCalls),
       renewals: number_(row.renewals),
       callsReceived: number_(row.callsReceived || row.incoming),
       callsAnswered: number_(row.callsAnswered || row.answered),
